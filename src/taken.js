@@ -379,6 +379,8 @@ function planBewaar(t) {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
       spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null, vanaf: t.vanaf || null,
       per: t.per || null, na: t.na || null,
+      // Wanneer er voor het laatst een leerling bij kwam of weg ging: de laatste wijziging wint, op elke pc.
+      namenTijd: t.namenTijd || null,
       // Afgesloten of open, met wanneer: zo sluit een taak op al je pc's (de laatste wijziging wint).
       dicht: !!t.dicht, dichtTijd: t.dichtTijd || null,
       voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: !!t.uitslag,
@@ -391,11 +393,18 @@ function planBewaar(t) {
   }
 }
 
+// Een wijziging ook in het plan in Mijn lesmap zetten. Ook als t.plan (nog) niet gezet is maar er wel een plan
+// bestaat (een oudere taak): anders zet het oude plan bij de volgende sync alles terug.
+const heeftPlan = t => t.plan || fs.existsSync(path.join(PLAN(), `${t.id}.json`));
+function planBij(t) {
+  if (heeftPlan(t)) planBewaar(t);
+}
+
 // Afsluiten of heropenen: onthouden wanneer, en het plan in Mijn lesmap bijwerken.
 function zetDicht(t, dicht, tijd = new Date().toISOString()) {
   t.dicht = !!dicht;
   t.dichtTijd = tijd;
-  if (t.plan) planBewaar(t);
+  planBij(t);
 }
 
 function planWeg(id) {
@@ -422,6 +431,9 @@ function uitLesmap() {
     if (`${p.id}.json` !== naam) continue;
     ids.add(p.id);
     let t = all().find(x => x.id === p.id);
+    // Een taak die hier al bestond zonder t.plan (een oudere taak), terwijl er wel een plan is: vanaf nu hoort ze bij dat plan.
+    const nieuwPlan = !!t && !t.plan;
+    if (nieuwPlan) { t.plan = true; veranderd = true; }
     if (!t) {
       t = {
         id: p.id, soort: p.soort, file: p.file, titel: String(p.titel || p.inhoud.title || 'Taak'), vak: p.vak || '',
@@ -439,6 +451,7 @@ function uitLesmap() {
       if (les) t.les = les;
       const start = schoonVanaf(p.vanaf);
       if (start) t.vanaf = start;
+      if (typeof p.namenTijd === 'string' && Date.parse(p.namenTijd)) t.namenTijd = p.namenTijd;
       bewaarNieuw(t);
       veranderd = true;
     } else if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd) && !!p.dicht !== !!t.dicht
@@ -459,9 +472,15 @@ function uitLesmap() {
       // Hier later afgesloten of heropend dan wat de lesmap zegt (twee pc's tegelijk): onze stand terug in het plan.
       planBewaar(t);
     }
+    // Wie in de taak zit: is de laatste wijziging hier gebeurd (of het plan oud en hier niet bijgewerkt), dan geldt
+    // onze lijst en gaat die in het plan. Zo komt een weggehaalde leerling niet terug uit een oud plan.
+    const tPlan = Date.parse(p.namenTijd) || 0, tHier = Date.parse(t.namenTijd) || 0;
+    const onzeNamen = tHier > tPlan || (nieuwPlan && tHier >= tPlan);
+    if (tPlan > tHier) { t.namenTijd = p.namenTijd; veranderd = true; }
     // De niveaus: wat het plan zegt (iedereen één niveau, of een eigen niveau per leerling) geldt ook hier, en wie nog niet
     // begon, krijgt het niveau dat nu bij hem hoort (ook als de niveaus van de klaslijst pas later binnenkwamen).
-    if (t.plan && niveausVan(t.soort, t.inhoud).length > 1) {
+    // (Een oud plan dat hier nooit bijgewerkt werd, zegt niets over de niveaus: dan gelden die van hier.)
+    if (!nieuwPlan && niveausVan(t.soort, t.inhoud).length > 1) {
       const nv = niveausVan(t.soort, t.inhoud).includes(p.niveau) ? p.niveau : null;
       const eigen = schoonPer(t, p.per);
       if ((t.niveau || null) !== nv) { if (nv) t.niveau = nv; else delete t.niveau; veranderd = true; }
@@ -476,6 +495,7 @@ function uitLesmap() {
         veranderd = true;
       }
     }
+    if (onzeNamen) { planBewaar(t); continue; }
     // Wie er aan de andere kant bij kwam, komt er hier ook bij (alleen wie op deze klaslijst staat).
     for (const n of p.namen.map(clean).filter(Boolean)) {
       if (t.werk[key(n)] || !klas.match(n)) continue;
@@ -492,6 +512,8 @@ function uitLesmap() {
       delete t.werk[k];
       veranderd = true;
     }
+    // Een oud plan dat we net overnamen: meteen bijwerken met wat hier geldt (de niveaus van hier).
+    if (nieuwPlan) planBewaar(t);
   }
   const list = all();
   for (let i = list.length - 1; i >= 0; i--) {
@@ -514,8 +536,9 @@ function voegToe({ id, namen } = {}) {
     t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
     n++;
   }
+  if (n) t.namenTijd = new Date().toISOString();
   if (t.dicht) zetDicht(t, false);
-  else if (n && t.plan) planBewaar(t);
+  else if (n) planBij(t);
   save();
   return n;
 }
@@ -523,9 +546,11 @@ function voegToe({ id, namen } = {}) {
 // Een leerling weghalen uit een taak (een vergissing bij het toewijzen).
 function haalWeg({ id, naam } = {}) {
   const t = find(id);
+  if (!t.werk[key(naam)]) return;
   delete t.werk[key(naam)];
+  t.namenTijd = new Date().toISOString();
   // Ook in het plan: zo verdwijnt hij ook op je andere pc's uit de taak.
-  if (t.plan) planBewaar(t);
+  planBij(t);
   save();
 }
 
@@ -538,7 +563,7 @@ function zetNiveau({ id, naam, niveau } = {}) {
   t.werk[key(naam)] = nieuwWerk(t, w.naam, niveau);
   // Onthouden als keuze voor deze leerling, en mee in Mijn lesmap: zo krijgt hij dit niveau ook op je andere pc's.
   t.per = { ...(t.per || {}), [key(naam)]: niveau };
-  if (t.plan) planBewaar(t);
+  planBij(t);
   save();
 }
 
