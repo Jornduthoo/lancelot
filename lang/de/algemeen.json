@@ -1169,5 +1169,7 @@
  "Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?": "Es sind Schüler verbunden oder ein Spiel läuft. Wenn LANcelot jetzt neu startet, sind sie kurz getrennt. Trotzdem jetzt neu starten?",
  "LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…": "LANcelot startet mit der neuen Version neu. Einen Moment, dieser Bildschirm lädt sich von selbst neu…",
  "Er staat geen update klaar.": "Es ist kein Update bereit.",
- "Geluid": "Ton"
+ "Geluid": "Ton",
+ "LANcelot start opnieuw, met de LANcelot-knop in de taakbalk. Dit venster gaat dicht.": null,
+ "(De LANcelot-knop in de taakbalk lukte niet op deze pc: {0})": null
 }

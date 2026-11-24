@@ -3378,6 +3378,19 @@ async function herstartVoorUpdate() {
   const gedaan = bijwerken.pasToe();
   if (gedaan && gedaan.npm) spawnSync('npm', ['install', '--omit=dev'], { cwd: __dirname, stdio: 'inherit', shell: true });
   if (process.env.LANCELOT_KAN_HERSTARTEN) process.exit(75);
+  // Het zwarte venster van een oudere start: opnieuw starten via Start LANcelot.bat. Dan komt de LANcelot-knop in de
+  // taakbalk en gaat dit venster dicht. Anders zou een pc die nooit helemaal afsluit altijd het zwarte venster houden.
+  const bat = path.join(__dirname, 'Start LANcelot.bat');
+  if (process.platform === 'win32' && !store.ACTIEF && !process.env.LANCELOT_VENSTER && fs.existsSync(bat)) {
+    console.log('  LANcelot start opnieuw, met de LANcelot-knop in de taakbalk. Dit venster gaat dicht.');
+    // start ... cmd /c (niet start "bat"): anders blijft het nieuwe venster na de bat openstaan.
+    require('child_process').spawn(process.env.ComSpec || 'cmd.exe', ['/d /s /c "start "" /min cmd /c ""' + bat + '"""'], {
+      cwd: __dirname, detached: true, stdio: 'ignore', windowsVerbatimArguments: true,
+      env: { ...process.env, LANCELOT_BIJGEWERKT: gedaan ? '1' : '' },
+    }).unref();
+    setTimeout(() => process.exit(0), 500);
+    return;
+  }
   const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, LANCELOT_BIJGEWERKT: gedaan ? '1' : '' } });
   process.exit(r.status || 0);
 }
@@ -3396,6 +3409,7 @@ server.once('listening', () => {
   if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
   if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
   if (!store.ACTIEF && !process.env.LANCELOT_VERBORGEN) console.log('\n  Sluit dit venster om te stoppen.\n');
+  if (process.env.LANCELOT_KNOPFOUT) console.log(`  (De LANcelot-knop in de taakbalk lukte niet op deze pc: ${process.env.LANCELOT_KNOPFOUT})\n`);
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
   bijwerken.startAuto({ rustig, herstart: () => herstartVoorUpdate().catch(err => { console.error('Bijwerken mislukt:', err.message); process.exit(process.env.LANCELOT_KAN_HERSTARTEN ? 75 : 1); }) });
   if (bijwerken.wasStil()) return;
