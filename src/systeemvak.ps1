@@ -21,6 +21,22 @@ $psi.CreateNoWindow = $true
 $psi.EnvironmentVariables['LANCELOT_KAN_HERSTARTEN'] = '1'
 $server = [System.Diagnostics.Process]::Start($psi)
 
+# De server draait (verborgen): Start LANcelot.bat mag zijn venster nu al sluiten, ook al is de knop nog niet klaar.
+# Zo valt een trage pc nooit terug op het zwarte venster omdat het bouwen van de knop even duurt.
+[IO.File]::WriteAllText($env:LANCELOT_KLAAR, 'ok')
+
+# Lukt het bouwen van de knop toch niet (bv. een school-pc die iets blokkeert), dan draait LANcelot zichtbaar verder
+# in een gewoon venster: nooit een verborgen server die je niet kunt afsluiten.
+$script:knopKlaar = $false
+trap {
+  if ($script:knopKlaar) { continue }
+  if (-not $server.HasExited) { & taskkill.exe /T /F /PID $server.Id | Out-Null }
+  $env:LANCELOT_VENSTER = '1'
+  $env:LANCELOT_KNOPFOUT = "$_"
+  Start-Process -FilePath (Join-Path $app 'Start LANcelot.bat') -WorkingDirectory $app
+  exit 1
+}
+
 
 $teksten = @{
   nl = @{ zin = 'LANcelot draait. Leerlingen kunnen spelen.'; open = 'Leerkrachtenscherm openen'; uit = 'LANcelot afsluiten'; vraag = 'LANcelot afsluiten? Leerlingen kunnen dan niet meer spelen tot je LANcelot opnieuw start.'; fout = 'LANcelot is gestopt met een fout:' }
@@ -122,8 +138,7 @@ $knopOpen = Maak-Knop $w.open 180 ([System.Drawing.Color]::FromArgb(30, 110, 230
 $knopUit = Maak-Knop $w.uit 234 ([System.Drawing.Color]::FromArgb(60, 66, 90))
 $venster.AcceptButton = $knopOpen
 
-# De knop staat er en de server start: Start LANcelot.bat mag zijn venster sluiten.
-[IO.File]::WriteAllText($env:LANCELOT_KLAAR, 'ok')
+$script:knopKlaar = $true
 
 $ErrorActionPreference = 'Continue'
 $script:stoppen = $false
