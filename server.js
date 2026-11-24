@@ -141,6 +141,7 @@ const klasindeling = require('./src/klasindeling');
 const soloSpel = require('./src/solo');
 const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
+const stem = require('./src/stem');
 
 // Is poort 3000 bezet door een ander programma, dan neemt LANcelot de volgende vrije (tot 3010), tenzij PORT vastgezet is.
 const VASTE_POORT = Boolean(process.env.PORT);
@@ -1203,6 +1204,11 @@ taal.route(app);
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
 kronieken.routes(app, isLeerkracht, express, () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); });
+// Voorlezen: de leerling meldt welke stem hij hoort (Vlaams, een andere, geen). Het live overzicht toont het bij zijn naam.
+app.post('/api/stem/stand', express.json({ limit: '1kb' }), (req, res) => {
+  if (stem.zetStand(req.body || {})) io.to('host').emit('stem-standen', stem.standenView());
+  res.json({ ok: true });
+});
 // Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
 app.get('/koppel', (req, res) => {
   if (isLeerkracht(req)) return res.redirect('/host');
@@ -1651,6 +1657,7 @@ io.on('connection', socket => {
 
   if (host) {
     socket.join('host');
+    socket.on('stem-standen', () => socket.emit('stem-standen', stem.standenView()));
     // Tweede leerkrachtscherm: welk scherm dit is, de lijst van gekoppelde schermen en de koppelcode.
     // Een nieuwe code maken kan alleen op de pc waar LANcelot draait, zodat één gestolen cookie er geen nieuwe kan bijmaken.
     socket.emit('scherm-info', { extern: !!scherm, naam: scherm ? scherm.naam : '' });

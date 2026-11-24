@@ -1,0 +1,19 @@
+{
+ "Voorlezen gebruikt de stem van het toestel van de leerling. Staat daar geen Vlaamse stem op, dan ziet de leerling eerst een melding en hoort dan een andere Nederlandse stem. Is er helemaal geen stem, dan vraagt LANcelot om de hand op te steken. In het live overzicht staat dan 🗣 of 🔇 bij de naam.": "Reading aloud uses the voice on the pupil's device. If there is no Flemish voice, the pupil first sees a message and then hears another Dutch voice. If there is no voice at all, LANcelot asks the pupil to raise their hand. The live overview then shows 🗣 or 🔇 next to the name.",
+ "Leerlingen kunnen het geluid testen met de knop \"Test geluid\" in Mijn taken en voor een toets.": "Pupils can test the sound with the \"Test sound\" button in My tasks and before a test.",
+ "🔊 Test geluid op deze pc": "🔊 Test sound on this PC",
+ "🔊 Test geluid": "🔊 Test sound",
+ "Deze pc leest voor met een Vlaamse stem: {0}.": "This PC reads aloud with a Flemish voice: {0}.",
+ "Op deze pc staat geen Vlaamse stem. Deze pc leest voor met: {0}.": "This PC has no Flemish voice. This PC reads aloud with: {0}.",
+ "Deze pc leest voor met: {0}.": "This PC reads aloud with: {0}.",
+ "Op deze pc staat geen stem om voor te lezen.": "This PC has no voice for reading aloud.",
+ "Geen Vlaamse stem op dit toestel: een andere Nederlandse stem leest voor.": "No Flemish voice on this device: another Dutch voice reads aloud.",
+ "Voorlezen lukt niet op dit toestel.": "Reading aloud does not work on this device.",
+ "Voorlezen lukt niet op dit toestel. Steek je hand op.": "Reading aloud does not work on this device. Raise your hand.",
+ "Op dit toestel staat geen Vlaamse stem. Je hoort een andere Nederlandse stem.": "This device has no Flemish voice. You will hear another Dutch voice.",
+ "Hallo! Zo klinkt het voorlezen. Hoor je mij goed?": null,
+ "Bonjour ! Voici la voix qui lit. Tu m'entends bien ?": null,
+ "Hello! This is the reading voice. Can you hear me well?": null,
+ "Hallo! So klingt das Vorlesen. Hörst du mich gut?": null,
+ "¡Hola! Así suena la lectura. ¿Me oyes bien?": null
+}
