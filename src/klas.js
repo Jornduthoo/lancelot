@@ -57,7 +57,9 @@ function write({ naam, leerjaar, namen } = {}) {
 function extra(l) {
   if (!l) return {};
   const niet = Array.isArray(l.nietVakken) ? l.nietVakken.filter(v => niveaus.alle().some(g => g.id === v)) : [];
-  return { ...(l.gast ? { gast: true } : {}), ...(niet.length ? { nietVakken: niet } : {}) };
+  // nt: wanneer het niveau het laatst veranderde. Zo wint bij Mijn lesmap de laatste niveauwijziging, op welke pc ook.
+  const nt = typeof l.nt === 'string' && Date.parse(l.nt) ? l.nt : '';
+  return { ...(l.gast ? { gast: true } : {}), ...(niet.length ? { nietVakken: niet } : {}), ...(nt ? { nt } : {}) };
 }
 // Volgt deze leerling dit vak (uit de doelen, bv. 'Geschiedenis') niet bij mij, of is hij een gast?
 function doetNiet(leerling, vak) {
@@ -89,6 +91,7 @@ function zetEen(data, id, niveau, vak) {
     else delete leerling.vakNiveaus;
   } else if (n && n !== 'schildknaap') leerling.niveau = n;
   else delete leerling.niveau;
+  leerling.nt = new Date().toISOString();
 }
 
 function setNiveau(id, niveau, vak) {
@@ -181,11 +184,26 @@ function uitLesmap() {
   return true;
 }
 
+// Dezelfde leerling aan twee kanten: de laatste niveauwijziging wint (nt). Zonder tijd (van voor deze versie) houden we
+// deze pc, maar een niveau dat hier ontbreekt en aan de andere kant wel staat, nemen we over: zo gaat geen niveau verloren.
+function samenLeerling(hier, daar) {
+  const th = Date.parse(hier.nt) || 0, td = Date.parse(daar.nt) || 0;
+  if (th || td) return td > th ? daar : hier;
+  const uit = { ...hier };
+  if (!niveaus.clean(uit.niveau) && niveaus.clean(daar.niveau)) uit.niveau = daar.niveau;
+  const per = { ...(daar.vakNiveaus || {}), ...(hier.vakNiveaus || {}) };
+  if (Object.keys(per).length) uit.vakNiveaus = per;
+  return uit;
+}
+
 // Twee verschillende klaslijsten (bv. de eerste keer koppelen): samenvoegen, nooit iemand schrappen.
 function lesmapSamen(hier, daar) {
   const a = JSON.parse(hier), b = JSON.parse(daar);
   const namen = new Set(b.leerlingen.map(l => cleanName(l.naam).toLowerCase()));
-  const leerlingen = b.leerlingen.map(l => a.leerlingen.find(x => cleanName(x.naam).toLowerCase() === cleanName(l.naam).toLowerCase()) || l);
+  const leerlingen = b.leerlingen.map(l => {
+    const x = a.leerlingen.find(y => cleanName(y.naam).toLowerCase() === cleanName(l.naam).toLowerCase());
+    return x ? samenLeerling(x, l) : l;
+  });
   for (const l of a.leerlingen) if (!namen.has(cleanName(l.naam).toLowerCase())) leerlingen.push(l);
   return JSON.stringify({ naam: a.naam || b.naam, leerjaar: a.leerjaar || b.leerjaar, leerlingen: leerlingen.slice(0, MAX) }, null, 2) + '\n';
 }
