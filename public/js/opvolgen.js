@@ -50,8 +50,15 @@ function inPeriode(dag) {
   return t >= begin.getTime() && t < eind.getTime();
 }
 
+// De versie (niveau) die de leerling kreeg, voor het vakje: een icoontje vooraan.
+const NV_ICOON = { page: '🪶', schildknaap: '🛡️', ridder: '⚔️' };
+const NV_NAAM = { page: 'Page', schildknaap: 'Schildknaap', ridder: 'Ridder' };
 function vakjeTekst(v) {
   if (!v) return '–';
+  if (v.niveau && NV_ICOON[v.niveau]) return `${NV_ICOON[v.niveau]} ${vakjeTekstZonder(v)}`;
+  return vakjeTekstZonder(v);
+}
+function vakjeTekstZonder(v) {
   if (v.inhalen && v.status === 'nieuw') return 'inhalen';
   // Een teken per stand, ook zonder kleur te lezen: ○ nog niet, ✎ bezig, ! te verbeteren (verbeterpunten 20 nov, 3).
   if (v.status === 'nieuw') return '○';
@@ -63,7 +70,7 @@ function vakjeTekst(v) {
 function vakjeTitel(naam, k, v) {
   if (!v) return `${naam}: niet voor deze leerling`;
   const s = { nieuw: 'nog niet begonnen', bezig: 'bezig', verbeteren: 'te verbeteren', klaar: 'klaar' }[v.status];
-  return `${naam} · ${k.titel}: ${s}${v.inhalen ? ' (afwezig, haalt in)' : ''}${v.elders ? ` (op ${v.elders})` : ''}`;
+  return `${naam} · ${k.titel}${v.niveau && NV_NAAM[v.niveau] ? ` (${NV_NAAM[v.niveau]})` : ''}: ${s}${v.inhalen ? ' (afwezig, haalt in)' : ''}${v.elders ? ` (op ${v.elders})` : ''}`;
 }
 // Waar een klik naartoe gaat: verbeteren of live meekijken bij een toets, anders het werk in Taken.
 function doel(k, naam, v) {

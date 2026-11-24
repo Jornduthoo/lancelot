@@ -259,6 +259,7 @@ function kiesBron() {
   const file = $('tk-bron').value;
   tk.per = {};
   tk.eigen = tk.vak = null;
+  tk.geenEigen = '';
   tk.niet = new Set();
   $('tk-per-info').textContent = '';
   $('tk-al-info').textContent = '';
@@ -275,6 +276,9 @@ function kiesBron() {
     pasStandaardToe();
     tk.niet = new Set(res.niet || []);
     alGegevenInfo(file);
+    // Krijgt iemand niet zijn eigen versie (die bestaat niet in deze inhoud)? Duidelijk zeggen, met wat hij wel krijgt.
+    const geen = (res.geenEigen || []).filter(x => !tk.niet.has(x.naam));
+    tk.geenEigen = geen.length ? `⚠ Geen eigen versie voor: ${geen.slice(0, 6).map(x => `${x.naam} (${Niveau.label(x.eigen)} → ${Niveau.label(x.krijgt)})`).join(', ')}${geen.length > 6 ? ` en nog ${geen.length - 6}` : ''}.` : '';
     // Standaard elk zijn eigen niveau; de leerkracht kan ook iedereen op één niveau zetten.
     $('tk-nv-label').classList.toggle('hidden', !tk.eigen);
     if (tk.eigen) $('tk-niveau').innerHTML = '<option value="">Eigen niveau van elke leerling</option>'
@@ -304,6 +308,7 @@ function kiesNiveau() {
     ? $('tk-bron').value ? `Eén niveau: iedereen krijgt hetzelfde${tk.vak ? ` (${tk.vak})` : ''}.` : ''
     : vast ? `Iedereen die je aantikt, krijgt ${Niveau.NAMES[vast]} (${Niveau.HELP[vast]}), los van zijn niveau in Mijn klas.`
     : `Op ${res.niveaus.length} niveaus${res.vak ? ` (${res.vak})` : ''}: elke leerling krijgt het niveau dat bij zijn naam staat, zoals in Mijn klas.`;
+  if (!vast && tk.geenEigen) $('tk-bron-info').textContent += ` ${tk.geenEigen}`;
   tekenNamen();
 }
 $('tk-niveau').addEventListener('change', kiesNiveau);

@@ -60,7 +60,7 @@ function lijstItem(file) {
     const vak = vakVan(t);
     const { title, ...inhoud } = t;
     const sig = require('crypto').createHash('sha1').update(JSON.stringify(inhoud)).digest('hex');
-    item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length, vak, gewijzigd: st ? new Date(st.mtimeMs).toISOString() : null, ...(K.vragenVan(t.vragen).length ? { sig } : {}) };
+    item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), perNiveau: K.niveausVan(t).map(n => ({ n, count: K.vragenVan(K.lijstVoor(t, n)).length, punten: K.totaal(K.lijstVoor(t, n)) })), klaar: !K.problemen(t).length, vak, gewijzigd: st ? new Date(st.mtimeMs).toISOString() : null, ...(K.vragenVan(t.vragen).length ? { sig } : {}) };
   } catch {
     item = { file, title: `${file} (ongeldig bestand)`, count: 0, punten: 0, types: [], niveaus: ['schildknaap'], klaar: false };
   }

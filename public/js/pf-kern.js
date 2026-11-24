@@ -1344,13 +1344,48 @@
 
   const NIVEAU_NAAM = { page: 'Page', schildknaap: 'Schildknaap', ridder: 'Ridder' };
 
+  // De niveaus van een toets, ook in andere vormen dan { vragen, page, ridder } (bv. gemaakt met een ander programma):
+  // niveaus: { Page: [...] } of [{ niveau: 'page', vragen: [...] }], versies: [...] zoals niveaus, of een niveau per vraag
+  // ({ niveau: 'page' } in de vragen). Geeft { page, schildknaap, ridder } met wat gevonden is.
+  const NIVEAU_SLEUTEL = { page: 'page', schildknaap: 'schildknaap', ridder: 'ridder', standaard: 'schildknaap' };
+  const niveauSleutel = v => NIVEAU_SLEUTEL[String(v || '').trim().toLowerCase()] || '';
+  function niveauBronnen(t) {
+    const uit = {};
+    for (const bron of [t.niveaus, t.versies]) {
+      if (Array.isArray(bron)) {
+        for (const x of bron) {
+          const k = x && niveauSleutel(x.niveau || x.naam || x.id);
+          if (k && uit[k] === undefined) uit[k] = Array.isArray(x.vragen) ? x.vragen : x;
+        }
+      } else if (bron && typeof bron === 'object') {
+        for (const [key, v] of Object.entries(bron)) {
+          const k = niveauSleutel(key);
+          if (k && uit[k] === undefined) uit[k] = v;
+        }
+      }
+    }
+    for (const key of Object.keys(t)) {
+      const k = niveauSleutel(key);
+      if (k && k !== key && uit[k] === undefined && Array.isArray(t[key])) uit[k] = t[key];
+    }
+    // Een niveau per vraag: alleen als er (nog) geen aparte lijsten voor Page of Ridder zijn.
+    const alle = uit.schildknaap !== undefined ? uit.schildknaap : t.vragen;
+    if (uit.page === undefined && uit.ridder === undefined && !Array.isArray(t.page) && !Array.isArray(t.ridder) && Array.isArray(alle)
+      && alle.some(q => q && ['page', 'ridder'].includes(niveauSleutel(q.niveau)))) {
+      const per = { page: [], schildknaap: [], ridder: [] };
+      for (const q of alle) per[(q && niveauSleutel(q.niveau)) || 'schildknaap'].push(q);
+      if (per.schildknaap.length) Object.assign(uit, per);
+    }
+    return uit;
+  }
+
   // Controleren en opschonen. Fout in de vorm: een duidelijke foutmelding.
   // Wat nog ontbreekt om af te nemen (een afbeelding, de plek bij aanduiden) staat in problemen().
   function validate(t) {
     if (!t || typeof t !== 'object') throw new Error('Dit is geen toets.');
     const title = text(t.title || t.titel, 100);
     if (!title) throw new Error('De toets heeft geen titel.');
-    const n = t.niveaus && typeof t.niveaus === 'object' ? t.niveaus : {};
+    const n = niveauBronnen(t);
     const take = (key, alt) => {
       const v = n[key] !== undefined ? n[key] : t[alt || key];
       return v && !Array.isArray(v) && Array.isArray(v.vragen) ? v.vragen : v;

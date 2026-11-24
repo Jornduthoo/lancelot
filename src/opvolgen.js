@@ -63,6 +63,8 @@ function overzicht() {
       if (l.niet) continue;
       if (l.afwezig) v.inhalen = true;
       if (l.elders) v.elders = l.elders;
+      // Welke versie deze leerling kreeg (bij een taak op meer niveaus): op elke pc dezelfde, uit de taak zelf.
+      if ((t.niveaus || []).length > 1 && l.niveau) v.niveau = l.niveau;
       vakjes[key(l.naam)] = v;
       if (!opLijst.has(key(l.naam))) { opLijst.add(key(l.naam)); rijen.push({ naam: l.naam, niveau: l.niveau || null }); }
     }
