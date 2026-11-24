@@ -16,6 +16,7 @@ const logboek = require('./logboek');
 const sheets = require('./oefenbladen');
 const quizzes = require('./quizzes');
 const proeven = require('./proeven');
+const stem = require('./stem');
 const K = proeven.K;
 const zonnewijzer = require('./zonnewijzer');
 const { NAMES } = require('./niveaus');
@@ -977,7 +978,7 @@ function begin(t, w) {
 function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   const klaar = t.dicht || w.status === 'klaar';
-  const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
+  const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), taal: stem.taalVanVak(t.vak), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     if (klaar) return { ...base, uitslag: uitslagVoor(t, w) };
     // De toets staat open op zijn scherm: de volgorde ligt vast voor hem, ook als de leerkracht ze nu verandert.
@@ -1204,4 +1205,22 @@ function toetsenGegeven() {
 }
 proeven.gegevenHook = toetsenGegeven;
 
-module.exports = { zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+// Voorlezen met de stem van LANcelot (src/stem.js): wat elke open taak kan voorlezen, per niveau dat nog werkt.
+function voorleesBronnen() {
+  const uit = [];
+  for (const t of all()) {
+    if (t.dicht || (t.soort !== 'proef' && t.soort !== 'oefenblad')) continue;
+    const open = Object.values(t.werk || {}).filter(w => w.status !== 'klaar');
+    if (!open.length) continue;
+    const voorlees = t.voorlees === 'iedereen' || t.voorlees === 'page' || (t.soort === 'oefenblad' && !t.voorlees) || open.some(w => w.voorlees === true);
+    for (const niveau of new Set(open.map(w => w.niveau))) {
+      try {
+        const view = t.soort === 'proef' ? K.studentView(t.inhoud, K.lijstVoor(t.inhoud, niveau)) : blad(t, niveau).view;
+        uit.push({ view, taal: stem.taalVanVak(t.vak), voorlees });
+      } catch {}
+    }
+  }
+  return uit;
+}
+
+module.exports = { voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
