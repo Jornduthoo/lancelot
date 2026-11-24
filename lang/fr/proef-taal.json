@@ -754,5 +754,9 @@
  "{0}: 1 bestand binnengehaald {1}": "{0} : 1 fichier reçu {1}",
  "{0}: {1} bestanden binnengehaald {2}": "{0} : {1} fichiers reçus {2}",
  "Wat kwam er binnen?": "Qu'est-ce qui est arrivé ?",
- "Niet alles kon gesynchroniseerd worden. Kijk bij \"Wat kwam er binnen?\".": "Tout n'a pas pu être synchronisé. Regarde sous « Qu'est-ce qui est arrivé ? »."
+ "Niet alles kon gesynchroniseerd worden. Kijk bij \"Wat kwam er binnen?\".": "Tout n'a pas pu être synchronisé. Regarde sous « Qu'est-ce qui est arrivé ? ».",
+ "Eén niveau": "Un seul niveau",
+ "Niveaus tonen": "Afficher les niveaux",
+ "⚠ Geen eigen versie voor: {0}{1}.": "⚠ Pas de version propre pour : {0}{1}.",
+ "{0} vragen · {1} punten": "{0} questions · {1} points"
 }

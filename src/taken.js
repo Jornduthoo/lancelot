@@ -244,10 +244,16 @@ function voorbeeld({ soort, file } = {}) {
   const vak = vakVan(soort, inhoud);
   const niveaus = niveausVan(soort, inhoud);
   const per = {};
-  for (const naam of klas.names()) per[naam] = niveauVoor(soort, inhoud, vak, naam);
+  // Wie een niveau heeft dat deze inhoud niet heeft (bv. Page, maar de toets heeft geen Page-versie): dat zeggen we.
+  const geenEigen = [];
+  for (const naam of klas.names()) {
+    per[naam] = niveauVoor(soort, inhoud, vak, naam);
+    const eigen = klas.niveauVoor(klas.match(naam), vak);
+    if (eigen !== per[naam]) geenEigen.push({ naam, eigen, krijgt: per[naam] });
+  }
   // Wie dit vak niet bij mij volgt (of een gast is): niet aanvinken bij Hele klas.
   const niet = klas.read().leerlingen.filter(l => klas.doetNiet(l, vak)).map(l => l.naam);
-  return { titel: inhoud.title, vak, niveaus, per, niet };
+  return { titel: inhoud.title, vak, niveaus, per, niet, geenEigen };
 }
 
 // De taak vooraf bekijken zoals een leerling op dit niveau ze krijgt: een gekozen bron (soort + file) of een gegeven taak (id).

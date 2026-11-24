@@ -323,7 +323,7 @@ const ItemList = (() => {
       const info = extraInfo(q);
       // Titel op één regel, de details eronder (elk icoontje zegt bij aanwijzen wat het is), knoppen op een vaste plaats (verbeterpunten 20 nov, 7).
       el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : kiezen ? '' : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
-        <button class="play"><span class="lib-tekst"><span class="lib-titel" title="${esc(q.title)}">${esc(q.title)}</span><span class="muted lib-meta">${opts.detailHtml ? opts.detailHtml(q) : esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => `<span title="${esc(NIVEAUS.find(x => x[0] === n)[1])}">${ICONS[n]}</span>`).join('')}` : ''}${place}${info ? `<span class="lib-info${q.dubbel ? ' dubbel' : ''}"> · ${esc(info)}</span>` : ''}</span></span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
+        <button class="play"><span class="lib-tekst"><span class="lib-titel" title="${esc(q.title)}">${esc(q.title)}</span><span class="muted lib-meta">${opts.detailHtml ? opts.detailHtml(q, { niveaus: filter.niveausTonen !== false }) : esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => `<span title="${esc(NIVEAUS.find(x => x[0] === n)[1])}">${ICONS[n]}</span>`).join('')}` : ''}${place}${info ? `<span class="lib-info${q.dubbel ? ' dubbel' : ''}"> · ${esc(info)}</span>` : ''}</span></span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
         ${kanBekijken(kind) && !picking ? `<button class="secondary bekijk" title="Snel bekijken: alle vragen met de juiste antwoorden" aria-label="Bekijken">${Ui.ic('oog')}</button>` : ''}
         ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
@@ -483,14 +483,16 @@ const ItemList = (() => {
         + sel('gewijzigd', 'Gewijzigd', [['', 'Altijd'], ['week', 'Deze week'], ['maand', 'Deze maand']])
         + (dubbels ? `<button type="button" class="secondary small-btn lib-dubbel${filter.dubbel ? ' on' : ''}" title="Toetsen met dezelfde vragen als een andere toets">⚠ ${dubbels} dubbel${dubbels === 1 ? '' : 's'}</button>` : '')
         + `<label class="inline check lib-filter-archief"><input type="checkbox"${filter.archief ? ' checked' : ''}> Archief ook tonen</label>`
+        + `<label class="inline check lib-filter-nv"><input type="checkbox"${filter.niveausTonen !== false ? ' checked' : ''}> Niveaus tonen</label>`
         + (filterAan() ? '<button type="button" class="secondary small-btn lib-filter-weg">✕ Filters weg</button>' : '');
       const zet = () => { try { localStorage.setItem(filterKey, JSON.stringify(filter)); } catch {} render(); };
       for (const s of f.querySelectorAll('select')) s.addEventListener('change', () => { filter[s.dataset.f] = s.value; zet(); });
       f.querySelector('.lib-filter-archief input').addEventListener('change', e => { filter.archief = e.target.checked; zet(); });
+      f.querySelector('.lib-filter-nv input').addEventListener('change', e => { filter.niveausTonen = e.target.checked; zet(); });
       const d = f.querySelector('.lib-dubbel');
       if (d) d.addEventListener('click', () => { filter.dubbel = !filter.dubbel; zet(); });
       const weg = f.querySelector('.lib-filter-weg');
-      if (weg) weg.addEventListener('click', () => { filter = { vak: '', niveau: '', gegeven: '', gewijzigd: '', archief: filter.archief }; zet(); });
+      if (weg) weg.addEventListener('click', () => { filter = { vak: '', niveau: '', gegeven: '', gewijzigd: '', archief: filter.archief, niveausTonen: filter.niveausTonen }; zet(); });
       return f;
     }
 
