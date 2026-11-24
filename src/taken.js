@@ -19,6 +19,7 @@ const proeven = require('./proeven');
 const stem = require('./stem');
 const K = proeven.K;
 const zonnewijzer = require('./zonnewijzer');
+const takenstandaard = require('./takenstandaard');
 const { NAMES } = require('./niveaus');
 
 const DIR = () => gegevens.pad('taken');
@@ -423,12 +424,17 @@ function schoonPer(t, per) {
 // Verscheen er sinds dit moment een geplande taak? (voor het seintje naar de leerlingen en het bord)
 function gestartSinds(sinds) {
   const nu = Date.now();
-  return all().some(t => t.vanaf && !t.dicht && Date.parse(t.vanaf) > sinds && Date.parse(t.vanaf) <= nu);
+  const net = all().filter(t => t.vanaf && !t.dicht && Date.parse(t.vanaf) > sinds && Date.parse(t.vanaf) <= nu);
+  // Een geplande herhaling van dezelfde toets: nu pas de oude taak sluiten.
+  for (const t of net) sluitOude(t);
+  if (net.length) save();
+  return net.length > 0;
 }
 // Een geplande taak meteen laten verschijnen.
 function startNu({ id } = {}) {
   const t = find(id);
   t.vanaf = null;
+  sluitOude(t);
   save();
   planBewaar(t);
 }
@@ -466,8 +472,42 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, le
   if (typeof na === 'string' && all().some(x => x.id === na)) t.na = na;
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
   bewaarNieuw(t);
+  sluitOude(t);
   planBewaar(t);
   return t;
+}
+
+// Dezelfde toets opnieuw gegeven (Instellingen › Taken, standaard aan): de oude taak sluit voor wie de nieuwe krijgt.
+// Wie bezig was, levert in zoals het er staat (zijn punten blijven bij de Resultaten); wie nog niet begon, gaat uit de
+// oude taak. Moet er niemand meer aan werken, dan sluit de hele oude taak. Een geplande taak doet dit pas als ze verschijnt.
+// Niet bij de taken van dezelfde keer (twee niveaus na elkaar), en een herkansing raakt wie klaar was niet.
+function sluitOude(t) {
+  if (t.soort !== 'proef' || !t.file || t.oudGesloten || !zichtbaar(t)) return 0;
+  t.oudGesloten = true;
+  if (!takenstandaard.read().oudeSluiten) return 0;
+  const nieuw = new Set(Object.keys(t.werk));
+  const sinds = Date.parse(t.gemaakt) || Date.now();
+  let n = 0, per = null;
+  for (const o of all()) {
+    if (o === t || o.soort !== 'proef' || o.file !== t.file || o.dicht || !zichtbaar(o)) continue;
+    if (o.id === t.na || o.na === t.id || (t.na && o.na === t.na) || (Date.parse(o.gemaakt) || 0) > sinds) continue;
+    let weg = false;
+    for (const [k, w] of Object.entries(o.werk)) {
+      if (!nieuw.has(k) || w.status === 'klaar') continue;
+      if (w.status === 'bezig') { inleverenWerk(o, w); n++; continue; }
+      // Nog niet begonnen hier: alleen weghalen als hij ook op geen andere pc begon (dat doet die pc zelf).
+      if (!per) per = standen();
+      if ((per.get(o.id) || []).some(s => s.werk[k] && RANG[s.werk[k].status])) continue;
+      delete o.werk[k];
+      weg = true;
+      n++;
+    }
+    if (weg) o.namenTijd = new Date().toISOString();
+    if (Object.values(o.werk).every(w => w.status === 'klaar')) zetDicht(o, true);
+    else if (weg) planBij(o);
+  }
+  if (n) save();
+  return n;
 }
 
 function bewaarNieuw(t) {
@@ -582,6 +622,7 @@ function uitLesmap() {
   const ids = new Set();
   let veranderd = false;
   let per = null;
+  const nieuwHier = [];
   for (const naam of plannen) {
     let p;
     try { p = JSON.parse(fs.readFileSync(path.join(PLAN(), naam), 'utf8')); planGeldig(p); } catch { continue; }
@@ -624,6 +665,9 @@ function uitLesmap() {
       if (start) t.vanaf = start;
       if (typeof p.namenTijd === 'string' && Date.parse(p.namenTijd)) t.namenTijd = p.namenTijd;
       bewaarNieuw(t);
+      // Dezelfde toets opnieuw gegeven op een andere pc: hier sluit de oude taak voor die leerlingen (met hun werk van hier).
+      // Alleen als ze hier nieuw binnenkomt na de namen (hieronder): daarom na deze lus.
+      nieuwHier.push(t);
       veranderd = true;
     } else if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd) && !!p.dicht !== !!t.dicht
       && (!t.dichtTijd || Date.parse(p.dichtTijd) > Date.parse(t.dichtTijd))) {
@@ -703,6 +747,7 @@ function uitLesmap() {
     else t.plan = false;
     veranderd = true;
   }
+  for (const t of nieuwHier) if (all().includes(t)) sluitOude(t);
   if (ruimGewistOp()) veranderd = true;
   if (veranderd) save();
   return veranderd;
@@ -818,6 +863,9 @@ function wis(id) {
   planGewist(id, tijd, t);
   save();
 }
+
+// De taken die hier open staan (en al verschenen): voor de hartslag van dit toestel in Mijn lesmap.
+const openIds = () => all().filter(t => !t.dicht && zichtbaar(t)).map(t => t.id);
 
 // Staat deze taak nog open? 'open', 'dicht' of 'weg' (gewist). Voor wie ze nog op zijn scherm heeft.
 function staat(id) {
@@ -942,11 +990,22 @@ function lijst() {
     return perTaak.get(id) || null;
   };
   const ll = new Map(klas.read().leerlingen.map(l => [key(l.naam), l]));
+  // Per andere pc: staat de taak daar anders (open of dicht) dan hier? Dan valt het verschil op (wens 24 nov, punt 4).
+  const pcs = toestellen.openElders();
+  const anders = t => {
+    if (!zichtbaar(t) || !pcs.length) return undefined;
+    const open = pcs.filter(p => p.open.has(t.id)).map(p => p.naam);
+    const niet = pcs.filter(p => !p.open.has(t.id)).map(p => p.naam);
+    if (t.dicht && open.length) return { nogOpen: open };
+    if (!t.dicht && niet.length) return { nietOpen: niet };
+    return undefined;
+  };
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
     dag: t.vanaf || t.gemaakt, bron: t.file, na: t.na ? naInfo(t.na) : null,
     elders: eldersVan(t, per),
+    toestellen: anders(t),
     afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
     beveiligd: t.soort === 'proef' ? !!t.beveiligd : undefined,
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined,
@@ -1293,4 +1352,4 @@ function voorleesBronnen() {
   return uit;
 }
 
-module.exports = { staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

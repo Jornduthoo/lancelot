@@ -760,7 +760,7 @@ function runSync() {
   try { stem.naarLesmap(); } catch (err) { console.error('Voorleesinstellingen voor de lesmap bewaren mislukt:', err.message); }
   runen.verhuis();
   if (settings.read().lesmap) {
-    try { toestellen.hartslag(); } catch (err) { console.error('Toestel voor de lesmap bewaren mislukt:', err.message); }
+    try { toestellen.hartslag(false, taken.openIds()); } catch (err) { console.error('Toestel voor de lesmap bewaren mislukt:', err.message); }
     try { const i = echteKaart(); taken.naarLesmapStand(i ? `${i.address}:${PORT}` : ''); } catch (err) { console.error('Stand van de taken voor de lesmap bewaren mislukt:', err.message); }
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
@@ -798,6 +798,8 @@ function runSync() {
       // Ook wie een taak open heeft die op een andere pc gesloten of gewist werd: zijn scherm kijkt het meteen na.
       io.emit('tk-nieuw');
       solo.controleer();
+      // Welke taken hier nu open staan, meteen ook naar je andere pc's (alleen als dat veranderde).
+      try { if (toestellen.hartslag(false, taken.openIds())) syncSoon(); } catch {}
     }
     io.to('host').emit('lesmap', lesmap.view());
   });
@@ -2184,8 +2186,9 @@ io.on('connection', socket => {
     socket.on('tk-standaard', handle(() => takenstandaard.read()));
     socket.on('tk-standaard-zet', handle(d => { const r = takenstandaard.write(d || {}); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('vandaag', handle(() => { socket.join(VANDAAG_KIJKERS); return vandaagData(); }));
+    socket.on('tk-oud-zet', handle(aan => { const r = takenstandaard.zetOudeSluiten(aan); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('vandaag-zet', handle(aan => { const r = takenstandaard.zetVandaag(aan); io.to('host').emit('tk-standaard', r); io.to(VANDAAG_KIJKERS).emit('vandaag', vandaagData()); syncSoon(); return r; }));
-    socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view())));
+    socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view(), taken.openIds().length)));
     socket.on('toestel-naam', handle(n => { const r = toestellen.zetNaam(n); syncSoon(); return r; }));
     socket.on('op-overzicht', handle(() => { socket.join(TAKEN_KIJKERS); return opvolgen.overzicht(); }));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));

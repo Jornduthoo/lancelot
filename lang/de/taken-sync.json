@@ -2,5 +2,12 @@
  "Je leerkracht wiste deze taak. Wat je al deed, is bewaard.": "Deine Lehrkraft hat diese Aufgabe gelöscht. Was du schon gemacht hast, ist gespeichert.",
  "Deze taak is gesloten. Wat je al deed, is bewaard.": "Diese Aufgabe ist geschlossen. Was du schon gemacht hast, ist gespeichert.",
  "Taak gesloten": "Aufgabe geschlossen",
- "Gewiste taak voor de lesmap bewaren mislukt:": "Die gelöschte Aufgabe konnte nicht im Unterrichtsordner gespeichert werden:"
+ "Gewiste taak voor de lesmap bewaren mislukt:": "Die gelöschte Aufgabe konnte nicht im Unterrichtsordner gespeichert werden:",
+ "{0} kreeg deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} hat diesen Test schon bekommen. Trotzdem noch einmal geben? Die alte Aufgabe wird dann geschlossen, die Punkte bleiben.",
+ "{0} kregen deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} haben diesen Test schon bekommen. Trotzdem noch einmal geben? Die alte Aufgabe wird dann geschlossen, die Punkte bleiben.",
+ ", 1 taak open": ", 1 Aufgabe offen",
+ ", {0} taken open": ", {0} Aufgaben offen",
+ "🔁 Geef je dezelfde toets opnieuw, dan sluit de oude taak voor die leerlingen. Hun punten blijven.": "🔁 Gibst du denselben Test noch einmal, wird die alte Aufgabe für diese Kinder geschlossen. Ihre Punkte bleiben.",
+ "💻 Nog open op {0}": "💻 Noch offen auf {0}",
+ "💻 Niet open op {0}": "💻 Nicht offen auf {0}"
 }

@@ -41,7 +41,10 @@
     data = r;
     teken();
     $('ts-vandaag').checked = r.vandaag !== false;
+    $('ts-oud').checked = r.oudeSluiten !== false;
   }
+  // Dezelfde toets opnieuw geven: de oude taak sluiten (wens 24 nov): meteen bewaard bij een klik.
+  $('ts-oud').addEventListener('change', e => socket.emit('tk-oud-zet', e.target.checked, laad));
   // Vandaag op het startscherm (punt 9): meteen bewaard bij een klik.
   $('ts-vandaag').addEventListener('change', e => socket.emit('vandaag-zet', e.target.checked, laad));
   socket.emit('tk-standaard', null, laad);

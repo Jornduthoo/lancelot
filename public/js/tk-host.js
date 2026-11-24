@@ -499,7 +499,12 @@ $('tk-geef').addEventListener('click', async () => {
     const al = new Set();
     for (const t of alGegeven($('tk-bron').value)) for (const l of t.leerlingen) if (namen.includes(l.naam)) al.add(l.naam);
     const wie = [...al].slice(0, 5).join(', ') + (al.size > 5 ? ` en nog ${al.size - 5}` : '');
-    if (al.size && !await Ui.vraag(al.size === 1 ? `${wie} kreeg deze toets al. Toch nog eens geven?` : `${wie} kregen deze toets al. Toch nog eens geven?`, { ja: 'Toch geven', nee: 'Nee' })) return;
+    // Staat de oude taak nog open voor hen, dan sluit die (Instellingen › Taken): dat zeggen we erbij.
+    const sluit = (!tk.std || tk.std.oudeSluiten !== false) && alGegeven($('tk-bron').value).some(t => !t.dicht && t.leerlingen.some(l => namen.includes(l.naam) && l.status !== 'klaar'));
+    const vraagTekst = sluit
+      ? (al.size === 1 ? `${wie} kreeg deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.` : `${wie} kregen deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.`)
+      : (al.size === 1 ? `${wie} kreeg deze toets al. Toch nog eens geven?` : `${wie} kregen deze toets al. Toch nog eens geven?`);
+    if (al.size && !await Ui.vraag(vraagTekst, { ja: 'Toch geven', nee: 'Nee' })) return;
   }
   b.disabled = true;
   // Twee niveaus na elkaar: eerst de taak met het eerste niveau, dan per tweede niveau een taak die daarna verschijnt.
@@ -690,6 +695,10 @@ function kaart(t) {
   if (t.soort === 'proef' && t.beveiligd) titel.append(el('small', 'tk-taak-bv', '🛡 Volledig scherm: je ziet wie de toets verlaat'));
   const vs = verschil(t);
   if (vs) titel.append(el('small', 'tk-taak-verschil', `≠ ${vs}`));
+  // Op een andere pc anders (wens 24 nov, punt 4): daar nog open, of daar (nog) niet open. Verdwijnt na de sync.
+  const ts = t.toestellen || {};
+  if (ts.nogOpen) titel.append(el('small', 'tk-taak-toestel', `💻 Nog open op ${ts.nogOpen.join(', ')}`));
+  if (ts.nietOpen) titel.append(el('small', 'tk-taak-toestel', `💻 Niet open op ${ts.nietOpen.join(', ')}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   if (inhalen) telling.append(el('span', 'inhalen', `${inhalen} inhalen`));
