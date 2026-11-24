@@ -22,10 +22,8 @@
  "{0} gaf een fout ({1}{2}).": "{0} meldete einen Fehler ({1}{2}).",
  "Er is geen spraakdienst ingesteld.": "Es ist kein Sprachdienst eingerichtet.",
  "De grens voor deze maand is bereikt.": "Die Grenze für diesen Monat ist erreicht.",
- "Die regio ken ik niet (bv. westeurope).": "Diese Region kenne ich nicht (z. B. westeurope).",
  "Kies een grens tussen 1000 en 100 000 000 tekens.": "Wähle eine Grenze zwischen 1000 und 100 000 000 Zeichen.",
  "Zonder spraakdienst leest het toestel van de leerling voor.": "Ohne Sprachdienst liest das Gerät des Kindes vor.",
- "Maak in de Azure-portal een Speech-bron aan en kopieer \"Sleutel 1\" en de regio (bv. westeurope). Vlaamse stemmen: Dena (vrouw) en Arnaud (man).": "Lege im Azure-Portal eine Speech-Ressource an und kopiere „Schlüssel 1“ und die Region (z. B. westeurope). Flämische Stimmen: Dena (weiblich) und Arnaud (männlich).",
  "Zet in Google Cloud de Text-to-Speech API aan en maak een API-sleutel. Vlaamse stemmen: nl-BE Wavenet.": "Aktiviere in Google Cloud die Text-to-Speech-API und erstelle einen API-Schlüssel. Flämische Stimmen: nl-BE Wavenet.",
  "Gebruikt de Gemini-sleutel van Instellingen > AI. Dezelfde stem als LANcelot Junior.": "Nutzt den Gemini-Schlüssel aus Einstellungen > KI. Dieselbe Stimme wie LANcelot Junior.",
  "Deze maand: {0} van {1} tekens.": "Diesen Monat: {0} von {1} Zeichen.",
@@ -49,7 +47,6 @@
  "Vrouw": "Weiblich",
  "Man": "Männlich",
  "Grens per maand (tekens)": "Grenze pro Monat (Zeichen)",
- "🔊 Test de stem van LANcelot": "🔊 Stimme von LANcelot testen",
  "Aoede": null,
  "Charon": null,
  "in het Vlaams, met een Belgische uitspraak": null,
@@ -64,5 +61,9 @@
  "private, max-age=604800": null,
  "Azure Speech (Microsoft)": null,
  "Google Cloud Text-to-Speech": null,
- "Kreeg de stem van LANcelot niet: het toestel leest voor.": "Hat die Stimme von LANcelot nicht bekommen: das Gerät liest vor."
+ "Kreeg de stem van LANcelot niet: het toestel leest voor.": "Hat die Stimme von LANcelot nicht bekommen: das Gerät liest vor.",
+ "Die regio ken ik niet (bv. swedencentral).": "Diese Region kenne ich nicht (z. B. swedencentral).",
+ "Maak in de Azure-portal een Speech-bron aan en kopieer \"Sleutel 1\" en de regio (bv. swedencentral). Vlaamse stemmen: Dena (vrouw) en Arnaud (man).": "Lege im Azure-Portal eine Speech-Ressource an und kopiere „Schlüssel 1“ und die Region (z. B. swedencentral). Flämische Stimmen: Dena (weiblich) und Arnaud (männlich).",
+ "🔊 Test": "🔊 Testen",
+ "Speelt meteen een korte zin met de stem van LANcelot.": "Spielt sofort einen kurzen Satz mit der Stimme von LANcelot."
 }

@@ -114,7 +114,7 @@ function maakBackup() {
       if (name === 'settings.json') {
         try {
           const s = JSON.parse(data);
-          for (const k of ['geminiKey', 'claudeKey', 'openaiKey', 'stemAzureKey', 'stemGoogleKey']) delete s[k];
+          for (const k of ['geminiKey', 'claudeKey', 'openaiKey', 'azureSpeechKey', 'stemAzureKey', 'stemGoogleKey']) delete s[k];
           // Ook het app-wachtwoord van de mailbox (toetsen mailen) blijft op deze pc.
           if (s.toetsMail && typeof s.toetsMail === 'object') { s.toetsMail = { ...s.toetsMail }; delete s.toetsMail.pass; }
           data = Buffer.from(JSON.stringify(s, null, 2) + '\n');
@@ -185,7 +185,7 @@ function zetTerug() {
   try {
     const files = controleer(fs.readFileSync(vast(RESTORE)));
     bewaar('voor-terugzetten');
-    const SLEUTELS = ['geminiKey', 'claudeKey', 'openaiKey', 'stemAzureKey', 'stemGoogleKey'];
+    const SLEUTELS = ['geminiKey', 'claudeKey', 'openaiKey', 'azureSpeechKey', 'stemAzureKey', 'stemGoogleKey'];
     const sleutels = (() => {
       try {
         const s = JSON.parse(fs.readFileSync(vast('settings.json'), 'utf8'));
