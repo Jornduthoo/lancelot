@@ -57,3 +57,15 @@ test('standaard staat Vandaag aan en het blijft bij een andere standaard', () =>
   assert.strictEqual(ts.write({ algemeen: { volgorde: 'alles' } }).vandaag, false);
   assert.strictEqual(ts.zetVandaag(true).vandaag, true);
 });
+
+test('Vandaag is inklapbaar en onthoudt dat (Jorn 24 nov)', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const html = fs.readFileSync(path.join(__dirname, '../public/host.html'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '../public/js/host.js'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../public/style.css'), 'utf8');
+  assert.match(html, /id="vandaag-klap"[^>]*aria-expanded/);
+  assert.match(html, /id="vandaag-telling"/);
+  assert.match(js, /lancelot-vandaag-dicht/);
+  assert.match(css, /\.vandaag\.dicht \.vandaag-blok/);
+});

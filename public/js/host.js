@@ -569,6 +569,13 @@ socket.on('pf-afnames', lijst => {
   const MAX_NAMEN = 8;
   const LEEG_WEG = 'lancelot-vandaag-leeg-weg';
   const vandaagDag = () => new Date().toDateString();
+  // Ingeklapt of open: deze pc onthoudt wat je laatst koos (Jorn 24 nov: lange lijst duwde de tegels weg).
+  const DICHT = 'lancelot-vandaag-dicht';
+  const isDicht = () => { try { return localStorage.getItem(DICHT) === '1'; } catch { return false; } };
+  function zetDicht(dicht) {
+    $('vandaag').classList.toggle('dicht', dicht);
+    $('vandaag-klap').setAttribute('aria-expanded', String(!dicht));
+  }
   function blok(id, items, rij) {
     const b = $(id);
     b.classList.toggle('hidden', !items.length);
@@ -589,6 +596,12 @@ socket.on('pf-afnames', lijst => {
     $('vandaag-leeg').classList.toggle('hidden', !d.leeg);
     if (d.leeg && leegWeg) return v.classList.add('hidden');
     v.classList.remove('hidden');
+    zetDicht(!d.leeg && isDicht());
+    const tel = [];
+    if (d.verschijnt.length) tel.push(`${d.verschijnt.length} gepland`);
+    if (d.verbeteren.length) tel.push(`${d.verbeteren.length} ${d.verbeteren.length === 1 ? 'toets' : 'toetsen'}`);
+    if (d.nietAf.length) tel.push(`${d.nietAf.length} niet af`);
+    $('vandaag-telling').textContent = tel.length ? `· ${tel.join(' · ')}` : '';
     blok('vandaag-verschijnt', d.verschijnt, t => {
       const li = maak('li');
       const s = maak('span');
@@ -644,6 +657,12 @@ socket.on('pf-afnames', lijst => {
   socket.on('vandaag', teken);
   // Een nieuwe dag of een geplande taak die verscheen: om de vijf minuten even opnieuw kijken.
   setInterval(laad, 5 * 60000);
+  $('vandaag-klap').addEventListener('click', () => {
+    if ($('vandaag').classList.contains('leeg')) return;
+    const dicht = !$('vandaag').classList.contains('dicht');
+    try { localStorage.setItem(DICHT, dicht ? '1' : '0'); } catch {}
+    zetDicht(dicht);
+  });
   $('vandaag-weg').addEventListener('click', async () => {
     // De lege regel: alleen voor vandaag weg, de instelling blijft aan.
     if ($('vandaag').classList.contains('leeg')) {
