@@ -65,6 +65,7 @@ async function naarScherm() {
 socket.on('pf-state', s => {
   const vorige = pf.state;
   pf.state = s;
+  if (s.name && typeof Voorlees !== 'undefined') Voorlees.wie(s.name);
   if (!s.active) {
     bewaak(false);
     $('pf-geen-tekst').textContent = vorige && vorige.name ? 'De toets is gesloten. Goed gewerkt!' : 'Er is nu geen toets bezig.';

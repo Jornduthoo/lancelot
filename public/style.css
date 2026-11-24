@@ -2631,3 +2631,5 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .tab-meer-lijst { position: fixed; z-index: 40; display: grid; min-width: 170px; padding: 6px; border-radius: 10px; background: rgb(var(--k-bg2, 20 30 50)); box-shadow: 0 8px 24px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(var(--k-goud) / .4); }
 .tab-meer-lijst a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; color: var(--muted); font-weight: 600; text-decoration: none; }
 .tab-meer-lijst a:hover, .tab-meer-lijst a.on { color: var(--text); background: rgb(var(--k-wit, 255 255 255) / .08); }
+.stem-stand { margin-left: .15em; cursor: help; }
+.test-geluid { margin-top: .6rem; }

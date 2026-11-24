@@ -642,6 +642,9 @@ $('e-print').addEventListener('click', () => {
 
 // ---------- Live ----------
 
+StemStand.start(socket);
+StemStand.op(() => { if (view === 'lobby' && state && state.active) renderLive(); });
+
 socket.on('ob-state', s => {
   const prev = state;
   state = s;
@@ -674,7 +677,7 @@ function renderLive(prev) {
       const pct = p.total ? Math.round((p.right / p.total) * 100) : 0;
       const lvl = s.multi ? ` <span class="ob-niveau-tag ${p.niveau}" title="${Niveau.NAMES[p.niveau]} (${Niveau.HELP[p.niveau]})">${p.choosing ? '… kiest niveau' : Niveau.label(p.niveau)}</span>` : '';
       return `<button class="ob-student${p.submitted ? ' in' : ''}" data-id="${esc(p.id)}">
-        <span class="n">${esc(p.name)}${lvl}${p.submitted ? ' <em>✔ ingeleverd</em>' : ''}</span>
+        <span class="n">${esc(p.name)}${StemStand.html(p.name)}${lvl}${p.submitted ? ' <em>✔ ingeleverd</em>' : ''}</span>
         <span class="bar"><i style="width:${(p.done / p.total) * 100}%"></i></span>
         <span class="s"><b class="g">${p.right}</b> goed · <b class="f">${p.wrong}</b> fout · ${p.done}/${p.total} ingevuld${p.submitted ? ` · ${pct}%` : ''}</span>
       </button>`;

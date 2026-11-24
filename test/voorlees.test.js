@@ -6,21 +6,24 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-function laad() {
+function laad({ stemmen = [{ name: 'Google Nederlands (België)', lang: 'nl-BE' }], taal } = {}) {
   const log = [];
   const ctx = { state: 'running', destination: {}, resume() { this.state = 'running'; log.push('resume'); }, suspend() { this.state = 'suspended'; log.push('suspend'); return Promise.resolve(); },
     createOscillator: () => ({ frequency: {}, connect() {}, disconnect() {}, start: () => log.push('osc aan'), stop: () => log.push('osc uit') }),
     createGain: () => ({ gain: {}, connect() {} }) };
-  const synth = { getVoices: () => [], addEventListener() {}, cancel: () => log.push('cancel'), speak: u => log.push(`zeg:${u.text}`) };
+  const synth = { getVoices: () => stemmen, addEventListener() {}, cancel: () => log.push('cancel'), speak: u => log.push(`zeg:${u.text}`) };
   const timers = [];
+  const meldingen = [];
+  const posts = [];
   const sandbox = {
-    window: { speechSynthesis: synth, SpeechSynthesisUtterance: function (t) { this.text = t; }, AudioContext: function () { return ctx; } },
+    fetch: (url, o) => { posts.push([url, JSON.parse(o.body)]); return Promise.resolve(); },
+    window: { LANCELOT_TAAL: taal, Ui: { melding: t => { meldingen.push(t); log.push(`melding:${t}`); return Promise.resolve(true); } }, speechSynthesis: synth, SpeechSynthesisUtterance: function (t) { this.text = t; }, AudioContext: function () { return ctx; } },
     setTimeout: (f, ms) => { timers.push([f, ms]); return timers.length; }, clearTimeout() {}, setInterval: () => 1, clearInterval() {},
   };
   sandbox.SpeechSynthesisUtterance = sandbox.window.SpeechSynthesisUtterance;
   vm.createContext(sandbox);
   vm.runInContext(`${fs.readFileSync(path.join(__dirname, '../public/js/voorlees.js'), 'utf8')}; this.Voorlees = Voorlees;`, sandbox);
-  return { V: sandbox.Voorlees, log, timers };
+  return { V: sandbox.Voorlees, log, timers, meldingen, posts };
 }
 
 test('voorlezen: korte zinnen samen in stukken tot ±180 tekens, een lange zin blijft heel', () => {
@@ -47,4 +50,44 @@ test('voorlezen: eerst het stille signaal, dan pas de eerste zin; stoppen zet al
   assert.ok(log.includes('zeg:Eerste zin. Tweede zin.'));
   V.stop();
   assert.ok(log.includes('osc uit'));
+});
+
+const knop = () => ({ classList: { add() {}, remove() {} }, isConnected: true, getClientRects: () => [1] });
+const rust = () => new Promise(r => setImmediate(r));
+
+test('voorlezen zonder stem op het toestel: een melding in plaats van stilte, en de leerkracht krijgt het te zien', async () => {
+  const { V, log, meldingen, posts } = laad({ stemmen: [{ name: 'English', lang: 'en-US' }] });
+  assert.strictEqual(V.ok, true, 'de knop staat er altijd');
+  V.wie('Mila');
+  V.speak('Schrijf het woord.', knop());
+  await rust();
+  assert.deepStrictEqual(meldingen, ['Voorlezen lukt niet op dit toestel. Steek je hand op.']);
+  assert.ok(!log.some(x => x.startsWith('zeg:')));
+  assert.deepStrictEqual(posts, [['/api/stem/stand', { naam: 'Mila', stand: 'geen' }]]);
+});
+
+test('voorlezen met een Hollandse stem: eerst één keer een melding, dan voorlezen', async () => {
+  const { V, log, timers, meldingen, posts } = laad({ stemmen: [{ name: 'Google Nederlands', lang: 'nl-NL' }] });
+  V.wie('Noor');
+  V.speak('Eén.', knop());
+  await rust();
+  assert.deepStrictEqual(meldingen, ['Op dit toestel staat geen Vlaamse stem. Je hoort een andere Nederlandse stem.']);
+  timers.find(([, t]) => t >= 300)[0]();
+  assert.ok(log.includes('zeg:Eén.'));
+  V.speak('Twee.', knop());
+  await rust();
+  assert.strictEqual(meldingen.length, 1, 'maar één keer gemeld');
+  assert.deepStrictEqual(posts.map(p => p[1].stand), ['toestel-nl'], 'alleen een verandering wordt gemeld');
+});
+
+test('voorlezen kiest de Vlaamse stem voor een Nederlandse en een Franse stem voor een Franse taak', () => {
+  const stemmen = [{ name: 'NL', lang: 'nl-NL' }, { name: 'BE', lang: 'nl-BE' }, { name: 'FR', lang: 'fr-FR' }];
+  const { V } = laad({ stemmen });
+  assert.strictEqual(V.info().stand, 'toestel-be');
+  assert.strictEqual(V.voice().name, 'BE');
+  V.taal('fr');
+  assert.strictEqual(V.voice().name, 'FR');
+  assert.strictEqual(V.info().stand, 'toestel');
+  V.taal('');
+  assert.strictEqual(V.voice().name, 'BE');
 });

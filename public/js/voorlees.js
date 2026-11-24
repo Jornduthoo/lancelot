@@ -1,26 +1,58 @@
 // Voorlezen met de stem die al in de browser zit (speechSynthesis): geen bestanden, geen bibliotheek.
-// Liefst een Vlaamse stem (nl-BE), anders een Nederlandse (nl-NL), anders eender welke Nederlandse.
-// Een stem die op het toestel zelf staat (localService) gaat voor: die werkt ook zonder internet.
+// Vaste volgorde: (1) een Vlaamse stem (nl-BE) van het toestel, (2) een andere Nederlandse stem, maar pas na een
+// melding aan de leerling, (3) geen stem: een duidelijke melding ("steek je hand op") in plaats van stilte.
+// Een andere taal (Voorlees.taal('fr'), of de taal van LANcelot) krijgt een stem in die taal.
+// Wat er lukte, krijgt de leerkracht te zien in het live overzicht (Voorlees.wie(naam) zegt wie de leerling is).
 const Voorlees = (() => {
   const synth = window.speechSynthesis;
-  const ok = !!(synth && window.SpeechSynthesisUtterance);
+  const kanToestel = !!(synth && window.SpeechSynthesisUtterance);
+  // Er is altijd een knop: lukt voorlezen niet, dan zegt de knop dat (in plaats van niets te doen).
+  const ok = true;
+  let taal = String(window.LANCELOT_TAAL || 'nl').slice(0, 2).toLowerCase();
   let voice = null;
+  let stand = null; // 'toestel-be' | 'toestel-nl' | 'toestel' | 'geen'
   let busy = null;
+  let naam = '';
+  let gemeld = '';
+  let gewaarschuwd = false;
+  // Een Vlaamse stem gaat voor, dan de stem van het eigen land (fr-BE en fr-FR zijn allebei goed).
+  const LAND = { nl: 'nl-nl', fr: 'fr-fr', en: 'en-gb', de: 'de-de', es: 'es-es' };
 
   function pick() {
-    const all = synth.getVoices();
+    const all = kanToestel ? synth.getVoices() : [];
     const score = v => {
       const lang = (v.lang || '').replace('_', '-').toLowerCase();
-      if (!lang.startsWith('nl')) return -1;
+      if (!lang.startsWith(taal)) return -1;
       // Bekende goede Nederlandse stemmen (Google Nederlands, Microsoft Frank) iets voor.
-      return (lang === 'nl-be' ? 20 : lang === 'nl-nl' ? 10 : 5) + (v.localService ? 2 : 0) + (/natural|online/i.test(v.name) ? 1 : 0) + (/google|frank/i.test(v.name) ? 1 : 0);
+      return (lang === `${taal}-be` ? 20 : lang === LAND[taal] ? 10 : 5) + (v.localService ? 2 : 0) + (/natural|online/i.test(v.name) ? 1 : 0) + (/google|frank/i.test(v.name) ? 1 : 0);
     };
     voice = all.map(v => [score(v), v]).filter(([s]) => s >= 0).sort((a, b) => b[0] - a[0]).map(([, v]) => v)[0] || null;
+    const lang = voice ? (voice.lang || '').replace('_', '-').toLowerCase() : '';
+    stand = !voice ? 'geen' : taal !== 'nl' ? 'toestel' : lang === 'nl-be' ? 'toestel-be' : 'toestel-nl';
   }
-  if (ok) {
+  if (kanToestel) {
     pick();
     synth.addEventListener ? synth.addEventListener('voiceschanged', pick) : (synth.onvoiceschanged = pick);
+  } else stand = 'geen';
+
+  // Chrome laadt de stemmen pas even na het openen van de pagina: wacht daar kort op (hoogstens 1,5 s).
+  function stemmenKlaar() {
+    if (!kanToestel || synth.getVoices().length) return null;
+    return new Promise(klaar => {
+      const t = setTimeout(klaar, 1500);
+      const f = () => { clearTimeout(t); klaar(); };
+      if (synth.addEventListener) synth.addEventListener('voiceschanged', f, { once: true });
+      else klaar();
+    });
   }
+
+  // De leerkracht ziet in het live overzicht wie geen goede stem heeft. Alleen als het verandert.
+  function meldStand(s) {
+    if (!naam || !s || s === gemeld || typeof fetch !== 'function') return;
+    gemeld = s;
+    fetch('/api/stem/stand', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ naam, stand: s }), keepalive: true }).catch(() => {});
+  }
+  const melding = tekst => (window.Ui && window.Ui.melding ? window.Ui.melding(tekst) : Promise.resolve());
 
   // Het geluid wakker houden. Tussen twee zinnen is het even helemaal stil: veel geluidskaarten en vooral USB- en
   // bluetooth-koptelefoons gaan dan slapen, en het wakker worden kost de eerste klank van de volgende zin. Daarom loopt er
@@ -65,12 +97,11 @@ const Voorlees = (() => {
 
   // wakkerHouden: alleen intern, als er meteen een nieuwe tekst volgt (dan hoeft het geluid niet opnieuw op te warmen).
   function stop(wakkerHouden) {
-    if (!ok) return;
     clearTimeout(wacht);
     wacht = null;
     clearInterval(wachter);
     wachter = null;
-    synth.cancel();
+    if (kanToestel) synth.cancel();
     if (wakkerHouden !== true) slaap();
     if (busy) busy.classList.remove('praat');
     busy = null;
@@ -93,7 +124,6 @@ const Voorlees = (() => {
 
   // Nog eens klikken op dezelfde knop stopt het voorlezen. traag: trager voorlezen (🐢, bv. bij een dictee; Jorn vroeg nog trager: .5).
   function speak(text, btn, { traag = false } = {}) {
-    if (!ok) return;
     const again = btn && busy === btn;
     stop(true);
     if (again) return slaap();
@@ -101,34 +131,81 @@ const Voorlees = (() => {
     if (!parts.length) return slaap();
     busy = btn || null;
     if (btn) btn.classList.add('praat');
-    const warm = wakker();
     const mijn = busy;
-    const start = () => {
-      wacht = null;
+    const klaar = () => {
       if (busy !== mijn) return;
-      parts.forEach((part, i) => {
-        const u = new SpeechSynthesisUtterance(part);
-        u.lang = voice ? voice.lang : 'nl-BE';
-        if (voice) u.voice = voice;
-        u.rate = traag ? .5 : .9;
-        if (i === parts.length - 1) {
-          u.onend = u.onerror = () => {
-            if (busy !== mijn) return;
-            if (mijn) mijn.classList.remove('praat');
-            busy = null;
-            clearInterval(wachter);
-            wachter = null;
-            uit = setTimeout(slaap, UITLOOP);
-          };
-        }
-        synth.speak(u);
-      });
+      if (mijn) mijn.classList.remove('praat');
+      busy = null;
+      clearInterval(wachter);
+      wachter = null;
+      uit = setTimeout(slaap, UITLOOP);
     };
-    // Al wakker (bv. vlak na een vorige zin): meteen. Anders eerst even opwarmen.
-    if (warm) start(); else wacht = setTimeout(start, OPWARMEN);
+    const verder = () => {
+      if (busy !== mijn) return;
+      pick();
+      meldStand(stand);
+      // (3) Geen stem in deze taal op dit toestel: zeggen, niet zwijgen.
+      if (stand === 'geen') {
+        klaar();
+        return melding('Voorlezen lukt niet op dit toestel. Steek je hand op.');
+      }
+      // (2) Een andere Nederlandse stem (bv. een Hollandse): eerst één keer zeggen, dan voorlezen.
+      if (stand === 'toestel-nl' && !gewaarschuwd) {
+        gewaarschuwd = true;
+        return melding('Op dit toestel staat geen Vlaamse stem. Je hoort een andere Nederlandse stem.').then(() => { if (busy === mijn) zeg(); });
+      }
+      zeg();
+    };
+    const zeg = () => {
+      const warm = wakker();
+      const start = () => {
+        wacht = null;
+        if (busy !== mijn) return;
+        parts.forEach((part, i) => {
+          const u = new SpeechSynthesisUtterance(part);
+          u.lang = voice.lang;
+          u.voice = voice;
+          u.rate = traag ? .5 : .9;
+          if (i === parts.length - 1) u.onend = u.onerror = klaar;
+          synth.speak(u);
+        });
+      };
+      // Al wakker (bv. vlak na een vorige zin): meteen. Anders eerst even opwarmen.
+      if (warm) start(); else wacht = setTimeout(start, OPWARMEN);
+    };
+    const wachten = stemmenKlaar();
+    if (wachten) wachten.then(verder); else verder();
     // Is de knop weg of verborgen (de leerling ging naar een andere vraag), dan stoppen we, ook het stille signaal.
     if (btn) wachter = setInterval(() => { if (busy === btn && (!btn.isConnected || !btn.getClientRects().length)) stop(); }, 500);
   }
 
-  return { ok, speak, stop: () => stop(), chunks, voice: () => voice };
+  // Een korte zin om te horen of het geluid werkt (de knop "Test geluid"), in de taal van het voorlezen.
+  const TESTZIN = {
+    nl: 'Hallo! Zo klinkt het voorlezen. Hoor je mij goed?',
+    fr: 'Bonjour ! Voici la voix qui lit. Tu m\'entends bien ?',
+    en: 'Hello! This is the reading voice. Can you hear me well?',
+    de: 'Hallo! So klingt das Vorlesen. Hörst du mich gut?',
+    es: '¡Hola! Así suena la lectura. ¿Me oyes bien?',
+  };
+  const test = btn => speak(TESTZIN[taal] || TESTZIN.nl, btn);
+  // Elke knop met class "test-geluid" speelt de testzin.
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('click', e => {
+      const b = e.target && e.target.closest && e.target.closest('.test-geluid');
+      if (b) test(b);
+    });
+  }
+
+  // Welke stem dit toestel gebruikt, in gewone woorden (voor de leerkracht in de instellingen).
+  function info() {
+    pick();
+    return { stand, stem: voice ? `${voice.name} (${voice.lang})` : '' };
+  }
+
+  return {
+    ok, speak, test, info, chunks, stop: () => stop(), voice: () => voice, stand: () => stand,
+    // De taal van wat voorgelezen wordt (bv. 'fr' bij een Franse toets). Leeg: de taal van LANcelot.
+    taal: t => { taal = String(t || window.LANCELOT_TAAL || 'nl').slice(0, 2).toLowerCase(); pick(); },
+    wie: n => { const nieuw = String(n || '').trim().slice(0, 60); if (nieuw !== naam) gemeld = ''; naam = nieuw; },
+  };
 })();

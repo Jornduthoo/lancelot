@@ -619,6 +619,7 @@
       <button type="button" data-tab="ai">AI</button>
       <button type="button" data-tab="lesmap">Lesmap</button>
       <button type="button" data-tab="taken">Taken</button>
+      <button type="button" data-tab="voorlezen">Voorlezen</button>
       <button type="button" data-tab="uiterlijk">Uiterlijk</button>
       <button type="button" data-tab="gegevens">Gegevens</button>
       <button type="button" data-tab="archief">Toetsarchief</button>
@@ -655,6 +656,12 @@
       <div class="pf-tabel-wrap"><table class="ts-raster" id="ts-raster"></table></div>
       <label class="check"><input type="checkbox" id="ts-vandaag" checked> 📅 Toon "Vandaag" op het startscherm: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte.</label>
       <div class="actions"><button type="button" id="ts-bewaar">Bewaar</button> <button type="button" class="secondary" id="ts-reset">Terug naar de standaard van LANcelot</button> <span class="muted small" id="ts-info"></span></div>
+    </div>
+    <div class="panel form" id="stem-panel" data-tab="voorlezen">
+      <h3>Voorlezen<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Voorlezen gebruikt de stem van het toestel van de leerling. Staat daar geen Vlaamse stem op, dan ziet de leerling eerst een melding en hoort dan een andere Nederlandse stem. Is er helemaal geen stem, dan vraagt LANcelot om de hand op te steken. In het live overzicht staat dan 🗣 of 🔇 bij de naam.</p></details></h3>
+      <p class="muted small">Leerlingen kunnen het geluid testen met de knop "Test geluid" in Mijn taken en voor een toets.</p>
+      <p id="stem-info"></p>
+      <div class="actions"><button type="button" class="secondary test-geluid" id="stem-test">🔊 Test geluid op deze pc</button></div>
     </div>
     <div class="panel form" data-tab="ai">
       <h3>Eigen AI-sleutel (optioneel)<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Zonder sleutel gaat het zo: LANcelot kopieert een opdracht, jij plakt die in een chatbot en kopieert het antwoord. Klik je terug naar LANcelot, dan leest het dat antwoord meestal zelf in, zonder plakken. Met een sleutel doet LANcelot alles zelf. Een sleutel is een lange code die je één keer aanmaakt op de website van de AI-dienst. Deel hem met niemand.</p></details></h3>
@@ -991,6 +998,8 @@
 <script src="/js/lesmap.js"></script>
 <script src="/js/archief.js"></script>
 <script src="/js/taken-standaard.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/stem-instellingen.js"></script>
 <script src="/js/beheer.js"></script>
 <script src="/js/eerste-start.js"></script>
 <script src="/js/opwarmer.js"></script>

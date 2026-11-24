@@ -52,6 +52,7 @@ function tkLijst(naam = tk.naam) {
     }
     tk.naam = res.naam;
     tk.taak = null;
+    Voorlees.wie(res.naam);
     store('lancelot-name', res.naam);
     tkToon('lijst');
     tkTekenLijst(res.taken);

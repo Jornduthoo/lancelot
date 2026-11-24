@@ -864,6 +864,9 @@ const STATUS = { wacht: ['⏳', 'nog niet begonnen'], kiest: ['…', 'kiest nive
 const SOORT = { tab: 'ander tabblad of venster', scherm: 'volledig scherm verlaten', herladen: 'pagina herladen', plak: 'probeerde te plakken' };
 
 socket.on('pf-toets', t => { hostToets = t; });
+StemStand.start(socket);
+StemStand.op(() => { if (view === 'lobby' && state && state.ranking) renderLive(); });
+
 socket.on('pf-state', s => {
   const prev = state;
   state = s;
@@ -922,7 +925,7 @@ function renderLive(prev) {
       const [ic, label] = STATUS[p.status] || ['', p.status];
       const lvl = s.multi ? ` <span class="ob-niveau-tag ${p.niveau}">${Niveau.label(p.niveau)}</span>` : '';
       return `<div class="pf-lln ${p.status}${p.online ? '' : ' offline'}" data-id="${esc(p.id)}" role="button" tabindex="0">
-        <span class="n">${esc(p.name)}${lvl}</span>
+        <span class="n">${esc(p.name)}${StemStand.html(p.name)}${lvl}</span>
         <span class="st">${ic} ${label}${p.online ? '' : ' · geen verbinding'}</span>
         <span class="bar"><i style="width:${p.vragen ? (p.gedaan / p.vragen) * 100 : 0}%"></i></span>
         <span class="info">${p.gedaan} van ${p.vragen} ingevuld${p.status === 'bezig' || p.status === 'weg' || p.status === 'slot' ? ` · vraag ${p.pos}` : ''}${p.rest !== null ? ` · ⏳ ${tijd(p.rest)}` : ''}${p.extra ? ` · +${p.extra} min` : ''}</span>

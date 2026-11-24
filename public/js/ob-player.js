@@ -17,6 +17,7 @@ function obJoin(name) {
     }
     ob.joined = true;
     store('lancelot-name', res.name);
+    Voorlees.wie(res.name);
     $('ob-join-error').textContent = '';
   });
 }
