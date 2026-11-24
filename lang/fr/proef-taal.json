@@ -758,5 +758,8 @@
  "Eén niveau": "Un seul niveau",
  "Niveaus tonen": "Afficher les niveaux",
  "⚠ Geen eigen versie voor: {0}{1}.": "⚠ Pas de version propre pour : {0}{1}.",
- "{0} vragen · {1} punten": "{0} questions · {1} points"
+ "{0} vragen · {1} punten": "{0} questions · {1} points",
+ "✏️ Je duidt nu aan voor deze vraag.": "✏️ Tu surlignes maintenant pour cette question.",
+ "Duid aan": "Surligner",
+ "Je duidt aan voor vraag {0}.": "Tu surlignes pour la question {0}."
 }

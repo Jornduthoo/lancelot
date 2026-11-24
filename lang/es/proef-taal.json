@@ -758,5 +758,8 @@
  "Eén niveau": "Un solo nivel",
  "Niveaus tonen": "Mostrar niveles",
  "⚠ Geen eigen versie voor: {0}{1}.": "⚠ Sin versión propia para: {0}{1}.",
- "{0} vragen · {1} punten": "{0} preguntas · {1} puntos"
+ "{0} vragen · {1} punten": "{0} preguntas · {1} puntos",
+ "✏️ Je duidt nu aan voor deze vraag.": "✏️ Ahora marcas para esta pregunta.",
+ "Duid aan": "Marcar",
+ "Je duidt aan voor vraag {0}.": "Estás marcando para la pregunta {0}."
 }
