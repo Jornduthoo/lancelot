@@ -924,6 +924,22 @@ setInterval(() => {
   } catch {}
 }, 30000).unref();
 
+// Einddatum en tijdslimiet van taken: om de vijf seconden kijken. Een taak met een voorbije einddatum sluit (op elke pc
+// zelf), wie geen tijd meer heeft, levert in. Leerlingen en bord krijgen meteen een seintje (zoals bij 🔒 Afsluiten).
+setInterval(() => {
+  try {
+    if (!taken.tik()) return;
+    takenNaarBord();
+    stemSoon();
+    io.emit('tk-nieuw');
+    solo.controleer();
+    try { toestellen.hartslag(false, taken.openIds()); } catch {}
+    syncSoon();
+  } catch (err) {
+    console.error('Taken nakijken mislukt:', err.message);
+  }
+}, 5000).unref();
+
 // De ontdekwereld: wie wat oploste, hooguit om de twee seconden naar de leerkrachtenschermen.
 let ontdekTimer = null;
 const ontdekBinnen = () => [...io.sockets.sockets.values()].filter(s => !s.data.host && s.data.waar === 'ontdek' && s.data.naam).map(s => s.data.naam);
@@ -1692,7 +1708,7 @@ io.on('connection', socket => {
   }
   // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
   // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
-  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn]]) {
+  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn], ['tk-rest', taken.rest]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
       if (event === 'tk-mijn') hier(socket, arg, 'taken');
@@ -2268,6 +2284,12 @@ io.on('connection', socket => {
       return r;
     }));
     socket.on('tk-keuzes-get', handle(arg => taken.keuzesVoor((arg || {}).id)));
+    // Een andere tijdslimiet voor één leerling (bv. meer tijd voor een zorgleerling), ook terwijl hij werkt.
+    socket.on('tk-tijd', taak(arg => {
+      const r = taken.zetTijd(arg);
+      io.emit('tk-keuzes', { id: r.id });
+      return r;
+    }));
     socket.on('tk-beveiligd', handle(arg => {
       const r = taken.zetBeveiligd(arg || {});
       io.emit('tk-beveiligd', r);

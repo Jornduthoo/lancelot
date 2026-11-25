@@ -196,6 +196,118 @@ function toetsKeuzes(t, p) {
 // Ziet de leerling zijn punten na het inleveren? Een oefenblad van vroeger: ja.
 const puntenZien = t => (t.soort === 'oefenblad' ? t.uitslag !== false : !!t.uitslag);
 
+// ---------- Einddatum en tijdslimiet (wens 25 nov) ----------
+// Einddatum (t.tot, "JJJJ-MM-DDTHH:MM", tijd van de pc): dan sluit de taak vanzelf, op elke pc (zoals 🔒 Afsluiten:
+// wie bezig is, levert in wat er staat). Geen einddatum = zoals vroeger: de leerkracht sluit zelf.
+// Tijdslimiet (t.tijd, minuten, standaard uit): bij een toets of oefenblad, vanaf het moment dat de leerling begint.
+// Per leerling anders (t.tijdPer: naam → minuten, 0 = geen limiet), bv. meer tijd voor een zorgleerling.
+// Een quiz heeft geen tijdslimiet (een quiz in een spel heeft al zijn speeltijd per ronde).
+const MAX_MINUTEN = 240;
+// Wat de leerling net voor het einde nog typte, mag nog even binnenkomen.
+const SPEELRUIMTE_MS = 15000;
+const schoonMinuten = v => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= 1 && n <= MAX_MINUTEN ? n : null; };
+function schoonTijdPer(per) {
+  if (!per || typeof per !== 'object' || Array.isArray(per)) return null;
+  const uit = {};
+  for (const [n, v] of Object.entries(per)) {
+    const k = key(clean(n));
+    if (!k) continue;
+    if (Number(v) === 0) uit[k] = 0;
+    else if (schoonMinuten(v)) uit[k] = schoonMinuten(v);
+  }
+  return Object.keys(uit).length ? uit : null;
+}
+// Een keuze over tijd: undefined = niets veranderen, null of leeg = weg, anders de nieuwe waarde.
+function tijdKeuzes(t, p) {
+  if (!p) return;
+  if (p.tot !== undefined) {
+    const v = VANAF.test(String(p.tot || '')) ? String(p.tot) : null;
+    if (v) t.tot = v; else delete t.tot;
+  }
+  if (t.soort === 'quiz') return;
+  if (p.tijd !== undefined) {
+    const m = schoonMinuten(p.tijd);
+    if (m) t.tijd = m; else delete t.tijd;
+  }
+  if (p.tijdPer !== undefined) {
+    const per = schoonTijdPer(p.tijdPer);
+    if (per) t.tijdPer = per; else delete t.tijdPer;
+  }
+}
+// Een einddatum die de leerkracht nu kiest: in de toekomst, en na het begin van een geplande taak.
+function controleerTot(tot, vanaf) {
+  if (tot === undefined || tot === null || tot === '') return;
+  if (!VANAF.test(String(tot)) || Date.parse(tot) <= Date.now()) throw new Error('Kies een einddatum in de toekomst.');
+  if (vanaf && Date.parse(tot) <= Date.parse(vanaf)) throw new Error('De einddatum moet na het begin van de taak liggen.');
+}
+// Hoeveel minuten deze leerling heeft (null = geen limiet). Weer opengezet na de tijd: geen limiet meer.
+function limietVoor(t, w) {
+  if (t.soort === 'quiz' || !w || w.geenLimiet) return null;
+  const k = key(w.naam);
+  if (t.tijdPer && t.tijdPer[k] !== undefined) return t.tijdPer[k] || null;
+  return t.tijd || null;
+}
+function eindeVan(t, w) {
+  const m = limietVoor(t, w);
+  return m && w.begin ? Date.parse(w.begin) + m * 60000 : null;
+}
+// De tijd voor de leerling: hoeveel minuten, en (als hij begon) hoeveel ms er nog over zijn.
+function tijdVoor(t, w) {
+  const m = limietVoor(t, w);
+  if (!m) return { tijd: null, rest: null };
+  const e = eindeVan(t, w);
+  return { tijd: m, rest: e === null ? null : Math.max(0, e - Date.now()) };
+}
+// Hoeveel ms tot de einddatum (gemeten op de pc van de leerkracht: de klok van een Chromebook kan afwijken).
+const totRest = t => (t.tot ? Math.max(0, Date.parse(t.tot) - Date.now()) : null);
+const tijdOm = (t, w) => w.status === 'bezig' && eindeVan(t, w) !== null && Date.now() > eindeVan(t, w) + SPEELRUIMTE_MS;
+function tijdOmInleveren(t, w) {
+  inleverenWerk(t, w);
+  w.tijdOp = true;
+}
+// Elke paar seconden (server.js): taken met een voorbije einddatum sluiten, en wie geen tijd meer heeft, levert in.
+// Een taak sluit op elke pc op hetzelfde moment (de einddatum), dus de pc's zijn het altijd eens.
+function tik() {
+  const nu = Date.now();
+  let veranderd = false;
+  for (const t of all()) {
+    if (t.dicht) continue;
+    if (t.tot && Date.parse(t.tot) <= nu) {
+      for (const w of Object.values(t.werk)) if (w.status === 'bezig') inleverenWerk(t, w);
+      zetDicht(t, true, new Date(Date.parse(t.tot)).toISOString());
+      t.vanzelfDicht = true;
+      veranderd = true;
+      continue;
+    }
+    for (const w of Object.values(t.werk)) if (tijdOm(t, w)) { tijdOmInleveren(t, w); veranderd = true; }
+  }
+  if (veranderd) save();
+  return veranderd;
+}
+// Per leerling een andere tijd: minuten, 0 = geen limiet, null = zoals de taak. Geldt meteen, ook als hij al werkt.
+function zetTijd({ id, naam, minuten } = {}) {
+  const t = find(id);
+  if (t.soort === 'quiz') throw new Error('Een quiz heeft geen tijdslimiet.');
+  const w = t.werk[key(naam)];
+  if (!w) throw new Error('Die leerling heeft deze taak niet.');
+  const per = { ...(t.tijdPer || {}) };
+  if (minuten === null || minuten === undefined || minuten === '') delete per[key(naam)];
+  else if (Number(minuten) === 0) per[key(naam)] = 0;
+  else if (schoonMinuten(minuten)) per[key(naam)] = schoonMinuten(minuten);
+  else throw new Error(`Kies 1 tot ${MAX_MINUTEN} minuten.`);
+  if (Object.keys(per).length) t.tijdPer = per; else delete t.tijdPer;
+  delete w.geenLimiet;
+  t.keuzesTijd = new Date().toISOString();
+  planBij(t);
+  save();
+  return { id: t.id, naam: w.naam, ...tijdVoor(t, w), eigen: t.tijdPer && t.tijdPer[key(naam)] !== undefined ? t.tijdPer[key(naam)] : null };
+}
+// Voor het scherm van de leerling: hoeveel tijd hij nog heeft (na een wijziging door de leerkracht).
+function rest({ id, naam } = {}) {
+  const { t, w } = werkVan(id, naam);
+  return { id: t.id, ...tijdVoor(t, w), tot: t.tot || null, totRest: totRest(t), dicht: !!t.dicht, klaar: w.status === 'klaar' };
+}
+
 // ---------- Keuzes achteraf veranderen (wens 24 nov, punt 2) ----------
 // Hoe deze leerling werkt: verbeteren (oefenblad) en de volgorde (toets). Wie al begon (of de toets al open had),
 // houdt wat gold toen hij begon: zo verandert er niets aan zijn werk of zijn punten. Wie nog niet begon, krijgt het nieuwe.
@@ -210,6 +322,8 @@ function zetVast(t, w) {
 // inleverde: punten tonen aan = de leerling ziet ze alsnog). Verbeteren en volgorde: voor wie nog niet begon.
 function keuzesNaarTaak(t, p, absoluut) {
   for (const w of Object.values(t.werk)) if (w.status !== 'nieuw') zetVast(t, w);
+  tijdKeuzes(t, p);
+  if (t.soort === 'quiz') return;
   if (t.soort === 'oefenblad') {
     if (p.feedback === 'direct' || p.feedback === 'inleveren') t.feedback = p.feedback;
     if (VOORLEES.includes(p.voorlees)) t.voorlees = p.voorlees;
@@ -232,7 +346,8 @@ function keuzesNaarTaak(t, p, absoluut) {
 }
 function zetKeuzes({ id, ...p } = {}) {
   const t = find(id);
-  if (t.soort === 'quiz') throw new Error('Bij een quiz is er niets in te stellen.');
+  if (t.soort === 'quiz' && Object.keys(p).some(k => k !== 'tot')) throw new Error('Bij een quiz stel je alleen de einddatum in.');
+  if (p.tot !== undefined && p.tot !== t.tot) controleerTot(p.tot, zichtbaar(t) ? null : t.vanaf);
   keuzesNaarTaak(t, p, false);
   t.keuzesTijd = new Date().toISOString();
   planBij(t);
@@ -243,7 +358,7 @@ function zetKeuzes({ id, ...p } = {}) {
 function keuzesVan(t) {
   const bezig = Object.values(t.werk).filter(w => w.status !== 'nieuw').length;
   return {
-    id: t.id, soort: t.soort, feedback: t.feedback, uitslag: puntenZien(t), bezig,
+    id: t.id, soort: t.soort, feedback: t.feedback, uitslag: puntenZien(t), bezig, tot: t.tot || null, tijd: t.tijd || null, tijdPer: t.tijdPer || null,
     voorlees: t.voorlees || (t.soort === 'oefenblad' ? 'iedereen' : 'uit'),
     volgorde: t.soort === 'proef' ? (t.keuzesVast ? 'alles' : t.vragenVast ? 'vragen' : 'schud') : 'alles',
   };
@@ -462,7 +577,8 @@ function schoonLes(l) {
 // Voor de leerling: alleen het doel en de criteria.
 const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag, beveiligd } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag, beveiligd, tot, tijd, tijdPer } = {}) {
+  controleerTot(tot, schoonVanaf(vanaf));
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -473,6 +589,7 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, le
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
   toetsKeuzes(t, { voorlees, vragenVast, keuzesVast, uitslag, beveiligd });
+  tijdKeuzes(t, { tot: tot || undefined, tijd: tijd || undefined, tijdPer: tijdPer || undefined });
   t.keuzesTijd = t.gemaakt;
   const uitLes = lesVan(les);
   if (uitLes) t.les = uitLes;
@@ -555,6 +672,8 @@ function planBewaar(t) {
       // Wanneer de keuzes (voorlezen, punten tonen…) voor het laatst veranderden. Een plan zonder dit is van vroeger:
       // dan krijgt een oefenblad de keuzes van vroeger (altijd voorlezen, punten tonen).
       keuzesTijd: t.keuzesTijd || null,
+      // Einddatum en tijdslimiet (25 nov): horen bij de keuzes (keuzesTijd).
+      tot: t.tot || null, tijd: t.tijd || null, tijdPer: t.tijdPer || null,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
     fs.writeFileSync(path.join(PLAN(), `${t.id}.json`), JSON.stringify(plan) + '\n');
@@ -575,6 +694,9 @@ function planBij(t) {
 function zetDicht(t, dicht, tijd = new Date().toISOString()) {
   t.dicht = !!dicht;
   t.dichtTijd = tijd;
+  // Weer open na de einddatum: anders sluit ze meteen opnieuw. De einddatum vervalt (ook op je andere pc's).
+  if (!dicht) delete t.vanzelfDicht;
+  if (!dicht && t.tot && Date.parse(t.tot) <= Date.now()) { delete t.tot; t.keuzesTijd = tijd; }
   planBij(t);
 }
 
@@ -667,6 +789,7 @@ function uitLesmap() {
       if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd)) t.dichtTijd = p.dichtTijd;
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
       if (t.soort !== 'oefenblad' || p.keuzesTijd) toetsKeuzes(t, p);
+      tijdKeuzes(t, p);
       if (typeof p.keuzesTijd === 'string' && Date.parse(p.keuzesTijd)) t.keuzesTijd = p.keuzesTijd;
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
       const eigen = schoonPer(t, p.per);
@@ -703,7 +826,7 @@ function uitLesmap() {
     // De keuzes (voorlezen, punten tonen, volgorde…): achteraf veranderd op een andere pc, en dat is het laatste: ook hier.
     // Hier later veranderd dan het plan zegt: onze keuzes terug in het plan. Een plan van vroeger (zonder tijd) zegt niets.
     const kPlan = Date.parse(p.keuzesTijd) || 0, kHier = Date.parse(t.keuzesTijd) || 0;
-    if (kPlan > kHier && t.soort !== 'quiz') {
+    if (kPlan > kHier) {
       keuzesNaarTaak(t, { ...p, feedback: p.feedback, voorlees: p.voorlees === undefined ? null : p.voorlees }, true);
       t.keuzesTijd = p.keuzesTijd;
       veranderd = true;
@@ -847,6 +970,9 @@ function heropen({ id, naam, opnieuw } = {}) {
     } else if (w.status === 'klaar') {
       w.status = 'bezig';
       w.klaar = null;
+      // Zijn tijd was om: wie je weer openzet, werkt verder zonder tijdslimiet.
+      if (eindeVan(t, w) !== null && eindeVan(t, w) <= Date.now()) w.geenLimiet = true;
+      delete w.tijdOp;
     }
   }
   save();
@@ -1021,13 +1147,22 @@ function lijst() {
     toestellen: anders(t),
     afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
     beveiligd: t.soort === 'proef' ? !!t.beveiligd : undefined,
+    tot: t.tot || null, tijd: t.tijd || null, vanzelfDicht: !!t.vanzelfDicht,
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined,
       // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
       ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
       ...(w.status === 'nieuw' && wacht(t, key(w.naam)) ? { wacht: true } : {}),
-      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}) }))
+      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...tijdLeerling(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
+}
+
+// De tijd van één leerling voor het bord: alleen als er een limiet is (of zijn tijd om was).
+function tijdLeerling(t, w) {
+  // Werkt hij op een andere pc: alleen zijn limiet (hoeveel tijd er nog is, weet die pc).
+  const hier = t.werk[key(w.naam)] === w;
+  const { tijd, rest: r } = hier ? tijdVoor(t, w) : { tijd: limietVoor(t, w), rest: null };
+  return { ...(tijd ? { tijd } : {}), ...(tijd && r !== null && w.status === 'bezig' ? { rest: r } : {}), ...(w.tijdOp ? { tijdOp: true } : {}) };
 }
 
 // Een toets als taak, voor het overzicht in De Proef: wie begon, hoe ver, waar (ook op je andere pc's).
@@ -1045,7 +1180,8 @@ function detail({ id, naam } = {}) {
   if (!t.werk[key(naam)]) throw new Error('Die leerling heeft deze taak niet.');
   // Werkt de leerling op een andere pc, dan tonen we zijn werk van daar (bekijken; verbeteren gebeurt daar).
   const w = werkOveral(t, standen()).find(x => key(x.naam) === key(naam));
-  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, elders: w.elders || null, niveau: w.niveau, status: w.status, afwezig: !!t.werk[key(naam)].afwezig, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w), ...(t.soort === 'proef' ? { weg: wegVoorAfname(w), begin: w.begin } : {}) };
+  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, elders: w.elders || null, niveau: w.niveau, status: w.status, afwezig: !!t.werk[key(naam)].afwezig, niveaus: niveausVan(t.soort, t.inhoud),
+    tijdTaak: t.tijd || null, tijdEigen: t.tijdPer && t.tijdPer[key(naam)] !== undefined ? t.tijdPer[key(naam)] : null, geenLimiet: !!t.werk[key(naam)].geenLimiet, tijdOp: !!t.werk[key(naam)].tijdOp, ...tijdVoor(t, t.werk[key(naam)]), ...voortgang(t, w), ...(t.soort === 'proef' ? { weg: wegVoorAfname(w), begin: w.begin } : {}) };
   if (t.soort === 'proef') {
     // Wat de leerling invulde, met de sleutel erbij (zoals de kopie van een afname). Verbeteren gebeurt in De Proef.
     const { lijst } = toets(t, w);
@@ -1095,7 +1231,7 @@ function mijn(naam) {
   }).map(t => {
     const w = t.werk[k];
     const open = !t.dicht && w.status !== 'klaar';
-    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, dicht: !!t.dicht, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w), ...(t.soort === 'oefenblad' && !puntenZien(t) ? { juist: 0, score: 0 } : {}) };
+    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, dicht: !!t.dicht, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), tot: open ? t.tot || null : null, ...(open ? tijdVoor(t, w) : {}), tijdOp: !!w.tijdOp, ...voortgang(t, w), ...(t.soort === 'oefenblad' && !puntenZien(t) ? { juist: 0, score: 0 } : {}) };
   });
   lijst.sort((a, b) => (a.status === 'klaar') - (b.status === 'klaar') || (a.gemaakt < b.gemaakt ? 1 : -1));
   const l = klas.match(naam);
@@ -1119,8 +1255,11 @@ function begin(t, w) {
 // Een taak openen: het blad (zonder oplossingen) of de volgende vraag.
 function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
+  // Een oefenblad met tijdslimiet: de tijd loopt vanaf het openen (de leerling kreeg de vraag eerst op zijn lijst).
+  if (t.soort === 'oefenblad' && !t.dicht && w.status === 'nieuw' && limietVoor(t, w)) { begin(t, w); save(); }
+  if (tijdOm(t, w)) { tijdOmInleveren(t, w); save(); }
   const klaar = t.dicht || w.status === 'klaar';
-  const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), taal: stem.taalVanVak(t.vak), ...voortgang(t, w) };
+  const base = { tot: t.tot || null, totRest: totRest(t), ...tijdVoor(t, w), tijdOp: !!w.tijdOp, id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), taal: stem.taalVanVak(t.vak), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     if (klaar) return { ...base, uitslag: uitslagVoor(t, w) };
     // De toets staat open op zijn scherm: de volgorde ligt vast voor hem, ook als de leerkracht ze nu verandert.
@@ -1157,6 +1296,11 @@ function terugblik(t, w) {
 function nogOpen(t, w) {
   if (t.dicht) throw new Error('Je leerkracht sloot deze taak af.');
   if (w.status === 'klaar') throw new Error('Je leverde deze taak al in.');
+  if (tijdOm(t, w)) {
+    tijdOmInleveren(t, w);
+    save();
+    throw new Error('De tijd is om. Je werk is ingeleverd.');
+  }
 }
 
 // Eén vakje van een oefenblad.
@@ -1262,7 +1406,10 @@ function inleveren({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   nogOpen(t, w);
   begin(t, w);
+  // Het scherm van de leerling leverde in omdat de klok op nul stond: dat zie je bij de leerkracht ook (⏱ om).
+  const einde = eindeVan(t, w);
   inleverenWerk(t, w);
+  if (einde !== null && Date.now() >= einde - 5000) w.tijdOp = true;
   save();
   return open({ id, naam });
 }
@@ -1365,4 +1512,4 @@ function voorleesBronnen() {
   return uit;
 }
 
-module.exports = { openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, zetVanaf, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { tik, zetTijd, rest, MAX_MINUTEN, openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, zetVanaf, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

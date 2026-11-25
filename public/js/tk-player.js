@@ -26,6 +26,7 @@ function tkToon(scherm) {
   // Terug gaat in een taak naar de lijst, op de lijst naar het startscherm.
   $('tk-back').href = ['blad', 'quiz', 'toets'].includes(scherm) ? '#' : '/';
   if (scherm !== 'toets') tkBewaak(false);
+  if (!['blad', 'quiz', 'toets'].includes(scherm)) tkKlok(null);
   if (scherm !== 'blad') Voorlees.stop();
   if (scherm === 'lijst' || scherm === 'join') {
     $('tk-doel').classList.add('hidden');
@@ -61,6 +62,8 @@ function tkLijst(naam = tk.naam) {
   });
 }
 
+const tkWanneer = v => new Date(v).toLocaleString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
 function tkStatus(t) {
   if (t.status === 'klaar') return t.score ? `✔ Klaar · ${t.juist} van de ${t.score} juist` : '✔ Klaar';
   if (t.status === 'bezig') return `Bezig · ${t.gedaan} van ${t.totaal}`;
@@ -81,10 +84,15 @@ function tkTekenLijst(taken) {
     b.innerHTML = `<img src="/img/icons/${tkIcoon(t)}.webp" alt="">
       <span class="tk-kaart-tekst"><strong></strong><small>${t.spel ? `Quiz in ${tkEsc(t.spel.naam)}` : t.soort === 'quiz' ? 'Quiz' : t.soort === 'proef' ? 'Toets' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
       ${t.les && t.les.doel ? `<span class="tk-kaart-doel">🎯 ${tkEsc(t.les.doel)}</span>` : ''}
+      ${t.status !== 'klaar' && (t.tot || t.tijd) ? `<span class="tk-kaart-tijd">${[t.tot ? `⏳ Tot ${tkEsc(tkWanneer(t.tot))}` : '', t.tijd ? `⏱ ${t.tijd} minuten` : ''].filter(Boolean).join(' · ')}</span>` : ''}
       <span class="tk-balk"><i style="width:${t.status === 'klaar' ? 100 : pct}%"></i></span><em>${tkStatus(t)}</em></span>
       <span class="tk-pijl">${t.status === 'klaar' ? '👁' : '▶'}</span>`;
     b.querySelector('strong').textContent = t.titel;
-    b.addEventListener('click', () => tkOpen(t.id));
+    b.addEventListener('click', async () => {
+      // Een oefenblad met tijdslimiet: de tijd start bij het openen, dus eerst zeggen.
+      if (t.soort === 'oefenblad' && t.tijd && t.status === 'nieuw' && !await Ui.vraag(`Je hebt ${t.tijd} minuten voor dit blad. De tijd start als je het opent.`, { ja: 'Beginnen', nee: 'Nog niet' })) return;
+      tkOpen(t.id);
+    });
     box.appendChild(b);
   }
 }
@@ -131,6 +139,7 @@ function tkOpen(id) {
     if (res.soort === 'quiz') tkQuiz(res);
     else if (res.soort === 'proef') tkToets(res);
     else tkBlad(res);
+    tkKlok(res);
     window.scrollTo({ top: 0 });
   });
 }
@@ -328,7 +337,9 @@ function tkToets(t) {
     const n = t.view.pages.length;
     $('tk-toets-regels').innerHTML = [
       `${n} ${n === 1 ? 'vraag' : 'vragen'}, samen ${PfPaper.ptn(t.totaal)}.`,
-      'Neem je tijd. Je mag terug naar vorige vragen.',
+      t.tijd ? `Je hebt ${t.tijd} minuten. De tijd start als je op Start drukt. Is ze om, dan wordt je toets vanzelf ingeleverd.` : 'Neem je tijd. Je mag terug naar vorige vragen.',
+      ...(t.tijd ? ['Je mag terug naar vorige vragen.'] : []),
+      ...(t.tot ? [`De toets sluit ${tkWanneer(t.tot)}.`] : []),
       'Lever in als je klaar bent. Je leerkracht verbetert je toets.',
       ...(t.beveiligd ? ['De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan ziet je leerkracht dat.'] : []),
     ].map(r => `<li>${tkEsc(r)}</li>`).join('');
@@ -352,8 +363,9 @@ $('tk-toets-start').addEventListener('click', async () => {
   if (tk.taak.beveiligd && tk.taak.bezig) {
     socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort: 'herladen' }, () => socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {}));
   }
-  // Zo ziet de leerkracht meteen dat hij begonnen is.
-  socket.emit('tk-toets', { id: tk.taak.id, naam: tk.naam, pos: tk.taak.pos || 0 }, () => {});
+  // Zo ziet de leerkracht meteen dat hij begonnen is. Met een tijdslimiet loopt de klok vanaf nu.
+  const id = tk.taak.id;
+  socket.emit('tk-toets', { id, naam: tk.naam, pos: tk.taak.pos || 0 }, () => { if (tk.taak && tk.taak.id === id && tk.taak.tijd) tkRest(); });
   tkToets(tk.taak);
 });
 $('tk-toets-terug').addEventListener('click', () => tkLijst());
@@ -509,6 +521,8 @@ socket.on('tk-voorlees', d => {
 // De leerkracht veranderde de keuzes van een taak (bv. punten tonen): een ingeleverde taak die open staat, toont het meteen.
 socket.on('tk-keuzes', d => {
   if (d && tk.taak && tk.taak.id === d.id && tk.taak.klaar && tk.scherm !== 'lijst' && tk.scherm !== 'join') tkOpen(d.id);
+  // Een andere tijdslimiet of einddatum: de klok bijwerken (zonder het werk opnieuw te tonen).
+  else if (d && tk.taak && tk.taak.id === d.id && !tk.taak.klaar) tkRest();
 });
 socket.on('tk-nieuw', () => {
   if (tk.scherm === 'lijst') tkLijst();
@@ -527,16 +541,86 @@ function tkNogOpen() {
   socket.emit('tk-mijn', tk.naam, res => {
     if (!res || res.error || tk.taak !== t) return;
     const x = res.taken.find(y => y.id === t.id);
+    // De tijd was om: de pc van de leerkracht leverde zijn werk in.
+    if (x && !x.dicht && x.status === 'klaar') return tkTijdOmKlaar();
     if (x && !x.dicht) return;
     tkGesloten(!x);
   });
 }
+// ---------- Tijdslimiet en einddatum: de klok ----------
+// De pc van de leerkracht zegt hoeveel tijd er nog is (de klok van een Chromebook kan afwijken). Op nul: alles wat
+// nog niet verstuurd is, versturen en inleveren. De pc van de leerkracht levert sowieso in (ook als de Chromebook dicht ging).
+function tkKlok(t) {
+  clearInterval(tk.klokTimer);
+  tk.klokTimer = null;
+  tk.klokEinde = null;
+  const ms = !t || t.klaar ? [] : [t.rest].filter(v => typeof v === 'number');
+  // De einddatum telt mee als ze binnen het uur valt (anders is een klok alleen maar onrustig).
+  if (t && !t.klaar && typeof t.totRest === 'number' && t.totRest < 3600000) ms.push(t.totRest);
+  if (!ms.length) return $('tk-klok').classList.add('hidden');
+  tk.klokEinde = Date.now() + Math.min(...ms);
+  tk.klokTot = typeof t.rest !== 'number' || (typeof t.totRest === 'number' && t.totRest < t.rest);
+  $('tk-klok').classList.remove('hidden');
+  tkKlokTik();
+  tk.klokTimer = setInterval(tkKlokTik, 1000);
+}
+function tkKlokTik() {
+  const rest = Math.max(0, tk.klokEinde - Date.now());
+  const s = Math.ceil(rest / 1000);
+  const u = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  const k = $('tk-klok');
+  k.textContent = `⏱ ${u ? `${u}:${String(m).padStart(2, '0')}` : m}:${String(sec).padStart(2, '0')}`;
+  k.classList.toggle('bijna', rest <= 60000);
+  if (rest > 0) return;
+  clearInterval(tk.klokTimer);
+  tk.klokTimer = null;
+  tkTijdOm();
+}
+function tkRest() {
+  const t = tk.taak;
+  if (!t) return;
+  socket.emit('tk-rest', { id: t.id, naam: tk.naam }, res => {
+    if (!res || res.error || tk.taak !== t) return;
+    Object.assign(t, { tijd: res.tijd, rest: res.rest, tot: res.tot, totRest: res.totRest });
+    tkKlok(t);
+  });
+}
+function tkTijdOm() {
+  const t = tk.taak;
+  if (!t || t.klaar) return $('tk-klok').classList.add('hidden');
+  // Een einddatum: de pc van de leerkracht sluit de taak zelf (iedereen tegelijk). Wat nog getypt werd, eerst doorsturen.
+  if (t.soort === 'proef' && $('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
+  if (t.soort === 'oefenblad') {
+    for (const el of $('tk-paper').querySelectorAll('input.ob-field, textarea.ob-field')) {
+      if ((t.answers[el.dataset.field] || '') !== el.value) tkStuur(el.dataset.field, el.value);
+    }
+  }
+  if (tk.klokTot || t.soort === 'quiz') return setTimeout(tkNogOpen, 6000);
+  setTimeout(() => socket.emit('tk-inleveren', { id: t.id, naam: tk.naam }, res => {
+    if (tk.taak !== t) return;
+    if (!res || res.error) return tkNogOpen();
+    tkTijdOmKlaar(res);
+  }), 400);
+}
+function tkTijdOmKlaar(res) {
+  tkBewaak(false);
+  tkUitScherm();
+  Voorlees.stop();
+  tkKlok(null);
+  tk.toetsGestart = false;
+  Ui.melding('De tijd is om. Je werk is ingeleverd.');
+  if (!res) return tkOpen(tk.taak.id);
+  tk.taak = res;
+  if (res.soort === 'proef') tkToets(res); else if (res.soort === 'oefenblad') tkBlad(res);
+}
+
 function tkGesloten(gewist) {
   // Eerst de beveiliging uit: het volledige scherm verlaten telt dan niet als "de toets verlaten".
   tkBewaak(false);
   tkUitScherm();
   Voorlees.stop();
   tk.taak = null;
+  tkKlok(null);
   tkLijst();
   Ui.melding(gewist ? 'Je leerkracht wiste deze taak. Wat je al deed, is bewaard.' : 'Deze taak is gesloten. Wat je al deed, is bewaard.');
 }
