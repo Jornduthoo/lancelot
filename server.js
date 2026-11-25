@@ -1716,7 +1716,7 @@ io.on('connection', socket => {
   }
   // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
   // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
-  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn], ['tk-rest', taken.rest]]) {
+  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn], ['tk-rest', taken.rest], ['tk-nogeens', taken.nogEens, true]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
       if (event === 'tk-mijn') hier(socket, arg, 'taken');

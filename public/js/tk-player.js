@@ -200,6 +200,7 @@ function tkBladStand() {
   $('tk-blad-terug').classList.toggle('hidden', !t.klaar);
   const score = $('tk-blad-score');
   score.classList.toggle('hidden', !t.klaar);
+  tkNogEensKnop('tk-blad-nogeens', t);
   if (t.klaar) score.innerHTML = t.score ? `Ingeleverd! <strong>${t.juist} van de ${t.score}</strong> juist. De oplossingen staan erbij.` : 'Ingeleverd!';
 }
 
@@ -284,9 +285,27 @@ function tkKies(i) {
 
 $('tk-volgende').addEventListener('click', () => tk.taak && tkOpen(tk.taak.id));
 
+// Aantal pogingen (wens 25 nov): mag de leerling nog eens, dan een knop "Nog eens proberen" na het inleveren.
+// Hij begint met een leeg blad; zijn laatste poging telt.
+function tkNogEensKnop(id, t) {
+  const b = $(id);
+  b.classList.toggle('hidden', !(t.klaar && t.nogEens));
+  if (t.nogEens) b.textContent = `↻ Nog eens proberen (poging ${(t.poging || 0) + 2} van ${t.pogingen})`;
+}
+for (const id of ['tk-blad-nogeens', 'tk-quiz-nogeens', 'tk-toets-nogeens']) $(id).addEventListener('click', async () => {
+  const t = tk.taak;
+  if (!t || !await Ui.vraag('Opnieuw beginnen met een leeg blad? Je laatste poging telt.', { ja: 'Opnieuw', nee: 'Nee' })) return;
+  socket.emit('tk-nogeens', { id: t.id, naam: tk.naam }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    tk.toetsGestart = false;
+    tkOpen(t.id);
+  });
+});
+
 function tkEinde(t) {
   $('tk-vraag-blok').classList.add('hidden');
   $('tk-einde').classList.remove('hidden');
+  tkNogEensKnop('tk-quiz-nogeens', t);
   $('tk-eindscore').innerHTML = `<strong>${t.juist} van de ${t.score}</strong> juist`;
   const box = $('tk-terugblik');
   box.innerHTML = '';
@@ -329,6 +348,7 @@ function tkToets(t) {
     const u = t.uitslag;
     $('tk-toets-uitslag').innerHTML = u ? `Je haalde <strong>${PfPaper.nl(u.punten)} van de ${PfPaper.nl(u.max - u.hand)}</strong> punten die de computer verbetert.${u.hand ? ` Je leerkracht verbetert nog ${PfPaper.ptn(u.hand)}.` : ''}` : '';
     $('tk-toets-uitslag').classList.toggle('hidden', !u);
+    tkNogEensKnop('tk-toets-nogeens', t);
     return $('tk-toets-klaar').classList.remove('hidden');
   }
   // Nog niet begonnen: eerst de uitleg en de regels.
