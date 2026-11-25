@@ -199,7 +199,7 @@ function vulBron() {
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
   // Voorlezen en punten tonen bij een toets én een oefenblad; een oefenblad blijft altijd in zijn volgorde.
   for (const id of ['tk-vl-label', 'tk-us-label', 'tk-tijd-label']) $(id).classList.toggle('hidden', tk.soort === 'quiz');
-  for (const id of ['tk-vv-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  for (const id of ['tk-vv-label', 'tk-bv-label', 'tk-rf-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
   $('tk-vv-blad').classList.toggle('hidden', tk.soort !== 'oefenblad');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
@@ -553,7 +553,7 @@ $('tk-geef').addEventListener('click', async () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd, pogingen, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       // Eén herkansing: de volgende taak die je hier geeft, is weer een gewone.
       if (!res.error && tk.herkansing) { tk.herkansing = null; const i = document.querySelector('.tk-herk-info'); if (i) i.remove(); }
@@ -563,7 +563,7 @@ $('tk-geef').addEventListener('click', async () => {
       const nog = () => {
         if (!rest.length) return volgende();
         const [niveau, wie] = rest.shift();
-        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd, pogingen }, r2 => {
+        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen }, r2 => {
           if (r2.error) fouten.push(r2.error);
           nog();
         });
@@ -799,6 +799,8 @@ function kaart(t) {
     if (l.tijd && l.tijd !== t.tijd) naam.append(el('span', 'tk-ll-tijd', ` ⏱${l.tijd}′`));
     if (l.tijdOp) naam.append(el('span', 'tk-ll-tijd', ' ⏱ om'));
     if (l.poging > 1) naam.append(el('span', 'tk-ll-tijd', ` ↻${l.poging}`));
+    // Reflectie na de toets (wens 25 nov, punt 10): hoe zeker hij was.
+    if (l.reflectie && l.reflectie.zeker) naam.append(el('span', 'tk-ll-refl', ` ${reflSmiley(l.reflectie.zeker)}`));
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
@@ -884,6 +886,7 @@ function toonDetail(id, naam, stil) {
     const info = [STATUS[res.status]];
     const ll = res.soort === 'proef' && ((tk.taken.find(x => x.id === id) || {}).leerlingen || []).find(x => x.naam === res.naam);
     if (res.status !== 'nieuw') info.push(`${res.gedaan} van ${res.totaal} gedaan`, ...(res.soort === 'proef' ? (ll && ll.autoMax ? [`${PfPaper.nl(ll.punten)} van ${PfPaper.nl(ll.autoMax)} punten van de computer${ll.hand ? `, ${PfPaper.ptn(ll.hand)} verbeter jij` : ''}`] : []) : [`${res.juist} van ${res.score} juist`]));
+    if (res.reflectie) info.push(`Reflectie: ${reflTekst(res.reflectie)}`);
     $('d-info').textContent = info.join(' · ');
     // Voorlezen aan of uit voor deze leerling, ook terwijl hij werkt.
     const vl = $('d-voorlees');
@@ -1146,6 +1149,8 @@ function keuzes(t) {
     $('kz-voorlees').value = k.voorlees;
     $('kz-volgorde').value = k.volgorde;
     $('kz-uitslag').checked = !!k.uitslag;
+    $('kz-rf-label').classList.toggle('hidden', k.soort !== 'proef');
+    $('kz-reflectie').checked = k.reflectie !== false;
     $('kz-uitleg').textContent = quiz ? 'Met een einddatum sluit de quiz vanzelf. Met meer pogingen mag de leerling na het inleveren zelf opnieuw.' : k.bezig
       ? `Voorlezen, punten tonen en de tijdslimiet gelden meteen, ook voor wie al bezig is. ${blad ? 'Verbeteren' : 'De volgorde'} verandert alleen voor wie nog niet begon.`
       : 'Je kan dit veranderen zolang de taak bestaat.';
@@ -1164,6 +1169,7 @@ $('kz-ok').addEventListener('click', () => {
   if (k.soort !== 'quiz') {
     Object.assign(d, { voorlees: $('kz-voorlees').value, uitslag: $('kz-uitslag').checked, tijd: Number($('kz-tijd').value) || null });
     if (k.soort === 'oefenblad') d.feedback = $('kz-feedback').value; else d.volgorde = $('kz-volgorde').value;
+    if (k.soort === 'proef') d.reflectie = $('kz-reflectie').checked;
   }
   socket.emit('tk-keuzes', d, res => { if (res && res.error) Ui.melding(res.error); });
 });
@@ -1267,3 +1273,15 @@ $('lv-sluit').addEventListener('click', () => { tk.live = null; $('tk-live').clo
 $('tk-live').addEventListener('close', () => { tk.live = null; });
 $('lv-grens').addEventListener('change', () => { try { localStorage.setItem(LIVE_GRENS, $('lv-grens').value); } catch {} tekenLive(); });
 setInterval(() => { if (tk.live && $('tk-live').open) tekenLive(); }, 15000);
+
+// Reflectie na een toets (wens 25 nov, punt 10): kort, voor bij de leerling.
+function reflSmiley(z) { return { 1: '😟', 2: '🙂', 3: '😃' }[z] || ''; }
+function reflWoord(z) { return { 1: 'niet zeker', 2: 'een beetje zeker', 3: 'heel zeker' }[z] || ''; }
+function reflTekst(r) {
+  const delen = [];
+  if (r.zeker) delen.push(`${reflSmiley(r.zeker)} ${reflWoord(r.zeker)}`);
+  if (r.niets) delen.push('niets moeilijk');
+  else if ((r.moeilijk || []).length) delen.push(`moeilijk: vraag ${r.moeilijk.join(', ')}`);
+  if (r.tekst) delen.push(`"${r.tekst}"`);
+  return delen.join(' · ');
+}

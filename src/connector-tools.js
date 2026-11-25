@@ -248,7 +248,7 @@ function resultatenToets(arg = {}) {
       if (!nog) { v.n++; v.som += kreeg; if (kreeg < max / 2) v.fout++; }
     }
     const minuten = s.begon && s.ingeleverd ? Math.round((Date.parse(s.ingeleverd) - Date.parse(s.begon)) / 6000) / 10 : null;
-    return { naam: s.naam, niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open, ...(s.begon ? { begon: s.begon } : {}), ...(s.ingeleverd ? { ingeleverd: s.ingeleverd } : {}), ...(minuten != null ? { minuten } : {}), per_vraag: vragen };
+    return { naam: s.naam, niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open, ...(s.begon ? { begon: s.begon } : {}), ...(s.ingeleverd ? { ingeleverd: s.ingeleverd } : {}), ...(minuten != null ? { minuten } : {}), ...(s.reflectie ? { reflectie: reflectieUit(s.reflectie) } : {}), per_vraag: vragen };
   });
   const vragen = [...perVraag.values()].map(v => ({ niveau: v.niveau, nr: v.nr, vraag: v.vraag, type: v.type, max: v.max, verbeterd: v.n, gemiddeld: v.n ? Math.round((v.som / v.n) * 10) / 10 : null, fout: v.fout }));
   return {
@@ -256,6 +256,9 @@ function resultatenToets(arg = {}) {
     leerlingen: ll, vragen, vaakst_fout: vragen.filter(v => v.fout).sort((a, b) => b.fout - a.fout).slice(0, 5), niet_ingeleverd: nietIngeleverd,
   };
 }
+
+// Reflectie na een toets (wens 25 nov, punt 10): zeker = 1 niet zeker, 2 een beetje, 3 heel zeker; moeilijk = vraagnummers in de toets.
+const reflectieUit = r => ({ zeker: r.zeker || null, zeker_tekst: ({ 1: 'niet zeker', 2: 'een beetje zeker', 3: 'heel zeker' })[r.zeker] || null, moeilijk: r.niets ? [] : r.moeilijk || [], niets_moeilijk: !!r.niets, tekst: r.tekst || '' });
 
 function resultatenLeerling({ naam, van, tot } = {}) {
   const l = klas.match(naam);
@@ -270,7 +273,7 @@ function resultatenLeerling({ naam, van, tot } = {}) {
     const s = rec.spelers.find(x => sleutel(x.naam) === k);
     if (!s) continue;
     const st = proeven.stand(rec, s);
-    toetsen.push({ afname: a.file, titel: rec.title, datum: rec.datum, vak: proeven.vakVan(rec.toets), niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open });
+    toetsen.push({ afname: a.file, titel: rec.title, datum: rec.datum, vak: proeven.vakVan(rec.toets), niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open, ...(s.reflectie ? { reflectie: reflectieUit(s.reflectie) } : {}) });
   }
   const tk = taken.lijst().filter(t => (!van || dag(t.dag) >= van) && (!tot || dag(t.dag) <= tot)).map(t => {
     const w = t.leerlingen.find(x => sleutel(x.naam) === k);

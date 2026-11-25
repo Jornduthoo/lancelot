@@ -123,6 +123,20 @@
       <p class="title">✔ Ingeleverd!</p>
       <p class="muted">Je leerkracht verbetert je toets.</p>
       <p class="hidden" id="tk-toets-uitslag"></p>
+      <!-- Reflectie (wens 25 nov, punt 10): twee korte vragen. Mag overgeslagen worden. -->
+      <div class="tk-reflectie hidden" id="tk-reflectie">
+        <p class="tk-refl-vraag">Hoe zeker was je?</p>
+        <div class="tk-refl-smileys" id="tk-refl-smileys">
+          <button type="button" data-zeker="1"><span aria-hidden="true">😟</span>Niet zeker</button>
+          <button type="button" data-zeker="2"><span aria-hidden="true">🙂</span>Een beetje</button>
+          <button type="button" data-zeker="3"><span aria-hidden="true">😃</span>Heel zeker</button>
+        </div>
+        <p class="tk-refl-vraag">Wat vond je moeilijk?</p>
+        <div class="tk-refl-vragen" id="tk-refl-vragen"></div>
+        <input id="tk-refl-tekst" maxlength="140" autocomplete="off" placeholder="Of schrijf het kort (mag ook leeg)">
+        <button type="button" class="gold" id="tk-refl-stuur">Doorsturen</button>
+        <p class="tk-refl-ok hidden" id="tk-refl-ok">✔ Bedankt! Je leerkracht ziet je antwoord.</p>
+      </div>
       <button type="button" class="secondary big hidden tk-nogeens" id="tk-toets-nogeens"></button>
       <button class="gold big" id="tk-toets-terug"><i class="ic ic-taak" aria-hidden="true"></i>Terug naar mijn taken</button>
     </div>

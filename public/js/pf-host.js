@@ -1309,11 +1309,13 @@ function renderAfname() {
   const lijstOp = `<div class="pf-puntenlijst"><label>Punten op <select id="v-op">${[['', 'zoals de toets'], ['10', '10'], ['20', '20'], ['100', '100']].map(([v, t]) => `<option value="${v}"${puntenOp === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
     <button type="button" class="secondary small-btn" id="v-kopieer"${a.spelers.length ? '' : ' disabled'}>📋 Kopieer puntenlijst</button>
     <button type="button" class="secondary small-btn" id="v-csv"${a.spelers.length ? '' : ' disabled'}>⬇ CSV</button></div>`;
-  $('v-leerlingen').innerHTML = `${lijstOp}<p class="muted small">Klik op een naam: je ziet de hele toets van die leerling en past bij elke vraag de punten aan.</p><div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th></tr>
+  // Reflectie na de toets (wens 25 nov, punt 10): een kolom per leerling en bovenaan een overzicht.
+  const refl = a.spelers.some(s => s.reflectie);
+  $('v-leerlingen').innerHTML = `${lijstOp}${reflOverzicht(a)}<p class="muted small">Klik op een naam: je ziet de hele toets van die leerling en past bij elke vraag de punten aan.</p><div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th>${refl ? '<th>Reflectie</th>' : ''}</tr>
     ${a.spelers.map((s, i) => {
       const st = standVan(s);
-      return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td></tr>`;
-    }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="4">✏️ bezig · ${l.gedaan} van ${l.totaal} gedaan${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
+      return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td>${refl ? `<td class="pf-refl">${s.reflectie ? esc(reflKort(s.reflectie)) : '–'}</td>` : ''}</tr>`;
+    }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="${refl ? 5 : 4}">✏️ bezig · ${l.gedaan} van ${l.totaal} gedaan${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
   for (const b of $('v-leerlingen').querySelectorAll('[data-live]')) b.addEventListener('click', () => leerlingLive(b.dataset.live));
   $('v-op').addEventListener('change', e => { puntenOp = e.target.value; });
   $('v-kopieer').addEventListener('click', () => {
@@ -1458,7 +1460,7 @@ function leerlingAfname(i) {
   opts.vakken = {};
   for (const { id, q } of vragen) if (q.type === 'blad') opts.vakken[id] = vakOordeel(s, id, q);
   const st = standVan(s);
-  $('d-name').textContent = `${s.naam} · ${nl(st.punten)} / ${nl(st.max)}`;
+  $('d-name').textContent = `${s.naam} · ${nl(st.punten)} / ${nl(st.max)}${s.reflectie ? ` · ${reflKort(s.reflectie)}` : ''}`;
   $('d-actions').innerHTML = `${i > 0 ? '<button class="secondary" data-a="vorige">◀ Vorige leerling</button>' : ''}${i < afname.spelers.length - 1 ? '<button class="secondary" data-a="volgende">Volgende leerling ▶</button>' : ''}<button class="secondary" data-a="sluit">Sluiten</button>`;
   for (const b of $('d-actions').querySelectorAll('button')) {
     b.addEventListener('click', () => {
@@ -1622,3 +1624,26 @@ $('e-controle-knop').addEventListener('click', () => {
       || '<p>✔ Niets gevonden: de afbeeldingen zijn goed, de antwoorden hebben geen voor de hand liggende andere schrijfwijze.</p>';
   });
 });
+
+// ---------- Reflectie na een toets (wens 25 nov, punt 10) ----------
+function reflSmiley(z) { return { 1: '😟', 2: '🙂', 3: '😃' }[z] || ''; }
+// Kort voor één leerling: 😃 · moeilijk: 3, 5 · "tekstje".
+function reflKort(r) {
+  const d = [];
+  if (r.zeker) d.push(reflSmiley(r.zeker));
+  if (r.niets) d.push('niets moeilijk');
+  else if ((r.moeilijk || []).length) d.push(`moeilijk: ${r.moeilijk.join(', ')}`);
+  if (r.tekst) d.push(`"${r.tekst}"`);
+  return d.join(' · ');
+}
+// Per toets: hoeveel leerlingen hoe zeker waren, welke vragen het vaakst moeilijk waren, en wat ze schreven.
+function reflOverzicht(a) {
+  const r = a.spelers.filter(s => s.reflectie).map(s => ({ naam: s.naam, ...s.reflectie }));
+  if (!r.length) return '';
+  const tel = z => r.filter(x => x.zeker === z).length;
+  const vaak = new Map();
+  for (const x of r) for (const n of x.moeilijk || []) vaak.set(n, (vaak.get(n) || 0) + 1);
+  const top = [...vaak].sort((p, q) => q[1] - p[1] || p[0] - q[0]).slice(0, 5);
+  const teksten = r.filter(x => x.tekst);
+  return `<div class="pf-refl-overzicht"><strong>Reflectie</strong> <span class="muted">(${r.length} van ${a.spelers.length})</span>: 😃 ${tel(3)} · 🙂 ${tel(2)} · 😟 ${tel(1)}${top.length ? `<br>Vaakst moeilijk: ${top.map(([n, k]) => `vraag ${n} (${k}×)`).join(', ')}` : ''}${r.some(x => x.niets) ? `<br>Niets moeilijk: ${r.filter(x => x.niets).length}` : ''}${teksten.length ? `<details><summary>Wat ze schreven (${teksten.length})</summary><ul>${teksten.map(x => `<li><b>${esc(x.naam)}</b>: ${esc(x.tekst)}</li>`).join('')}</ul></details>` : ''}</div>`;
+}
