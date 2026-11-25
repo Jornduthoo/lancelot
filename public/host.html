@@ -51,6 +51,7 @@
     <!-- Vandaag: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte (wensenlijst 20 nov, punt 9). -->
     <section class="vandaag hidden" id="vandaag">
       <h3><button type="button" class="vandaag-klap" id="vandaag-klap" aria-expanded="true" title="Inklappen of openklappen"><span class="ic ic-klap" aria-hidden="true"></span><span>📅 Vandaag</span> <span class="vandaag-telling muted small" id="vandaag-telling"></span></button><span class="vandaag-leeg muted small hidden" id="vandaag-leeg">· niets gepland · niets te verbeteren ✓</span> <button type="button" class="vandaag-weg" id="vandaag-weg" title="Verbergen (aanzetten bij Instellingen › Taken)" aria-label="Verbergen">✕</button></h3>
+      <div class="vandaag-blok hidden" id="vandaag-presentatie"><h4>📽 Dagpresentatie</h4><ul></ul></div>
       <div class="vandaag-blok hidden" id="vandaag-verschijnt"><h4>🕗 Verschijnt vandaag</h4><ul></ul></div>
       <div class="vandaag-blok hidden" id="vandaag-verbeteren"><h4>📝 Toetsen</h4><ul></ul></div>
       <div class="vandaag-blok hidden" id="vandaag-nietaf"><h4>⏳ Nog niet af</h4><ul></ul></div>
@@ -626,6 +627,7 @@
       <button type="button" data-tab="bijwerken">Bijwerken</button>
       <button type="button" data-tab="netwerk">Netwerk</button>
       <button type="button" data-tab="schermen">Bureau-pc</button>
+      <button type="button" data-tab="connector">Connector</button>
       <button type="button" data-tab="junior">Junior</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
@@ -818,6 +820,44 @@
         <a class="button secondary" href="/welkom">Wizard voor de eerste keer</a>
         <a class="button secondary" href="/privacy">Privacy</a>
       </div>
+    </div>
+    <!-- De connector voor Claude (wens 25 nov): src/connector.js, docs/connector.md. -->
+    <div class="panel form" id="connector-panel" data-tab="connector">
+      <h3>🔌 Connector voor Claude<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Met de connector werkt Claude (of een andere AI-assistent) rechtstreeks met LANcelot: toetsen klaarzetten, taken geven en intrekken, resultaten lezen en een dagpresentatie op het bord zetten. Eén vraag vervangt tientallen klikken. Je maakt hier zelf een sleutel en zet die in Claude bij Instellingen › Connectors. Intrekken kan altijd. Niets wordt ooit verwijderd: een taak intrekken sluit ze af, het werk van de leerlingen blijft. Alles wat er gebeurt, staat in het logboek hieronder.</p></details></h3>
+      <p class="muted small">Claude werkt rechtstreeks met LANcelot, zonder op het scherm te klikken.</p>
+      <label class="inline check"><input type="checkbox" id="cn-aan"> <strong>Connector aan</strong></label>
+      <label class="inline check"><input type="checkbox" id="cn-schrijven"> <strong>Claude mag ook klaarzetten</strong> <span class="muted small">toetsen bewaren, taken geven en intrekken, dagpresentatie. Uit = alleen lezen.</span></label>
+      <p class="notice small">Wat Claude opvraagt (ook namen en punten), gaat naar Claude. Daarvoor is internet nodig.</p>
+      <p class="error" id="cn-error"></p>
+      <h4>Sleutels</h4>
+      <div class="row">
+        <label>Naam van de sleutel<input id="cn-naam" maxlength="40" autocomplete="off" placeholder="bv. Claude"></label>
+        <button type="button" id="cn-nieuw">Nieuwe sleutel</button>
+      </div>
+      <div class="notice hidden" id="cn-nieuwe">
+        <p><strong>Je ziet deze sleutel maar één keer.</strong> Kopieer het adres en plak het in Claude.</p>
+        <p class="muted small">Adres voor Claude (via internet):</p>
+        <p><code id="cn-adres-tunnel" data-geen-vertaling></code> <button type="button" class="secondary" id="cn-kopieer-tunnel">Kopieer</button></p>
+        <p class="muted small hidden" id="cn-geen-tunnel">Zet hieronder eerst "Bereikbaar via internet" aan: dan verschijnt hier het adres voor Claude.</p>
+        <p class="muted small">Adres in de klas (Claude Code op deze pc of in het netwerk):</p>
+        <p><code id="cn-adres-lan" data-geen-vertaling></code> <button type="button" class="secondary" id="cn-kopieer-lan">Kopieer</button></p>
+      </div>
+      <ul class="file-list" id="cn-sleutels"></ul>
+      <h4>Bereikbaar via internet</h4>
+      <label class="inline check"><input type="checkbox" id="cn-tunnel"> <strong>Bereikbaar via internet</strong> <span class="muted small">nodig voor Claude op claude.ai en in de Claude-app.</span></label>
+      <p class="muted small">Een tunnel van Cloudflare brengt alleen de connector naar buiten, nooit je schermen. Zonder vast adres verandert het adres als deze pc herstart.</p>
+      <p id="cn-tunnel-status"></p>
+      <details class="small" id="cn-vast"><summary>Vast adres (eigen Cloudflare-tunnel)</summary>
+        <p class="muted small">Maak in Cloudflare (Zero Trust › Networks › Tunnels) een tunnel met een openbaar adres naar <code id="cn-poort" data-geen-vertaling></code>. Plak hier het token en het adres. Zo blijft het adres altijd hetzelfde.</p>
+        <label>Token van de tunnel<input id="cn-token" type="password" autocomplete="off" placeholder="eyJ…"></label>
+        <label>Adres<input id="cn-vastadres" autocomplete="off" placeholder="bv. bord.mijnschool.be"></label>
+        <div class="actions">
+          <button type="button" class="secondary" id="cn-vast-bewaar">Bewaar vast adres</button>
+          <button type="button" class="secondary hidden" id="cn-vast-weg">Geen vast adres meer</button>
+        </div>
+      </details>
+      <h4>Logboek</h4>
+      <ul class="cn-log muted small" id="cn-log"></ul>
     </div>
     <!-- LANcelot Junior: vroeger een knop bovenaan het startscherm, nu hier (Jorn 2026-11-21: "nog nooit gebruikt"). -->
     <div class="panel form" id="junior-panel" data-tab="junior">
@@ -1021,6 +1061,7 @@
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
 <script src="/js/archief.js"></script>
+<script src="/js/connector.js"></script>
 <script src="/js/taken-standaard.js"></script>
 <script src="/js/stem-kern.js"></script>
 <script src="/js/voorlees.js"></script>

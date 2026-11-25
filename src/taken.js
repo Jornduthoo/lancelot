@@ -438,6 +438,19 @@ function startNu({ id } = {}) {
   save();
   planBewaar(t);
 }
+// Een geplande taak verplaatsen (de connector): een nieuw startmoment, of null = meteen. Alleen zolang ze nog gepland is
+// of niemand eraan begon: wat leerlingen al deden, blijft zo.
+function zetVanaf({ id, vanaf } = {}) {
+  const t = find(id);
+  if (t.dicht) throw new Error('Deze taak is afgesloten. Heropen ze eerst.');
+  if (zichtbaar(t) && Object.values(t.werk).some(w => w.status !== 'nieuw')) throw new Error('Er zijn al leerlingen aan deze taak begonnen: verplaatsen kan niet meer.');
+  const start = schoonVanaf(vanaf);
+  if (vanaf && !start) throw new Error('Kies een moment in de toekomst.');
+  if (start) t.vanaf = start; else delete t.vanaf;
+  if (!start) sluitOude(t);
+  save();
+  planBewaar(t);
+}
 function schoonLes(l) {
   if (!l || !WEEK.test(String(l.week)) || !SLOT.test(String(l.slot))) return null;
   const les = {
@@ -1352,4 +1365,4 @@ function voorleesBronnen() {
   return uit;
 }
 
-module.exports = { openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, zetVanaf, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
