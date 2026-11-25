@@ -23,7 +23,7 @@ const DATUM = /^\d{4}-\d{2}-\d{2}$/;
 const VANAF = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 
 // Wat server.js na een wijziging moet doen (het bord bijwerken, Mijn lesmap...). Zie init().
-let hooks = { naTaken() {}, naToetsen() {}, naKronieken() {}, naBib() {}, syncNu: async () => ({ ingesteld: false }), gezondheid: () => ({}) };
+let hooks = { naTaken() {}, naToetsen() {}, naKronieken() {}, naBib() {}, rondeTafel: () => null, syncNu: async () => ({ ingesteld: false }), gezondheid: () => ({}) };
 function init(h) { hooks = { ...hooks, ...h }; }
 
 const fout = msg => { throw new Error(msg); };
@@ -544,6 +544,8 @@ const TOOLS = [
 
 // Deel 2: toetsen stap voor stap, quizzen, oefenbladen, mappen, de week, sync (src/connector-bouw.js).
 TOOLS.push(...require('./connector-bouw').maak({ fout, toetsBestaat, isGegeven, mapMaken, toetsBewaren, dag, vandaag, hooks: () => hooks }));
+// Deel 3: Peilen, peilingen en voorkennis (src/connector-peilen.js).
+TOOLS.push(...require('./connector-peilen').maak({ fout, mapMaken, hooks: () => hooks, tool: n => TOOLS.find(x => x.name === n) }));
 
 // De antwoorden van de connector zelf (src/connector.js), voor de assistent.
 const TEKST = {
