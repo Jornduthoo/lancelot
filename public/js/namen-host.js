@@ -232,4 +232,48 @@
   socket.on('connect', laad);
   laad();
   setInterval(() => { if (modal.classList.contains('hidden')) laad(); }, 2500);
+
+  // Hulpknop (wens 25 nov, punt 9): wie stil hulp vroeg, in volgorde. Op het bord staat alleen het aantal (✋ 2);
+  // de namen zie je pas als je erop tikt. Afvinken met ✔ Geholpen: de leerling ziet dat zijn vraag weg is.
+  const hulpKnop = document.createElement('button');
+  hulpKnop.type = 'button';
+  hulpKnop.className = 'hulp-wacht hidden';
+  hulpKnop.title = 'Leerlingen vroegen stil hulp: tik om te zien wie';
+  const hulpVenster = document.createElement('dialog');
+  hulpVenster.className = 'ui-venster hulp-venster';
+  hulpVenster.innerHTML = '<h2>✋ Hulp gevraagd</h2><p class="muted small">Wie eerst vroeg, staat bovenaan. De andere leerlingen zien dit niet.</p><ol class="hulp-rij"></ol><div class="actions"><button type="button" class="secondary hulp-sluit">Sluiten</button></div>';
+  document.body.append(hulpKnop, hulpVenster);
+  let hulpLijst = [];
+  const geleden = iso => { const m = Math.floor((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'net' : `${m} min geleden`; };
+  const hulpTeken = () => {
+    hulpKnop.textContent = `✋ ${hulpLijst.length}`;
+    hulpKnop.setAttribute('aria-label', hulpLijst.length === 1 ? '1 leerling vraagt hulp' : `${hulpLijst.length} leerlingen vragen hulp`);
+    hulpKnop.classList.toggle('hidden', !hulpLijst.length);
+    const ol = hulpVenster.querySelector('.hulp-rij');
+    ol.replaceChildren(...hulpLijst.map(h => {
+      const li = document.createElement('li');
+      const tekst = document.createElement('span');
+      tekst.className = 'hulp-wie';
+      const b = document.createElement('strong');
+      b.textContent = h.naam;
+      const klein = document.createElement('small');
+      klein.textContent = `${h.waar ? `${h.waar} · ` : ''}${geleden(h.sinds)}`;
+      tekst.append(b, klein);
+      const ok = document.createElement('button');
+      ok.type = 'button';
+      ok.className = 'gold';
+      ok.textContent = '✔ Geholpen';
+      ok.addEventListener('click', () => socket.emit('hulp-geholpen', { naam: h.naam }, () => {}));
+      li.append(tekst, ok);
+      return li;
+    }));
+    if (!hulpLijst.length && hulpVenster.open) hulpVenster.close();
+  };
+  hulpKnop.addEventListener('click', () => { hulpTeken(); if (!hulpVenster.open) hulpVenster.showModal(); });
+  hulpVenster.querySelector('.hulp-sluit').addEventListener('click', () => hulpVenster.close());
+  socket.on('hulp', l => { hulpLijst = Array.isArray(l) ? l : []; hulpTeken(); });
+  const hulpLaad = () => socket.emit('hulp-lijst', null, l => { hulpLijst = Array.isArray(l) ? l : []; hulpTeken(); });
+  socket.on('connect', hulpLaad);
+  hulpLaad();
+  setInterval(() => { if (hulpVenster.open) hulpTeken(); }, 30000);
 })();

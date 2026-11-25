@@ -153,5 +153,20 @@
  "{0} bezig · {1} klaar · {2} nog niet begonnen": "{0} busy · {1} done · {2} not started",
  "⚠ Lang op één vraag: {0}": "⚠ Long on one question: {0}",
  "Lang op één vraag vanaf": "Long on one question from",
- "8 min": "8 min"
+ "8 min": "8 min",
+ "✋ Hulp gevraagd · intrekken": "✋ Help asked · cancel",
+ "✋ Hulp vragen": "✋ Ask for help",
+ "Tik om je vraag in te trekken": "Tap to cancel your request",
+ "Stil hulp vragen: alleen de leerkracht ziet het": "Quietly ask for help: only the teacher sees it",
+ "De leerkracht komt zo. Er zijn nog {0} leerlingen voor jou.": "The teacher is coming. There are {0} pupils before you.",
+ "De leerkracht komt zo. Er is nog 1 leerling voor jou.": "The teacher is coming. There is 1 pupil before you.",
+ "De leerkracht komt zo. Jij bent de volgende.": "The teacher is coming. You are next.",
+ "{0} · vraag {1}": "{0} · question {1}",
+ "De leerkracht heeft je vraag afgevinkt.": "The teacher ticked off your request.",
+ "Leerlingen vroegen stil hulp: tik om te zien wie": "Pupils quietly asked for help: tap to see who",
+ "✋ Hulp gevraagd": "✋ Help asked",
+ "Wie eerst vroeg, staat bovenaan. De andere leerlingen zien dit niet.": "Whoever asked first is at the top. Other pupils do not see this.",
+ "1 leerling vraagt hulp": "1 pupil asks for help",
+ "{0} leerlingen vragen hulp": "{0} pupils ask for help",
+ "✔ Geholpen": "✔ Helped"
 }

@@ -236,3 +236,9 @@
 .tk-live-wat { font-weight: 700; font-size: .92rem; }
 .tk-live-klein { font-size: .78rem; color: var(--muted); min-height: 1em; }
 .tk-live .actions { align-items: center; }
+/* Hulpknop voor leerlingen (wens 25 nov, punt 9): rechtsonder, klein, altijd bereikbaar. */
+.tk-hulp { position: fixed; right: 14px; bottom: 14px; z-index: 40; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; pointer-events: none; }
+.tk-hulp > * { pointer-events: auto; }
+.tk-hulp-knop { padding: 10px 16px; border-radius: 999px; clip-path: none; font-weight: 800; color: var(--text); background: rgb(var(--k-bg) / .92); box-shadow: inset 0 0 0 1px var(--line), 0 4px 14px rgb(var(--k-zwart) / .35); cursor: pointer; }
+.tk-hulp-knop.on { color: rgb(var(--k-zwart)); background: var(--gold); box-shadow: 0 0 0 3px rgb(var(--k-goud, 212 160 23) / .35), 0 4px 14px rgb(var(--k-zwart) / .35); }
+.tk-hulp-info { max-width: 240px; padding: 6px 10px; font-size: .85rem; border-radius: 8px; background: rgb(var(--k-bg) / .95); box-shadow: inset 0 0 0 1px var(--line); }

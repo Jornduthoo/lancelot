@@ -1733,6 +1733,46 @@ io.on('connection', socket => {
       }
     });
   }
+  // Hulpknop (wens 25 nov, punt 9): stil hulp vragen. Alleen de leerkracht ziet de rij; de leerling zelf ziet zijn plaats.
+  {
+    const hulp = require('./src/hulp');
+    const kamer = n => 'hulp-kamer:' + hulp.key(n);
+    const naarLeerkracht = () => io.to('host').emit('hulp', hulp.lijst());
+    const naarLeerlingen = () => { for (const h of hulp.lijst()) io.to(kamer(h.naam)).emit('hulp-stand', hulp.stand(h.naam)); };
+    socket.on('hulp-stand', (arg, cb) => {
+      if (typeof cb !== 'function') return;
+      const naam = arg && arg.naam;
+      if (!naam) return cb({ gevraagd: false });
+      socket.join(kamer(naam));
+      cb(hulp.stand(naam));
+    });
+    socket.on('hulp-vraag', (arg, cb) => {
+      if (typeof cb !== 'function') return;
+      try {
+        const r = hulp.vraag(arg || {});
+        socket.join(kamer(arg.naam));
+        cb({ ok: true, ...r });
+        naarLeerkracht();
+      } catch (err) { cb({ error: err.message }); }
+    });
+    socket.on('hulp-weg', (arg, cb) => {
+      hulp.weg(arg || {});
+      if (typeof cb === 'function') cb({ ok: true, gevraagd: false });
+      naarLeerkracht();
+      naarLeerlingen();
+    });
+    if (host) {
+      socket.on('hulp-lijst', (arg, cb) => { if (typeof cb === 'function') cb(hulp.lijst()); });
+      socket.on('hulp-geholpen', (arg, cb) => {
+        const naam = arg && arg.naam;
+        const r = hulp.weg({ naam });
+        if (naam) io.to(kamer(naam)).emit('hulp-stand', { gevraagd: false, geholpen: true });
+        if (typeof cb === 'function') cb({ ok: true, ...r });
+        naarLeerkracht();
+        naarLeerlingen();
+      });
+    }
+  }
   // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
   // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
   for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn], ['tk-rest', taken.rest], ['tk-nogeens', taken.nogEens, true]]) {
