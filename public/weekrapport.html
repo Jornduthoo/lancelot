@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Weekrapport</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    body { margin: 0; background: #dfe3ea; font: 14px system-ui, "Segoe UI", Arial, sans-serif; color: #1d2330; }
+    .knoppen { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: #1d2330; color: #fff; flex-wrap: wrap; }
+    .knoppen button, .knoppen select { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid #889; background: #fff; cursor: pointer; color: #1d2330; }
+    .knoppen button.hoofd { background: #d4a017; border-color: #d4a017; font-weight: 700; }
+    .knoppen span { opacity: .85; }
+    .bladen { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; }
+    .wr-blad { box-sizing: border-box; width: 210mm; min-height: 297mm; max-width: 100%; background: #fff; padding: 16mm 15mm; box-shadow: 0 2px 14px rgba(0, 0, 0, .18); page-break-after: always; break-after: page; }
+    .wr-kop { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #d4a017; padding-bottom: 10px; margin-bottom: 14px; }
+    .wr-kop img { width: 58px; height: 58px; object-fit: contain; }
+    .wr-kop h1 { margin: 0; font-size: 26px; }
+    .wr-kop p { margin: 2px 0 0; color: #556; }
+    .wr-blad h2 { font-size: 16px; margin: 18px 0 6px; color: #3b4660; }
+    .wr-blad table { width: 100%; border-collapse: collapse; }
+    .wr-blad td, .wr-blad th { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3e6ee; vertical-align: top; }
+    .wr-blad th.getal { text-align: right; }
+    .wr-blad th { font-size: 12px; color: #667; font-weight: 600; }
+    .wr-blad td.getal { text-align: right; white-space: nowrap; }
+    .wr-op10 { font-weight: 700; }
+    .wr-leeg { color: #889; font-style: italic; }
+    .wr-ok { color: #2f8a3a; font-weight: 700; }
+    .wr-nog { color: #b86a00; font-weight: 700; }
+    .wr-feedback { width: 100%; box-sizing: border-box; min-height: 90px; font: inherit; padding: 10px; border: 1px solid #c9cfdb; border-radius: 6px; resize: vertical; background: #fffdf5; }
+    .wr-feedback-print { display: none; white-space: pre-wrap; padding: 10px; border: 1px solid #c9cfdb; border-radius: 6px; background: #fffdf5; }
+    .wr-hint { font-size: 12px; color: #667; margin: 4px 0 0; }
+    .wr-voet { margin-top: 24px; font-size: 11px; color: #889; }
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { background: #fff; }
+      .knoppen { display: none; }
+      .bladen { display: block; padding: 0; }
+      .wr-blad { box-shadow: none; width: 210mm; }
+      .wr-feedback, .wr-hint { display: none; }
+      .wr-feedback-print { display: block; }
+    }
+    @media screen and (max-width: 800px) { .wr-blad { padding: 18px 16px; min-height: 0; } }
+  </style>
+</head>
+<body>
+<div class="knoppen">
+  <button id="vorige" title="De week ervoor">◀</button>
+  <span id="week"></span>
+  <button id="volgende" title="De week erna">▶</button>
+  <select id="wie" aria-label="Leerling"><option value="">Iedereen</option></select>
+  <button class="hoofd" id="print">🖨️ Printen of bewaren als PDF</button>
+  <button id="lesmap" title="Een pdf per leerling in Mijn lesmap › Weekrapporten › naam, om te delen met de ouders">📁 Pdf per leerling in Mijn lesmap</button>
+  <button id="sluit">Sluiten</button>
+  <span id="info"></span>
+</div>
+<div class="bladen" id="bladen"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script>
+// Weekrapport (wens 25 nov, punt 5): één A4 per leerling. De gegevens zitten al in de pagina (window.RAPPORT), zodat ook
+// de browser zonder venster (pdf voor Mijn lesmap) niets hoeft te laden. De feedback pas je hier aan; LANcelot bewaart ze.
+const R = window.RAPPORT;
+const params = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const nl = x => String(x).replace('.', ',');
+const datum = d => new Date(`${d}T12:00:00`).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long' });
+const kort = d => new Date(`${d}T12:00:00`).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+const socket = R.pdf ? null : io({ query: { role: 'host' } });
+
+function blad(r) {
+  const toetsen = r.toetsen.length ? `<table><tr><th>Toets</th><th>Dag</th><th class="getal">Punten</th><th class="getal">Op 10</th></tr>${r.toetsen.map(t => `<tr><td>${esc(t.titel)}${t.vak ? `<br><small>${esc(t.vak)}</small>` : ''}</td><td>${esc(kort(t.datum))}</td><td class="getal">${nl(t.punten)} / ${nl(t.max)}${t.nogTeVerbeteren ? ' *' : ''}</td><td class="getal wr-op10">${t.op10 === null ? '–' : nl(t.op10)}</td></tr>`).join('')}</table>${r.toetsen.some(t => t.nogTeVerbeteren) ? '<p class="wr-hint" style="display:block">* nog niet alles verbeterd</p>' : ''}` : '<p class="wr-leeg">Geen toetsen deze week.</p>';
+  const takenLijst = r.taken.length ? `<table><tr><th>Taak</th><th>Dag</th><th class="getal">Stand</th></tr>${r.taken.map(t => `<tr><td>${esc(t.titel)}</td><td>${esc(kort(t.datum))}</td><td class="getal">${t.status === 'klaar' ? `<span class="wr-ok">✔</span>${t.van ? ` ${t.juist} / ${t.van} juist` : ' af'}` : t.status === 'bezig' ? 'bezig' : 'nog niet gedaan'}</td></tr>`).join('')}</table>` : '<p class="wr-leeg">Geen taken deze week.</p>';
+  const doelenLijst = r.doelen.length ? `<table>${r.doelen.map(d => `<tr><td>${d.behaald ? '<span class="wr-ok">✔ behaald</span>' : '<span class="wr-nog">↻ nog oefenen</span>'}</td><td>${esc(d.tekst)}</td><td class="getal">${d.procent} %</td></tr>`).join('')}</table>` : '<p class="wr-leeg">Deze week geen oefeningen met een leerplandoel.</p>';
+  return `<section class="wr-blad" data-naam="${esc(r.naam)}">
+    <div class="wr-kop"><img src="/img/logo.webp" alt=""><div><h1>Weekrapport · ${esc(r.naam)}</h1><p>${esc(datum(R.van))} tot ${esc(datum(R.tot))}${R.klas ? ` · ${esc(R.klas)}` : ''}</p></div></div>
+    <h2>Toetsen</h2>${toetsen}
+    <h2>Taken</h2>${takenLijst}
+    <h2>Doelen</h2>${doelenLijst}
+    <h2>Feedback</h2>
+    <textarea class="wr-feedback" aria-label="Feedback">${esc(r.feedback)}</textarea>
+    <p class="wr-hint">${r.eigen ? 'Jouw tekst. Maak het vak leeg om het voorstel van LANcelot terug te krijgen.' : 'Een voorstel van LANcelot. Pas het gerust aan: het wordt bewaard.'}</p>
+    <div class="wr-feedback-print">${esc(r.feedback)}</div>
+    <p class="wr-voet">Gemaakt met LANcelot.</p>
+  </section>`;
+}
+
+function teken() {
+  const wie = params.get('naam');
+  const lijst = R.rapporten.filter(r => !wie || r.naam === wie);
+  $('bladen').innerHTML = lijst.map(blad).join('') || '<p>Geen leerlingen.</p>';
+  $('week').textContent = `${datum(R.van)} – ${datum(R.tot)}`;
+  $('info').textContent = `${lijst.length} ${lijst.length === 1 ? 'rapport' : 'rapporten'}`;
+  for (const sec of document.querySelectorAll('.wr-blad')) {
+    const ta = sec.querySelector('.wr-feedback');
+    const pr = sec.querySelector('.wr-feedback-print');
+    ta.addEventListener('input', () => { pr.textContent = ta.value; });
+    ta.addEventListener('change', () => {
+      if (!socket) return;
+      const r = R.rapporten.find(x => x.naam === sec.dataset.naam);
+      socket.emit('wr-opmerking', { van: R.van, naam: sec.dataset.naam, tekst: ta.value === r.voorstel ? '' : ta.value }, res => {
+        if (res && res.error) return Ui.melding(res.error);
+        if (!ta.value.trim()) { ta.value = r.voorstel; pr.textContent = r.voorstel; }
+      });
+    });
+  }
+}
+
+const sel = $('wie');
+for (const r of R.rapporten) sel.add(new Option(r.naam, r.naam));
+sel.value = params.get('naam') || '';
+sel.addEventListener('change', () => { if (sel.value) params.set('naam', sel.value); else params.delete('naam'); location.search = params.toString(); });
+const naarWeek = dagen => {
+  const d = new Date(`${R.van}T12:00:00`);
+  d.setDate(d.getDate() + dagen);
+  params.set('van', `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+  params.delete('tot');
+  location.search = params.toString();
+};
+$('vorige').addEventListener('click', () => naarWeek(-7));
+$('volgende').addEventListener('click', () => naarWeek(7));
+$('print').addEventListener('click', () => window.print());
+$('sluit').addEventListener('click', () => { if (history.length > 1) history.back(); else window.close(); });
+$('lesmap').addEventListener('click', () => {
+  const b = $('lesmap');
+  b.disabled = true;
+  $('info').textContent = 'Bezig met de pdf\'s…';
+  socket.emit('wr-lesmap', { van: R.van, tot: R.tot }, res => {
+    b.disabled = false;
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    $('info').textContent = '';
+    Ui.melding(res.fout && !res.gemaakt ? res.fout : `${res.gemaakt} weekrapporten staan in Mijn lesmap › Weekrapporten.${res.fout ? ` ${res.fout}` : ''}`);
+  });
+});
+if (R.pdf) document.querySelector('.knoppen').remove();
+teken();
+</script>
+</body>
+</html>
