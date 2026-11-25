@@ -113,6 +113,32 @@
       <label id="tk-vanaf-label" class="hidden">Vanaf
         <input type="datetime-local" id="tk-vanaf">
       </label>
+      <label title="Met een einddatum sluit de taak vanzelf. Wie dan nog bezig is, levert in wat er staat.">Einddatum
+        <select id="tk-tot-kies">
+          <option value="">Geen: ik sluit zelf af</option>
+          <option value="op">Sluit vanzelf op een dag en uur</option>
+        </select>
+      </label>
+      <label id="tk-tot-label" class="hidden">Sluit op
+        <input type="datetime-local" id="tk-tot">
+      </label>
+      <label id="tk-tijd-label" class="hidden" title="De tijd loopt vanaf het moment dat de leerling begint. Is ze om, dan levert hij in wat er staat. Per leerling kan je meer tijd geven (klik op zijn naam).">Tijdslimiet ⏱
+        <select id="tk-tijd">
+          <option value="">Geen tijdslimiet</option>
+          <option value="10">10 minuten</option>
+          <option value="15">15 minuten</option>
+          <option value="20">20 minuten</option>
+          <option value="25">25 minuten</option>
+          <option value="30">30 minuten</option>
+          <option value="40">40 minuten</option>
+          <option value="45">45 minuten</option>
+          <option value="50">50 minuten</option>
+          <option value="60">60 minuten</option>
+          <option value="75">75 minuten</option>
+          <option value="90">90 minuten</option>
+          <option value="120">120 minuten</option>
+        </select>
+      </label>
       <label id="tk-min-label" class="hidden">Speeltijd per ronde
         <select id="tk-minuten">
           <option value="3">3 minuten</option>
@@ -177,6 +203,7 @@
       <h2 id="d-naam"></h2>
       <div class="actions">
         <select id="d-niveau" class="hidden" title="Op een ander niveau zetten"></select>
+        <select id="d-tijd" class="hidden" title="Meer (of minder) tijd voor deze leerling, ook terwijl hij werkt"></select>
         <button class="secondary hidden" id="d-voorlees" title="De computer leest de vragen voor met 🔊 bij deze leerling, ook terwijl hij werkt">🔇 Voorlezen: uit</button>
         <button class="secondary hidden" id="d-heropen" title="De leerling werkt verder met zijn antwoorden">🔓 Heropen (werk verder)</button>
         <button class="secondary hidden" id="d-opnieuw" title="Alle antwoorden worden gewist">↺ Opnieuw beginnen</button>
@@ -233,7 +260,7 @@
           <option value="inleveren">Pas na het inleveren</option>
         </select>
       </label>
-      <label>Voorlezen 🔊
+      <label id="kz-vl-label">Voorlezen 🔊
         <select id="kz-voorlees">
           <option value="uit">Uit</option>
           <option value="page">Alleen voor leerlingen op 🪶 Page</option>
@@ -247,7 +274,33 @@
           <option value="alles">Alles in volgorde</option>
         </select>
       </label>
-      <label class="inline check"><input type="checkbox" id="kz-uitslag"> Leerling ziet zijn punten na het inleveren</label>
+      <label id="kz-us-label" class="inline check"><input type="checkbox" id="kz-uitslag"> Leerling ziet zijn punten na het inleveren</label>
+      <label title="Met een einddatum sluit de taak vanzelf. Wie dan nog bezig is, levert in wat er staat.">Einddatum
+        <select id="kz-tot-kies">
+          <option value="">Geen: ik sluit zelf af</option>
+          <option value="op">Sluit vanzelf op een dag en uur</option>
+        </select>
+      </label>
+      <label id="kz-tot-label" class="hidden">Sluit op
+        <input type="datetime-local" id="kz-tot">
+      </label>
+      <label id="kz-tijd-label" title="Geldt meteen, ook voor wie al bezig is. Per leerling anders: klik op zijn naam.">Tijdslimiet ⏱
+        <select id="kz-tijd">
+          <option value="">Geen tijdslimiet</option>
+          <option value="10">10 minuten</option>
+          <option value="15">15 minuten</option>
+          <option value="20">20 minuten</option>
+          <option value="25">25 minuten</option>
+          <option value="30">30 minuten</option>
+          <option value="40">40 minuten</option>
+          <option value="45">45 minuten</option>
+          <option value="50">50 minuten</option>
+          <option value="60">60 minuten</option>
+          <option value="75">75 minuten</option>
+          <option value="90">90 minuten</option>
+          <option value="120">120 minuten</option>
+        </select>
+      </label>
     </div></div>
     <div class="actions">
       <button class="secondary" id="kz-annuleer">Annuleren</button>

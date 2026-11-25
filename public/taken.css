@@ -208,3 +208,16 @@
 .tk-keuzes { max-width: 520px; }
 .tk-keuzes .row { flex-direction: column; margin: 12px 0 18px; }
 .tk-taak-toestel { display: block; color: var(--k-goud, #e8b84a); font-weight: 600; }
+
+/* Einddatum en tijdslimiet (wens 25 nov). */
+.tk-taak-tot, .tk-taak-tijd { display: block; color: var(--gold); }
+.tk-ll-tijd { color: var(--gold); font-weight: 700; }
+#d-tijd { width: auto; }
+.tk-kaart-tijd { color: var(--gold); font-size: .85rem; }
+/* De klok van de leerling: rechtsboven, altijd zichtbaar (ook op een gsm). De laatste minuut in het rood. */
+.tk-klok { position: fixed; top: 10px; right: 12px; z-index: 55; padding: 6px 14px; border-radius: 999px;
+  background: rgb(var(--k-zwart) / .8); border: 1px solid var(--gold); color: var(--gold); font-weight: 800;
+  font-size: 1.1rem; font-variant-numeric: tabular-nums; box-shadow: 0 4px 16px rgb(var(--k-zwart) / .4); }
+.tk-klok.bijna { background: rgb(var(--k-rood) / .9); border-color: rgb(var(--k-rood-l)); color: rgb(var(--k-wit)); }
+/* Op een gsm staat de titel rechtsboven: de klok net eronder. */
+@media (max-width: 700px) { .tk-klok { top: 74px; right: 8px; padding: 4px 10px; font-size: 1rem; } }

@@ -52,7 +52,7 @@ voorbeeldlink), `toets_versies`, `formaat` (de handleiding van het JSON-formaat)
 Klaarzetten: `toets_bewaren`, `toetsen_bewaren` (tot 50, verslag per toets), `toets_kopieren`, `toets_naar_map`,
 `vraag_toevoegen`, `vraag_wijzigen`, `vraag_verplaatsen`, `vraag_weghalen`, `toets_instellen`, `niveau_maken`,
 `beeld_toevoegen` (data-adres of https), `toets_terugzetten`, `quiz_maken`, `quiz_bijwerken`, `oefenblad_bewaren`,
-`map_maken`, `map_hernoemen`, `naar_map`, `taak_geven` (ook een quiz in een spel, gepland met `vanaf`),
+`map_maken`, `map_hernoemen`, `naar_map`, `taak_geven` (ook een quiz in een spel, gepland met `vanaf`, met `einddatum` en `tijdslimiet`),
 `taak_leerlingen_toevoegen`, `taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`,
 `dagpresentatie_plaatsen`.
 
