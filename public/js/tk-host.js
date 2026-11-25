@@ -760,6 +760,8 @@ function kaart(t) {
   // Een toets: één klik naar het overzicht in De Proef (punten, verbeteren, Klaar met verbeteren, gemaild).
   if (t.soort === 'proef' && t.afname) knopje('Verbeteren ▶', () => { location.href = `/proef?verbeter=${encodeURIComponent(t.afname)}`; }, 'gold');
   // Remediëring (wens 25 nov, punt 4): per leerling een oefenblad met wat fout liep.
+  // Live overzicht tijdens een toets (wens 25 nov, punt 8): wie bezig is, op welke vraag, wie lang vastzit, wie klaar is.
+  if (t.soort === 'proef' && !t.dicht && !t.vanaf) knopje('📡 Live', () => live(t.id));
   if (t.soort === 'proef' && t.afname) knopje('🩹 Remediëring', () => remediering(t));
   if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
@@ -858,6 +860,7 @@ StemStand.op(() => { if (tk.taken.length) tekenTaken(); });
 socket.on('tk-lijst', lijst => {
   tk.taken = lijst;
   tekenTaken();
+  if (tk.live && $('tk-live').open) tekenLive();
   // Staat een leerling open, dan alleen opnieuw tekenen als bij hem iets veranderde.
   const d = tk.detail;
   if (!d || !$('tk-detail').open) return;
@@ -1216,3 +1219,51 @@ function remediering(t) {
     });
   });
 }
+
+// ---------- Live overzicht tijdens een toets (wens 25 nov, punt 8) ----------
+// Per leerling: nog niet begonnen, bezig op vraag n (en hoe lang al), lang op één vraag (⚠), of klaar (en hoe laat).
+// Het werkt mee met elke wijziging van de leerlingen; de minuten lopen elke 15 seconden bij.
+const LIVE_GRENS = 'lancelot-live-grens';
+try { const g = localStorage.getItem(LIVE_GRENS); if (g && $('lv-grens').querySelector(`option[value="${g}"]`)) $('lv-grens').value = g; } catch {}
+function live(id) {
+  tk.live = id;
+  tekenLive();
+  if (!$('tk-live').open) $('tk-live').showModal();
+}
+const uurTekst = iso => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${d.getHours()}.${String(d.getMinutes()).padStart(2, '0')}`; };
+function tekenLive() {
+  const t = tk.taken.find(x => x.id === tk.live);
+  if (!t) { $('tk-live').close(); return; }
+  const nu = Date.now();
+  const grens = Number($('lv-grens').value) || 5;
+  const ll = t.leerlingen.filter(l => !l.niet);
+  const vast = [];
+  $('lv-titel').textContent = `📡 ${t.titel}`;
+  $('lv-raster').replaceChildren(...ll.map(l => {
+    const min = l.status === 'bezig' && l.posSinds ? Math.max(0, (nu - Date.parse(l.posSinds)) / 60000) : null;
+    const stil = l.actief ? (nu - Date.parse(l.actief)) / 60000 : 0;
+    const isVast = min !== null && min >= grens && stil >= 1;
+    if (isVast) vast.push(`${l.naam} (vraag ${l.pos + 1}, ${Math.floor(min)} min)`);
+    const b = el('button', `tk-live-ll ${l.status}${isVast ? ' vast' : ''}${l.afwezig ? ' inhalen' : ''}`);
+    b.type = 'button';
+    const naam = el('strong', '', l.naam);
+    if (l.elders) naam.append(el('span', 'tk-ll-pc', ` 💻 ${l.elders}`));
+    const wat = l.status === 'klaar' ? `✔ Klaar${l.klaar ? ` om ${uurTekst(l.klaar)}` : ''}`
+      : l.status === 'bezig' ? `${isVast ? '⚠ ' : ''}Vraag ${l.pos + 1}${l.paginas ? ` van ${l.paginas}` : ''}${min !== null ? ` · ${min < 1 ? 'net' : `${Math.floor(min)} min`}` : ''}`
+      : l.afwezig ? 'Afwezig: haalt in' : 'Nog niet begonnen';
+    const balk = el('span', 'tk-ll-balk');
+    balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
+    b.append(naam, el('span', 'tk-live-wat', wat), el('span', 'tk-live-klein', l.status === 'nieuw' ? '' : `${l.gedaan} van ${l.totaal} ingevuld`), balk);
+    b.title = 'Bekijk het werk van deze leerling';
+    b.addEventListener('click', () => toonDetail(t.id, l.naam));
+    return b;
+  }));
+  const n = s => ll.filter(l => l.status === s).length;
+  $('lv-samen').textContent = `${n('bezig')} bezig · ${n('klaar')} klaar · ${n('nieuw')} nog niet begonnen`;
+  $('lv-vast').textContent = vast.length ? `⚠ Lang op één vraag: ${vast.join(', ')}` : '';
+  $('lv-vast').classList.toggle('hidden', !vast.length);
+}
+$('lv-sluit').addEventListener('click', () => { tk.live = null; $('tk-live').close(); });
+$('tk-live').addEventListener('close', () => { tk.live = null; });
+$('lv-grens').addEventListener('change', () => { try { localStorage.setItem(LIVE_GRENS, $('lv-grens').value); } catch {} tekenLive(); });
+setInterval(() => { if (tk.live && $('tk-live').open) tekenLive(); }, 15000);
