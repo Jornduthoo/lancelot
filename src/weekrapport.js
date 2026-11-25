@@ -165,4 +165,4 @@ async function naarLesmap({ van, tot, url, browser } = {}) {
   return { gemaakt, map: path.join(root, 'Weekrapporten'), fout: mislukt.length ? `Niet gelukt voor ${mislukt.join(', ')}.` : '' };
 }
 
-module.exports = { data, week, zetOpmerking, opmerkingen, naarLesmap, voorstelFeedback, BEHAALD };
+module.exports = { data, week, zetOpmerking, opmerkingen, naarLesmap, voorstelFeedback, doelTekst, kortDoel, BEHAALD };

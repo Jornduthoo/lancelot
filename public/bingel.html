@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Voor Bingel</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    body { margin: 0; background: #dfe3ea; font: 14px system-ui, "Segoe UI", Arial, sans-serif; color: #1d2330; }
+    .knoppen { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: #1d2330; color: #fff; flex-wrap: wrap; }
+    .knoppen button, .knoppen select, .knoppen a { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid #889; background: #fff; cursor: pointer; color: #1d2330; text-decoration: none; }
+    .knoppen button.hoofd { background: #d4a017; border-color: #d4a017; font-weight: 700; }
+    .knoppen label { display: flex; gap: 6px; align-items: center; }
+    main { max-width: 900px; margin: 16px auto; background: #fff; padding: 20px 22px; border-radius: 8px; box-shadow: 0 2px 14px rgba(0, 0, 0, .14); }
+    h1 { margin: 0 0 2px; font-size: 22px; }
+    .sub { margin: 0 0 12px; color: #556; }
+    .uitleg { background: #f4f6fa; border-radius: 6px; padding: 10px 12px; margin: 0 0 14px; color: #3b4660; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #e3e6ee; vertical-align: middle; }
+    th { font-size: 12px; color: #667; font-weight: 600; }
+    td.getal, th.getal { text-align: right; white-space: nowrap; width: 80px; }
+    td.getal { font-weight: 700; font-size: 15px; }
+    td.nr { color: #889; width: 28px; }
+    input.fb { width: 100%; box-sizing: border-box; font: inherit; padding: 6px 8px; border: 1px solid #c9cfdb; border-radius: 5px; background: #fffdf5; }
+    .stand { color: #889; font-style: italic; }
+    .rood { color: #b3261e; }
+    #info { opacity: .9; }
+    @media (max-width: 640px) {
+      main { margin: 0; border-radius: 0; padding: 14px 12px; }
+      th, td.nr { display: none; }
+      tr { display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid #e3e6ee; padding: 4px 0; }
+      td { border: 0; }
+      td:last-child { grid-column: 1 / -1; padding-top: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="knoppen">
+  <label>Omrekenen op <select id="op"><option value="10">10</option><option value="20">20</option><option value="100">100</option><option value="0">zoals de toets</option></select></label>
+  <label>Volgorde <select id="volgorde"><option value="klas">zoals de klaslijst</option><option value="abc">alfabetisch</option></select></label>
+  <button class="hoofd" id="k-punten">📋 Kopieer de punten</button>
+  <button id="k-feedback">📋 Kopieer de feedback</button>
+  <button id="k-tabel">📋 Kopieer de tabel</button>
+  <button id="csv" title="Een bestand voor Excel, met de feedback zoals ze hier staat">⬇ Csv</button>
+  <button id="sluit">Sluiten</button>
+  <span id="info"></span>
+</div>
+<main>
+  <h1 id="titel"></h1>
+  <p class="sub" id="sub"></p>
+  <p class="uitleg">Open in Bingel de toets bij je evaluaties en zet de leerlingen in dezelfde volgorde. Kopieer dan de punten (één per regel) en plak ze in de eerste puntencel, of neem ze over. De feedback kan je hier eerst aanpassen; ze wordt niet bewaard.</p>
+  <table id="tabel"></table>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// Export voor Bingel (wens 25 nov, punt 7): punten (standaard op 10) en een korte feedback per leerling, om over te nemen.
+const params = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const komma = x => String(x).replace('.', ',');
+const socket = io({ query: { role: 'host' } });
+let D = null;
+
+// Kopiëren zoals het er staat (zonder de extra's die Ui.kopieer bij een AI-prompt toevoegt).
+function kopieer(tekst) {
+  const t = document.createElement('textarea');
+  t.value = tekst;
+  t.setAttribute('readonly', '');
+  t.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+  document.body.appendChild(t);
+  t.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch {}
+  t.remove();
+  if (!ok && navigator.clipboard?.writeText) { navigator.clipboard.writeText(tekst).catch(() => {}); ok = true; }
+  return ok;
+}
+
+const rijen = () => {
+  const r = D.rijen.map((x, i) => ({ ...x, i }));
+  if ($('volgorde').value === 'abc') r.sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
+  return r;
+};
+const score = r => (r.score === null ? '' : komma(r.score));
+const fb = r => { const i = document.querySelector(`input.fb[data-i="${r.i}"]`); return i ? i.value.replace(/\s+/g, ' ').trim() : r.feedback; };
+
+function teken() {
+  $('titel').textContent = `${D.titel} · voor Bingel`;
+  const op = D.op ? `op ${D.op}` : 'zoals de toets';
+  $('sub').textContent = `${op}${D.vak ? ` · ${D.vak}` : ''}${D.herkansingen ? ` · met ${D.herkansingen === 1 ? '1 herkansing' : `${D.herkansingen} herkansingen`}, telt: ${D.telt}` : ''}`;
+  $('tabel').innerHTML = `<tr><th></th><th>Leerling</th><th class="getal">${D.op ? `Op ${D.op}` : 'Punten'}</th><th>Feedback</th></tr>` + rijen().map((r, n) => `<tr>
+    <td class="nr">${n + 1}</td><td>${esc(r.naam)}</td>
+    <td class="getal${r.op10 !== null && r.op10 < 5 ? ' rood' : ''}">${r.score === null ? '–' : `${esc(score(r))}${D.op ? '' : ` / ${esc(komma(r.max))}`}`}</td>
+    <td>${r.score === null ? `<span class="stand">${esc(r.stand)}</span>` : `<input class="fb" data-i="${r.i}" value="${esc(r.feedback)}" aria-label="Feedback">`}</td></tr>`).join('');
+  const mee = rijen().filter(r => r.score !== null).length;
+  $('info').textContent = `${mee} van de ${D.rijen.length} met punten`;
+}
+
+function laad() {
+  socket.emit('bg-data', { kolom: params.get('kolom'), op: Number($('op').value) }, d => {
+    if (!d || d.error) { $('titel').textContent = (d && d.error) || 'Dat lukte niet.'; return; }
+    D = d;
+    teken();
+  });
+}
+
+const gekopieerd = (ok, tekst) => { $('info').textContent = ok ? tekst : 'Kopiëren lukte niet. Selecteer de tabel en kopieer met Ctrl+C.'; };
+$('k-punten').addEventListener('click', () => gekopieerd(kopieer(rijen().map(score).join('\n')), 'De punten zijn gekopieerd. Plak ze in Bingel.'));
+$('k-feedback').addEventListener('click', () => gekopieerd(kopieer(rijen().map(r => (r.score === null ? '' : fb(r))).join('\n')), 'De feedback is gekopieerd. Plak ze in Bingel.'));
+$('k-tabel').addEventListener('click', () => gekopieerd(kopieer([['Naam', D.op ? `Op ${D.op}` : 'Punten', 'Feedback'], ...rijen().map(r => [r.naam, score(r), r.score === null ? r.stand : fb(r)])].map(x => x.join('\t')).join('\n')), 'De tabel is gekopieerd. Plak ze in Bingel of Excel.'));
+// Csv voor Excel (puntkomma, zoals in België), met de feedback zoals ze hier staat.
+$('csv').addEventListener('click', () => {
+  const c = v => (/[";\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const lijnen = [['Naam', D.op ? `Op ${D.op}` : 'Punten', 'Feedback'], ...rijen().map(r => [r.naam, score(r), r.score === null ? r.stand : fb(r)])];
+  const blob = new Blob(['\ufeff' + lijnen.map(x => x.map(c).join(';')).join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${D.titel.replace(/[\\/:*?"<>|]/g, '-')} - Bingel.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$('op').addEventListener('change', laad);
+$('volgorde').addEventListener('change', () => D && teken());
+$('sluit').addEventListener('click', () => { if (history.length > 1) history.back(); else window.close(); });
+laad();
+</script>
+</body>
+</html>
