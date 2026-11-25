@@ -56,6 +56,22 @@
       case 'taak_intrekken': return `Taak ${t} ingetrokken`;
       case 'taak_heropenen': return `Taak ${t} heropend`;
       case 'dagpresentatie_plaatsen': return `Dagpresentatie "${r.naam}" geplaatst`;
+      case 'vraag_toevoegen': return `Toets ${t}: vraag ${r.nr} toegevoegd`;
+      case 'vraag_wijzigen': return `Toets ${t}: vraag ${r.nr} gewijzigd`;
+      case 'vraag_verplaatsen': return `Toets ${t}: vraag ${r.nr} verplaatst`;
+      case 'vraag_weghalen': return `Toets ${t}: vraag ${r.nr} weggehaald`;
+      case 'toets_instellen': return `Toets ${t} aangepast`;
+      case 'niveau_maken': return `Toets ${t}: niveau ${r.niveau} gemaakt`;
+      case 'beeld_toevoegen': return `Toets ${t}: beeld of geluid bij vraag ${r.nr}`;
+      case 'toets_terugzetten': return `Toets ${t} teruggezet naar een vorige versie`;
+      case 'toetsen_bewaren': return `${r.n} toetsen bewaard`;
+      case 'quiz_maken':
+      case 'quiz_bijwerken': return `Quiz ${t} bewaard`;
+      case 'oefenblad_bewaren': return `Oefenblad ${t} bewaard`;
+      case 'map_maken': return `Map ${r.map} gemaakt`;
+      case 'map_hernoemen': return `Map ${r.van} heet nu ${r.naar}`;
+      case 'naar_map': return `${r.file} naar de map ${r.map || '(bovenaan)'}`;
+      case 'sync_starten': return 'Mijn lesmap gesynchroniseerd';
       default: return `Gelezen: ${r.actie}`;
     }
   }

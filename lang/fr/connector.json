@@ -78,5 +78,20 @@
  "De tunnel viel weg. LANcelot probeert het zo opnieuw (internet nodig).": "Le tunnel est tombé. LANcelot réessaie bientôt (internet nécessaire).",
  "Deze taak is afgesloten. Heropen ze eerst.": "Cette tâche est fermée. Rouvre-la d'abord.",
  "Er zijn al leerlingen aan deze taak begonnen: verplaatsen kan niet meer.": "Des élèves ont déjà commencé cette tâche : elle ne peut plus être déplacée.",
- "Kies een moment in de toekomst.": "Choisis un moment dans le futur."
+ "Kies een moment in de toekomst.": "Choisis un moment dans le futur.",
+ "Toets {0}: vraag {1} toegevoegd": "Évaluation {0} : question {1} ajoutée",
+ "Toets {0}: vraag {1} gewijzigd": "Évaluation {0} : question {1} modifiée",
+ "Toets {0}: vraag {1} verplaatst": "Évaluation {0} : question {1} déplacée",
+ "Toets {0}: vraag {1} weggehaald": "Évaluation {0} : question {1} retirée",
+ "Toets {0} aangepast": "Évaluation {0} modifiée",
+ "Toets {0}: niveau {1} gemaakt": "Évaluation {0} : niveau {1} créé",
+ "Toets {0}: beeld of geluid bij vraag {1}": "Évaluation {0} : image ou son pour la question {1}",
+ "Toets {0} teruggezet naar een vorige versie": "Évaluation {0} remise à une version précédente",
+ "{0} toetsen bewaard": "{0} évaluations enregistrées",
+ "Quiz {0} bewaard": "Quiz {0} enregistré",
+ "Oefenblad {0} bewaard": "Fiche {0} enregistrée",
+ "Map {0} gemaakt": "Dossier {0} créé",
+ "Map {0} heet nu {1}": "Le dossier {0} s'appelle maintenant {1}",
+ "{0} naar de map {1}": "{0} vers le dossier {1}",
+ "Mijn lesmap gesynchroniseerd": "Mon dossier de cours synchronisé"
 }

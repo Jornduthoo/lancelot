@@ -44,12 +44,24 @@ leerkrachtschermen zijn via de tunnel nooit bereikbaar (ook niet als ze voor LAN
 
 ## Tools
 
-Lezen: `gezondheid`, `klas`, `toetsen`, `toets`, `toets_controleren`, `taken`, `afnames`, `resultaten_toets`,
-`resultaten_leerling`, `antwoord`, `dagpresentaties`, `dagpresentatie`, `logboek`.
-Klaarzetten: `toets_bewaren`, `toets_kopieren`, `toets_naar_map`, `taak_geven`, `taak_leerlingen_toevoegen`,
-`taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`, `dagpresentatie_plaatsen`.
+Lezen: `gezondheid`, `klas`, `toetsen`, `toets`, `toets_controleren` (ook als droge run met een toets-JSON, met
+voorbeeldlink), `toets_versies`, `formaat` (de handleiding van het JSON-formaat), `taken`, `afnames`, `resultaten_toets`,
+`resultaten_leerling`, `antwoord`, `quizzen`, `quiz`, `quiz_resultaten`, `oefenbladen`, `oefenblad`, `mappen`,
+`weekexport` (json of csv), `dagpresentaties`, `dagpresentatie`, `logboek`, `sync_starten`.
+
+Klaarzetten: `toets_bewaren`, `toetsen_bewaren` (tot 50, verslag per toets), `toets_kopieren`, `toets_naar_map`,
+`vraag_toevoegen`, `vraag_wijzigen`, `vraag_verplaatsen`, `vraag_weghalen`, `toets_instellen`, `niveau_maken`,
+`beeld_toevoegen` (data-adres of https), `toets_terugzetten`, `quiz_maken`, `quiz_bijwerken`, `oefenblad_bewaren`,
+`map_maken`, `map_hernoemen`, `naar_map`, `taak_geven` (ook een quiz in een spel, gepland met `vanaf`),
+`taak_leerlingen_toevoegen`, `taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`,
+`dagpresentatie_plaatsen`.
+
+Versies: elke wijziging via de connector bewaart eerst de vorige versie in `proeven/_versies` (quizzen:
+`quizzes/_versies`, oefenbladen: `oefenbladen/_versies`). Een toets die al gegeven werd, verandert nooit: de wijziging
+komt in een nieuwe toets met "(v2)" in de titel. Een quiz of oefenblad mag bijgewerkt worden: een taak houdt haar kopie.
 
 Dagpresentaties staan in Mijn methodes › Dagpresentaties als `JJJJ-MM-DD titel.html`. Die van vandaag staat op het
 startscherm in het blok Vandaag (*Openen ▶*).
 
-Nog niet (volgende stap): quizzen aanmaken en plannen, beelden bij een toets, een weekexport, synchronisatie starten.
+Bestaat (nog) niet in LANcelot, dus ook niet via de connector: een einddatum, tijdslimiet of aantal pogingen per taak,
+gekoppelde 6/6+-paren (maak twee toetsen, bv. met `toets_kopieren`), een quiz herhaald plannen.

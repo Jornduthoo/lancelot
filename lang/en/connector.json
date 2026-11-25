@@ -78,5 +78,20 @@
  "De tunnel viel weg. LANcelot probeert het zo opnieuw (internet nodig).": "The tunnel dropped. LANcelot will try again shortly (internet needed).",
  "Deze taak is afgesloten. Heropen ze eerst.": "This task is closed. Reopen it first.",
  "Er zijn al leerlingen aan deze taak begonnen: verplaatsen kan niet meer.": "Pupils have already started this task: it can no longer be moved.",
- "Kies een moment in de toekomst.": "Choose a moment in the future."
+ "Kies een moment in de toekomst.": "Choose a moment in the future.",
+ "Toets {0}: vraag {1} toegevoegd": "Test {0}: question {1} added",
+ "Toets {0}: vraag {1} gewijzigd": "Test {0}: question {1} changed",
+ "Toets {0}: vraag {1} verplaatst": "Test {0}: question {1} moved",
+ "Toets {0}: vraag {1} weggehaald": "Test {0}: question {1} removed",
+ "Toets {0} aangepast": "Test {0} adjusted",
+ "Toets {0}: niveau {1} gemaakt": "Test {0}: level {1} created",
+ "Toets {0}: beeld of geluid bij vraag {1}": "Test {0}: image or sound for question {1}",
+ "Toets {0} teruggezet naar een vorige versie": "Test {0} restored to an earlier version",
+ "{0} toetsen bewaard": "{0} tests saved",
+ "Quiz {0} bewaard": "Quiz {0} saved",
+ "Oefenblad {0} bewaard": "Worksheet {0} saved",
+ "Map {0} gemaakt": "Folder {0} created",
+ "Map {0} heet nu {1}": "Folder {0} is now called {1}",
+ "{0} naar de map {1}": "{0} to the folder {1}",
+ "Mijn lesmap gesynchroniseerd": "My lesson folder synchronised"
 }

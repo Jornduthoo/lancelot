@@ -78,5 +78,20 @@
  "De tunnel viel weg. LANcelot probeert het zo opnieuw (internet nodig).": "Der Tunnel ist weggefallen. LANcelot versucht es gleich wieder (Internet nötig).",
  "Deze taak is afgesloten. Heropen ze eerst.": "Diese Aufgabe ist geschlossen. Öffne sie zuerst wieder.",
  "Er zijn al leerlingen aan deze taak begonnen: verplaatsen kan niet meer.": "Schüler haben mit dieser Aufgabe schon begonnen: Verschieben geht nicht mehr.",
- "Kies een moment in de toekomst.": "Wähle einen Zeitpunkt in der Zukunft."
+ "Kies een moment in de toekomst.": "Wähle einen Zeitpunkt in der Zukunft.",
+ "Toets {0}: vraag {1} toegevoegd": "Test {0}: Frage {1} hinzugefügt",
+ "Toets {0}: vraag {1} gewijzigd": "Test {0}: Frage {1} geändert",
+ "Toets {0}: vraag {1} verplaatst": "Test {0}: Frage {1} verschoben",
+ "Toets {0}: vraag {1} weggehaald": "Test {0}: Frage {1} entfernt",
+ "Toets {0} aangepast": "Test {0} angepasst",
+ "Toets {0}: niveau {1} gemaakt": "Test {0}: Niveau {1} erstellt",
+ "Toets {0}: beeld of geluid bij vraag {1}": "Test {0}: Bild oder Ton bei Frage {1}",
+ "Toets {0} teruggezet naar een vorige versie": "Test {0} auf eine frühere Version zurückgesetzt",
+ "{0} toetsen bewaard": "{0} Tests gespeichert",
+ "Quiz {0} bewaard": "Quiz {0} gespeichert",
+ "Oefenblad {0} bewaard": "Arbeitsblatt {0} gespeichert",
+ "Map {0} gemaakt": "Ordner {0} erstellt",
+ "Map {0} heet nu {1}": "Ordner {0} heißt jetzt {1}",
+ "{0} naar de map {1}": "{0} in den Ordner {1}",
+ "Mijn lesmap gesynchroniseerd": "Mein Unterrichtsordner synchronisiert"
 }

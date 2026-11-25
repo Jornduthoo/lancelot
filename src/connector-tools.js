@@ -23,7 +23,7 @@ const DATUM = /^\d{4}-\d{2}-\d{2}$/;
 const VANAF = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 
 // Wat server.js na een wijziging moet doen (het bord bijwerken, Mijn lesmap...). Zie init().
-let hooks = { naTaken() {}, naToetsen() {}, naKronieken() {}, gezondheid: () => ({}) };
+let hooks = { naTaken() {}, naToetsen() {}, naKronieken() {}, naBib() {}, syncNu: async () => ({ ingesteld: false }), gezondheid: () => ({}) };
 function init(h) { hooks = { ...hooks, ...h }; }
 
 const fout = msg => { throw new Error(msg); };
@@ -155,9 +155,16 @@ function toetsLezen({ file } = {}) {
 }
 
 // Een toets nakijken vóór de les: kan hij af, heeft elke vraag een sleutel, klopt voorlezen bij een taaltoets.
-function toetsControleren({ file } = {}) {
-  const f = toetsBestaat(file);
-  const t = proeven.load(f);
+// Zonder file maar met "toets": een droge run (niets bewaard), om een toets na te kijken vóór hij bewaard wordt.
+function toetsControleren({ file, toets } = {}) {
+  let f = null;
+  let t;
+  if (!file && toets !== undefined) {
+    try { t = toetsUit(toets); } catch (err) { return { droge_run: true, in_orde: false, bevindingen: [{ soort: 'ongeldig', tekst: err.message }] }; }
+  } else {
+    f = toetsBestaat(file);
+    t = proeven.load(f);
+  }
   const bevindingen = K.problemen(t).map(p => ({ soort: 'niet af', tekst: p }));
   const vak = proeven.vakVan(t);
   for (const n of K.niveausVan(t)) {
@@ -168,13 +175,14 @@ function toetsControleren({ file } = {}) {
   }
   const taal = stem.taalVanVak(vak);
   const s = stem.view();
-  for (const tk of taken.lijst().filter(x => x.soort === 'proef' && x.file === f && !x.dicht)) {
+  for (const tk of f ? taken.lijst().filter(x => x.soort === 'proef' && x.file === f && !x.dicht) : []) {
     const keuzes = taken.keuzesVoor(tk.id);
     if (taal !== 'nl' && /frans|fran/i.test(vak) && keuzes.voorlees !== 'uit') bevindingen.push({ soort: 'voorlezen', tekst: `Taak ${tk.id} (${tk.titel}): voorlezen staat op "${keuzes.voorlees}" bij een Franse toets.` });
     if (keuzes.voorlees !== 'uit' && !s.aan) bevindingen.push({ soort: 'voorlezen', tekst: `Taak ${tk.id}: voorlezen staat aan, maar de stem van LANcelot is niet ingesteld. De leerlingen horen de stem van hun toestel.` });
   }
   const handwerk = K.niveausVan(t).reduce((n, nv) => n + K.vragenVan(K.lijstVoor(t, nv)).filter(v => K.handPunten(v.q)).length, 0);
-  return { file: f, titel: t.title, vak, niveaus: K.niveausVan(t), vragen: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), zelf_te_verbeteren: handwerk, in_orde: !bevindingen.length, bevindingen };
+  const poort = (hooks.gezondheid() || {}).poort || 3000;
+  return { ...(f ? { file: f, voorbeeld: `http://localhost:${poort}/proef-proberen?file=${encodeURIComponent(f)}` } : { droge_run: true }), titel: t.title, vak, niveaus: K.niveausVan(t), vragen: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), zelf_te_verbeteren: handwerk, in_orde: !bevindingen.length, bevindingen };
 }
 
 function takenLijst({ open, soort, file } = {}) {
@@ -466,7 +474,7 @@ const TOOLS = [
   { name: 'klas', title: 'Klaslijst', description: 'De klaslijst: namen en niveaus (Page, Schildknaap, Ridder), ook per vak. Gebruik deze namen bij het toewijzen.', inputSchema: obj({}), fn: klasInfo },
   { name: 'toetsen', title: 'Toetsen opzoeken', description: 'Alle toetsen (De Proef): file, titel, map, vak, aantal vragen, punten, niveaus, klaar om af te nemen, wanneer gegeven. Kijk hier eerst, zodat je nooit een toets dubbel maakt. Bij meer dan 80 toetsen zonder zoek of map krijg je eerst het aantal per map.', inputSchema: obj({ zoek: S('Stuk van de titel (optioneel).'), map: S('Alleen toetsen in deze map en haar submappen (optioneel).'), alles: B('Ook bij een grote lijst alle toetsen geven (anders bij meer dan 80 een overzicht per map).') }), fn: toetsenLijst },
   { name: 'toets', title: 'Toets lezen', description: 'De volledige toets (JSON zoals LANcelot hem inleest) en wat er nog ontbreekt om hem af te nemen.', inputSchema: obj({ file: S('Bestandsnaam van de toets.') }, ['file']), fn: toetsLezen },
-  { name: 'toets_controleren', title: 'Toets controleren', description: 'Controle vóór de les: ontbreekt er iets, heeft elke vraag een sleutel, staat voorlezen uit bij een Franse toets, is de voorleesstem ingesteld. Geeft een lijst bevindingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets.') }, ['file']), fn: toetsControleren },
+  { name: 'toets_controleren', title: 'Toets controleren', description: 'Controle vóór de les: ontbreekt er iets, heeft elke vraag een sleutel, staat voorlezen uit bij een Franse toets, is de voorleesstem ingesteld. Geeft een lijst bevindingen en een voorbeeldlink. Met "toets" in plaats van "file": een droge run vóór het bewaren.', inputSchema: obj({ file: S('Bestandsnaam van de toets.'), toets: { type: ['object', 'string'], description: 'Of: een toets als JSON om na te kijken zonder te bewaren (droge run).' } }), fn: toetsControleren },
   { name: 'taken', title: 'Taken en toewijzingen', description: 'Alle gegeven taken (toetsen, oefenbladen, quizzen): id, titel, file, status (open, gepland, afgesloten), vanaf, keuzes (voorlezen, volgorde, punten tonen) en per leerling de status (nieuw, bezig, klaar).', inputSchema: obj({ open: B('Alleen taken die nog niet afgesloten zijn.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), file: S('Alleen taken van deze toets of dit bestand.') }), fn: takenLijst },
   { name: 'afnames', title: 'Afgenomen toetsen', description: 'De afgenomen toetsen (resultaten in De Proef), met datum, aantal leerlingen en hoeveel er nog te verbeteren is.', inputSchema: obj({ van: DAGP, tot: DAGP }), fn: afnamesLijst },
   { name: 'resultaten_toets', title: 'Resultaten van een toets', description: 'Per leerling de punten, het percentage, de punten per vraag en de tijd; per vraag het gemiddelde en hoe vaak fout; de vragen die het vaakst fout waren; wie nog niet inleverde.', inputSchema: obj({ taak_id: S('Id van de taak (tool "taken").'), afname: S('Of: de afname (tool "afnames").') }), fn: resultatenToets },
@@ -479,7 +487,7 @@ const TOOLS = [
   { name: 'toets_bewaren', schrijft: true, title: 'Toets bewaren', description: 'Een toets aanmaken of bijwerken uit JSON (hetzelfde formaat als "toets" teruggeeft: title, vak, vragen, en eventueel page/ridder voor de niveaus). Zonder file: nieuwe toets (fout als de titel al bestaat). Met file: bijwerken; werd die toets al gegeven, dan komt er een nieuwe versie en blijft het werk van de leerlingen staan.', inputSchema: obj({ toets: { type: ['object', 'string'], description: 'De toets als JSON.' }, file: S('Bestaande toets om bij te werken (optioneel).'), map: S('Map, bv. "Wiskunde/Blok 3". Bestaat ze niet, dan maakt LANcelot ze.'), dubbel_mag: B('Toch een nieuwe toets als de titel al bestaat.') }, ['toets']), fn: toetsBewaren, log: (a, r) => ({ titel: r.titel, file: r.file }) },
   { name: 'toets_kopieren', schrijft: true, title: 'Toets kopiëren', description: 'Een kopie van een toets maken (bv. een versie 6+), eventueel met een nieuwe titel en in een map.', inputSchema: obj({ file: S('De toets om te kopiëren.'), titel: S('Titel van de kopie.'), map: S('Map van de kopie.') }, ['file']), fn: toetsKopieren, log: (a, r) => ({ titel: r.titel, file: r.file }) },
   { name: 'toets_naar_map', schrijft: true, title: 'Toets naar een map', description: 'Een toets in een map zetten (bv. "Archief/Wiskunde/2026-11"). Lege map = bovenaan.', inputSchema: obj({ file: S('De toets.'), map: S('De map.') }, ['file']), fn: toetsNaarMap, log: (a, r) => ({ file: r.file, map: r.map }) },
-  { name: 'taak_geven', schrijft: true, title: 'Taak geven', description: 'Een toets (soort proef, standaard), oefenblad of quiz toewijzen aan leerlingen of de hele klas, meteen of gepland (vanaf). Keuzes die je niet meegeeft, komen uit Instellingen › Taken. Fout als dezelfde taak al open staat voor die leerlingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets, het oefenblad of de quiz.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), namen: NAMEN, hele_klas: B('Iedereen van de klas (zonder gasten).'), vanaf: S('Pas zichtbaar vanaf "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc). Leeg = meteen.'), voorlezen: VOORLEES, volgorde: VOLG, punten_tonen: B('De leerling ziet zijn punten na het inleveren.'), beveiligd: B('Volledig scherm; wegklikken wordt gemeld.'), verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), niveau: S('Iedereen op dit niveau (page, schildknaap, ridder). Leeg = ieder zijn eigen niveau.'), niveau_per_leerling: { type: 'object', additionalProperties: { type: 'string' }, description: 'Per naam een niveau, bv. {"Lotte": "ridder"}.' }, opnieuw: B('Toch geven, ook als dezelfde taak al open staat (herkansing).') }, ['file']), fn: taakGeven, log: (a, r) => ({ titel: r.titel, n: (r.leerlingen || []).length, vanaf: r.vanaf }) },
+  { name: 'taak_geven', schrijft: true, title: 'Taak geven', description: 'Een toets (soort proef, standaard), oefenblad of quiz toewijzen aan leerlingen of de hele klas, meteen of gepland (vanaf, bv. een quiz op een werkdag om 18.05). Keuzes die je niet meegeeft, komen uit Instellingen › Taken. Fout als dezelfde taak al open staat voor die leerlingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets, het oefenblad of de quiz.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), namen: NAMEN, hele_klas: B('Iedereen van de klas (zonder gasten).'), vanaf: S('Pas zichtbaar vanaf "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc). Leeg = meteen.'), voorlezen: VOORLEES, volgorde: VOLG, punten_tonen: B('De leerling ziet zijn punten na het inleveren.'), beveiligd: B('Volledig scherm; wegklikken wordt gemeld.'), verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), niveau: S('Iedereen op dit niveau (page, schildknaap, ridder). Leeg = ieder zijn eigen niveau.'), niveau_per_leerling: { type: 'object', additionalProperties: { type: 'string' }, description: 'Per naam een niveau, bv. {"Lotte": "ridder"}.' }, opnieuw: B('Toch geven, ook als dezelfde taak al open staat (herkansing).'), spel: S('Quiz: de leerling speelt ze alleen in dit spel (zonder spel: vraag per vraag).', { enum: Object.keys(taken.SOLO) }), minuten: { type: 'integer', enum: taken.MINUTEN, description: 'Quiz in een spel: hoe lang (minuten).' } }, ['file']), fn: taakGeven, log: (a, r) => ({ titel: r.titel, n: (r.leerlingen || []).length, vanaf: r.vanaf }) },
   { name: 'taak_leerlingen_toevoegen', schrijft: true, title: 'Leerlingen toevoegen', description: 'Leerlingen bij een gegeven taak zetten.', inputSchema: obj({ taak_id: S('Id van de taak.'), namen: NAMEN }, ['taak_id', 'namen']), fn: taakToevoegen, log: (a, r) => ({ titel: r.titel, n: r.toegevoegd }) },
   { name: 'taak_verplaatsen', schrijft: true, title: 'Taak verplaatsen', description: 'Het startmoment van een geplande taak veranderen (vanaf), of leeg om ze meteen te laten verschijnen. Kan alleen zolang de taak gepland is of niemand begon.', inputSchema: obj({ taak_id: S('Id van de taak.'), vanaf: S('JJJJ-MM-DDTHH:MM of leeg.') }, ['taak_id']), fn: taakVerplaatsen, log: (a, r) => ({ titel: r.titel, vanaf: r.vanaf }) },
   { name: 'taak_keuzes', schrijft: true, title: 'Keuzes van een taak', description: 'Voorlezen en punten tonen veranderen (geldt meteen voor iedereen), en de volgorde of het verbeteren (voor wie nog niet begon).', inputSchema: obj({ taak_id: S('Id van de taak.'), voorlezen: VOORLEES, punten_tonen: B('Punten tonen na het inleveren.'), volgorde: VOLG, verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }) }, ['taak_id']), fn: taakKeuzes, log: (a, r) => ({ titel: r.titel }) },
@@ -487,6 +495,9 @@ const TOOLS = [
   { name: 'taak_heropenen', schrijft: true, title: 'Taak heropenen', description: 'Een afgesloten taak weer openzetten.', inputSchema: obj({ taak_id: S('Id van de taak.') }, ['taak_id']), fn: taakHeropenen, log: (a, r) => ({ titel: r.titel }) },
   { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: 'Een html-presentatie (dia\'s als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag. Een bestaande wordt nooit overschreven.', inputSchema: obj({ html: S('De volledige html.'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam }) },
 ];
+
+// Deel 2: toetsen stap voor stap, quizzen, oefenbladen, mappen, de week, sync (src/connector-bouw.js).
+TOOLS.push(...require('./connector-bouw').maak({ fout, toetsBestaat, isGegeven, mapMaken, toetsBewaren, dag, vandaag, hooks: () => hooks }));
 
 // De antwoorden van de connector zelf (src/connector.js), voor de assistent.
 const TEKST = {
@@ -504,7 +515,8 @@ const TEKST = {
   json: 'Ongeldige JSON.',
 };
 const UITLEG = 'LANcelot is de klas-app van de leerkracht (toetsen in De Proef, taken per leerling, resultaten). '
-  + 'Kijk altijd eerst met "toetsen" en "taken" wat er al bestaat, zodat je niets dubbel aanmaakt. '
+  + 'Kijk altijd eerst met "toetsen", "quizzen" en "taken" wat er al bestaat, zodat je niets dubbel aanmaakt. '
+  + 'Lees "formaat" voor je een toets of quiz maakt; kleine aanpassingen doe je met "vraag_wijzigen" in plaats van de hele toets te vervangen. '
   + 'Niets wordt ooit verwijderd: een taak intrekken sluit ze af en het werk van de leerlingen blijft. '
   + 'Namen van leerlingen zijn persoonsgegevens: gebruik ze enkel voor wat de leerkracht vraagt.';
 
