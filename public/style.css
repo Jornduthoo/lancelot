@@ -2167,6 +2167,19 @@ button .ic + *, .button .ic { margin-right: .1em; }
 /* De knop "Namen" op elk leerkrachtenscherm (namen-host.js): wie is er binnen en waar. Linksonder op een spelbord,
    samen met de pauzeknop, zolang er een spel loopt. */
 .bord-knoppen { position: fixed; left: 18px; bottom: 18px; z-index: 25; display: flex; gap: 8px; }
+/* Hulpknop (wens 25 nov, punt 9): rechtsonder op elk leerkrachtenscherm, alleen als iemand hulp vroeg. */
+.hulp-wacht { position: fixed; right: 18px; bottom: 18px; z-index: 60; padding: 10px 18px; border-radius: 999px; clip-path: none; font-size: 1.15rem; font-weight: 800; color: rgb(var(--k-zwart)); background: rgb(var(--k-goud)); box-shadow: 0 0 0 4px rgb(var(--k-goud) / .3), 0 6px 18px rgb(var(--k-zwart) / .4); cursor: pointer; animation: hulp-gloed 2.4s ease-in-out infinite; }
+@keyframes hulp-gloed { 50% { box-shadow: 0 0 0 9px rgb(var(--k-goud) / .12), 0 6px 18px rgb(var(--k-zwart) / .4); } }
+@media (prefers-reduced-motion: reduce) { .hulp-wacht { animation: none; } }
+.hulp-venster { width: min(520px, 94vw); }
+.hulp-rij { list-style: decimal; margin: 8px 0 12px; padding-left: 26px; display: grid; gap: 8px; }
+.hulp-rij li { padding: 4px 0; }
+.hulp-rij li::marker { font-weight: 800; color: var(--gold); }
+.hulp-rij li { display: list-item; }
+.hulp-rij li > * { vertical-align: middle; }
+.hulp-wie { display: inline-flex; flex-direction: column; min-width: 0; width: calc(100% - 140px); }
+.hulp-wie small { color: var(--muted); }
+.hulp-rij li button { float: right; padding: 6px 12px; }
 .bord-knoppen.in-balk { position: static; z-index: auto; }
 .bord-knoppen.in-balk button { opacity: 1; }
 /* Wachtzaal, instellingen en eindstand: onderaan ruimte vrijlaten, zodat Pauze en Namen geen naamkaartjes bedekken. */

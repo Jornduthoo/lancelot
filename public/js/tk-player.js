@@ -28,6 +28,7 @@ function tkToon(scherm) {
   if (scherm !== 'toets') tkBewaak(false);
   if (!['blad', 'quiz', 'toets'].includes(scherm)) tkKlok(null);
   if (scherm !== 'blad') Voorlees.stop();
+  hulpToon();
   if (scherm === 'lijst' || scherm === 'join') {
     $('tk-doel').classList.add('hidden');
     $('tk-kop-titel').textContent = 'Mijn taken';
@@ -52,7 +53,7 @@ function tkLijst(naam = tk.naam) {
       $('tk-join-error').textContent = (res && res.error) || '';
       return tkToon('join');
     }
-    tk.naam = res.naam;
+    if (tk.naam !== res.naam) { tk.naam = res.naam; hulpStand(); }
     tk.taak = null;
     Voorlees.taal('');
     Voorlees.wie(res.naam);
@@ -549,6 +550,7 @@ socket.on('tk-nieuw', () => {
   else tkNogOpen();
 });
 socket.on('connect', () => {
+  hulpStand();
   if (tk.scherm === 'join' || tk.scherm === 'lijst') tkLijst();
   else tkNogOpen();
 });
@@ -651,4 +653,48 @@ socket.onAny((event, s) => {
   if (!s || typeof s !== 'object' || typeof s.phase !== 'string' || !/(^|-)state$/.test(event)) return;
   tkSpellen[event] = !['idle', 'einde', 'end', 'podium'].includes(s.phase);
   $('tk-start-banner').classList.toggle('hidden', !Object.values(tkSpellen).some(Boolean));
+});
+
+// ---------- Hulpknop (wens 25 nov, punt 9) ----------
+// Stil hulp vragen: de leerkracht ziet een wachtrij, andere leerlingen zien niets. Nog eens tikken = intrekken.
+tk.hulp = { gevraagd: false };
+function hulpToon() {
+  const aan = !!tk.naam && tk.scherm !== 'join';
+  $('tk-hulp-blok').classList.toggle('hidden', !aan);
+  if (!aan) return;
+  const h = tk.hulp || {};
+  $('tk-hulp').textContent = h.gevraagd ? '✋ Hulp gevraagd · intrekken' : '✋ Hulp vragen';
+  $('tk-hulp').classList.toggle('on', !!h.gevraagd);
+  $('tk-hulp').title = h.gevraagd ? 'Tik om je vraag in te trekken' : 'Stil hulp vragen: alleen de leerkracht ziet het';
+  const info = h.gevraagd ? (h.plaats > 2 ? `De leerkracht komt zo. Er zijn nog ${h.plaats - 1} leerlingen voor jou.` : h.plaats === 2 ? 'De leerkracht komt zo. Er is nog 1 leerling voor jou.' : 'De leerkracht komt zo. Jij bent de volgende.') : '';
+  $('tk-hulp-info').textContent = info;
+  $('tk-hulp-info').classList.toggle('hidden', !info);
+}
+function hulpStand() {
+  if (!tk.naam) return;
+  socket.emit('hulp-stand', { naam: tk.naam }, r => { tk.hulp = r && !r.error ? r : { gevraagd: false }; hulpToon(); });
+}
+function hulpWaar() {
+  const t = tk.taak;
+  if (!t || !['blad', 'quiz', 'toets'].includes(tk.scherm)) return 'Mijn taken';
+  return tk.scherm === 'toets' ? `${t.titel} · vraag ${(t.pos || 0) + 1}` : t.titel;
+}
+$('tk-hulp').addEventListener('click', () => {
+  if (!tk.naam) return;
+  if ((tk.hulp || {}).gevraagd) return socket.emit('hulp-weg', { naam: tk.naam }, r => { tk.hulp = r || { gevraagd: false }; hulpToon(); });
+  socket.emit('hulp-vraag', { naam: tk.naam, waar: hulpWaar() }, r => {
+    if (!r || r.error) return;
+    tk.hulp = r;
+    hulpToon();
+  });
+});
+socket.on('hulp-stand', r => {
+  const was = (tk.hulp || {}).gevraagd;
+  tk.hulp = r || { gevraagd: false };
+  hulpToon();
+  if (was && r && r.geholpen) {
+    $('tk-hulp-info').textContent = 'De leerkracht heeft je vraag afgevinkt.';
+    $('tk-hulp-info').classList.remove('hidden');
+    setTimeout(() => { if (!tk.hulp.gevraagd) $('tk-hulp-info').classList.add('hidden'); }, 6000);
+  }
 });

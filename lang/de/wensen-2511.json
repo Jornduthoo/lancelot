@@ -153,5 +153,20 @@
  "{0} bezig · {1} klaar · {2} nog niet begonnen": "{0} dabei · {1} fertig · {2} nicht begonnen",
  "⚠ Lang op één vraag: {0}": "⚠ Lange bei einer Frage: {0}",
  "Lang op één vraag vanaf": "Lange bei einer Frage ab",
- "8 min": "8 Min."
+ "8 min": "8 Min.",
+ "✋ Hulp gevraagd · intrekken": "✋ Hilfe angefragt · zurückziehen",
+ "✋ Hulp vragen": "✋ Um Hilfe bitten",
+ "Tik om je vraag in te trekken": "Tippe, um deine Frage zurückzuziehen",
+ "Stil hulp vragen: alleen de leerkracht ziet het": "Leise um Hilfe bitten: nur die Lehrkraft sieht es",
+ "De leerkracht komt zo. Er zijn nog {0} leerlingen voor jou.": "Die Lehrkraft kommt gleich. Vor dir sind noch {0} Schüler.",
+ "De leerkracht komt zo. Er is nog 1 leerling voor jou.": "Die Lehrkraft kommt gleich. Vor dir ist noch 1 Schüler.",
+ "De leerkracht komt zo. Jij bent de volgende.": "Die Lehrkraft kommt gleich. Du bist als Nächstes dran.",
+ "{0} · vraag {1}": "{0} · Frage {1}",
+ "De leerkracht heeft je vraag afgevinkt.": "Die Lehrkraft hat deine Frage abgehakt.",
+ "Leerlingen vroegen stil hulp: tik om te zien wie": "Schüler haben leise um Hilfe gebeten: tippe, um zu sehen wer",
+ "✋ Hulp gevraagd": "✋ Hilfe angefragt",
+ "Wie eerst vroeg, staat bovenaan. De andere leerlingen zien dit niet.": "Wer zuerst gefragt hat, steht oben. Die anderen Schüler sehen das nicht.",
+ "1 leerling vraagt hulp": "1 Schüler bittet um Hilfe",
+ "{0} leerlingen vragen hulp": "{0} Schüler bitten um Hilfe",
+ "✔ Geholpen": "✔ Geholfen"
 }
