@@ -56,6 +56,14 @@ Klaarzetten: `toets_bewaren`, `toetsen_bewaren` (tot 50, verslag per toets), `to
 `taak_leerlingen_toevoegen`, `taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`,
 `dagpresentatie_plaatsen`.
 
+Peilen (`src/connector-peilen.js`): lezen met `peilingen`, `peiling`, `peiling_resultaten` (gespeelde peilingen per
+vraag: stemmen, schaal met gemiddelde, woordwolk, open antwoorden; met `live` de stand van wat nu op het bord loopt; altijd
+anoniem) en `voorkennis`. Klaarzetten met `peiling_maken` (met `doel: "voorkennis"` om voorkennis te activeren, komt in
+de map Voorkennis), `peiling_bijwerken` (vorige versie in `rondetafel/_versies`), `peiling_starten` (het welkomstscherm
+met QR-code op het bord; de leerkracht leidt ze zelf in De Ronde Tafel; niet als er al iets loopt), `peiling_stoppen`
+(bewaart de antwoorden) en `voorkennisquiz_maken` (voorkennis peilen: een quiz "Voorkennis les <nr> · <onderwerp>" in
+`Voorkennis/<map van de lessen>`, zodat ze bij die les staat in De Kronieken en De Zonnewijzer).
+
 Versies: elke wijziging via de connector bewaart eerst de vorige versie in `proeven/_versies` (quizzen:
 `quizzes/_versies`, oefenbladen: `oefenbladen/_versies`). Een toets die al gegeven werd, verandert nooit: de wijziging
 komt in een nieuwe toets met "(v2)" in de titel. Een quiz of oefenblad mag bijgewerkt worden: een taak houdt haar kopie.

@@ -1290,6 +1290,14 @@ connector.init({
     },
     naToetsen: () => sendLibrary('proef'),
     naBib: kind => sendLibrary(kind),
+    // Peilen: de peiling die op het bord loopt (De Ronde Tafel), klaarzetten en stoppen.
+    rondeTafel: () => rt,
+    peilingStarten: sessie => {
+      const busy = busyWith();
+      if (busy) throw busyError(busy);
+      rt.load(sessie);
+    },
+    peilingStoppen: () => rt.stop(),
     syncNu: async () => {
       if (!settings.read().lesmap) return { ingesteld: false };
       try { await runSync(); } catch {}
