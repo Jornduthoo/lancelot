@@ -40,5 +40,22 @@
  "De {0}-versie \"{1}\" ({2}) is niet gepland, deze wel ({3}).": "The {0} version \"{1}\" ({2}) is not planned, this one is ({3}).",
  "Deze toets is niet gepland, de {0}-versie \"{1}\" wel ({2}).": "This test is not planned, the {0} version \"{1}\" is ({2}).",
  "De 6- en de 6+-versie staan op een andere dag: deze {0}, \"{1}\" {2}.": "The 6 and 6+ versions are on different days: this one {0}, \"{1}\" {2}.",
- "{0}{1} {2} allebei de versies.": "{0}{1} {2} both versions."
+ "{0}{1} {2} allebei de versies.": "{0}{1} {2} both versions.",
+ "🩹 Remediëring": "🩹 Remediation",
+ "Niemand had een vraag fout die al verbeterd is. Verbeter eerst de open vragen.": "Nobody got a question wrong that has been marked already. Mark the open questions first.",
+ "Niemand had een vraag fout (minder dan de helft van de punten).": "Nobody got a question wrong (less than half the points).",
+ "{0}: vraag {1}": "{0}: question {1}",
+ "Nog niet alles verbeterd bij {0}: die vragen tellen nog niet mee.": "Not everything marked yet for {0}: those questions do not count yet.",
+ "{0} een oefenblad met de vragen waarop ze minder dan de helft haalden, in hun eigen versie van de toets. Ze verbeteren meteen en zien hun punten. {1}{2}": "{0} a practice sheet with the questions where they got less than half, in their own version of the test. It is marked straight away and they see their score. {1}{2}",
+ "1 leerling krijgt": "1 pupil gets",
+ "{0} leerlingen krijgen": "{0} pupils get",
+ "Klaarzetten": "Set up",
+ "{0} oefenbladen staan klaar bij Mijn taken. Je vindt ze ook in Maken › Mijn oefenbladen, map {1}.": "{0} practice sheets are ready in My tasks. You also find them in Create › My practice sheets, folder {1}.",
+ "Remediëring": "Remediation",
+ "Oefen: {0}": "Practise: {0}",
+ "Remediëring · {0}{1}": "Remediation · {0}{1}",
+ "Deze vragen kunnen niet op een oefenblad.": "These questions cannot go on a practice sheet.",
+ "Die taak bestaat niet (meer).": "That task does not exist (any more).",
+ "Remediëring kan alleen na een toets.": "Remediation only works after a test.",
+ "Er is nog niets ingeleverd voor deze toets.": "Nothing has been handed in for this test yet."
 }

@@ -40,5 +40,22 @@
  "De {0}-versie \"{1}\" ({2}) is niet gepland, deze wel ({3}).": "La versión {0} \"{1}\" ({2}) no está planificada, esta sí ({3}).",
  "Deze toets is niet gepland, de {0}-versie \"{1}\" wel ({2}).": "Este examen no está planificado, la versión {0} \"{1}\" sí ({2}).",
  "De 6- en de 6+-versie staan op een andere dag: deze {0}, \"{1}\" {2}.": "Las versiones 6 y 6+ están en días distintos: esta {0}, \"{1}\" {2}.",
- "{0}{1} {2} allebei de versies.": "{0}{1} {2} las dos versiones."
+ "{0}{1} {2} allebei de versies.": "{0}{1} {2} las dos versiones.",
+ "🩹 Remediëring": "🩹 Refuerzo",
+ "Niemand had een vraag fout die al verbeterd is. Verbeter eerst de open vragen.": "Nadie falló una pregunta ya corregida. Corrige primero las preguntas abiertas.",
+ "Niemand had een vraag fout (minder dan de helft van de punten).": "Nadie falló una pregunta (menos de la mitad de los puntos).",
+ "{0}: vraag {1}": "{0}: pregunta {1}",
+ "Nog niet alles verbeterd bij {0}: die vragen tellen nog niet mee.": "Aún no está todo corregido de {0}: esas preguntas todavía no cuentan.",
+ "{0} een oefenblad met de vragen waarop ze minder dan de helft haalden, in hun eigen versie van de toets. Ze verbeteren meteen en zien hun punten. {1}{2}": "{0} una hoja de práctica con las preguntas en las que sacaron menos de la mitad, en su propia versión del examen. Se corrige enseguida y ven sus puntos. {1}{2}",
+ "1 leerling krijgt": "1 alumno recibe",
+ "{0} leerlingen krijgen": "{0} alumnos reciben",
+ "Klaarzetten": "Preparar",
+ "{0} oefenbladen staan klaar bij Mijn taken. Je vindt ze ook in Maken › Mijn oefenbladen, map {1}.": "{0} hojas de práctica están listas en Mis tareas. También las encuentras en Crear › Mis hojas, carpeta {1}.",
+ "Remediëring": "Refuerzo",
+ "Oefen: {0}": "Practica: {0}",
+ "Remediëring · {0}{1}": "Refuerzo · {0}{1}",
+ "Deze vragen kunnen niet op een oefenblad.": "Estas preguntas no caben en una hoja de práctica.",
+ "Die taak bestaat niet (meer).": "Esa tarea no existe (ya).",
+ "Remediëring kan alleen na een toets.": "El refuerzo solo funciona después de un examen.",
+ "Er is nog niets ingeleverd voor deze toets.": "Todavía no se ha entregado nada de este examen."
 }

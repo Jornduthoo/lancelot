@@ -40,5 +40,22 @@
  "De {0}-versie \"{1}\" ({2}) is niet gepland, deze wel ({3}).": "La version {0} « {1} » ({2}) n'est pas planifiée, celle-ci oui ({3}).",
  "Deze toets is niet gepland, de {0}-versie \"{1}\" wel ({2}).": "Ce test n'est pas planifié, la version {0} « {1} » oui ({2}).",
  "De 6- en de 6+-versie staan op een andere dag: deze {0}, \"{1}\" {2}.": "Les versions 6 et 6+ sont à des jours différents : celle-ci {0}, « {1} » {2}.",
- "{0}{1} {2} allebei de versies.": "{0}{1} {2} les deux versions."
+ "{0}{1} {2} allebei de versies.": "{0}{1} {2} les deux versions.",
+ "🩹 Remediëring": "🩹 Remédiation",
+ "Niemand had een vraag fout die al verbeterd is. Verbeter eerst de open vragen.": "Personne n'a raté une question déjà corrigée. Corrige d'abord les questions ouvertes.",
+ "Niemand had een vraag fout (minder dan de helft van de punten).": "Personne n'a raté une question (moins de la moitié des points).",
+ "{0}: vraag {1}": "{0} : question {1}",
+ "Nog niet alles verbeterd bij {0}: die vragen tellen nog niet mee.": "Pas encore tout corrigé pour {0} : ces questions ne comptent pas encore.",
+ "{0} een oefenblad met de vragen waarop ze minder dan de helft haalden, in hun eigen versie van de toets. Ze verbeteren meteen en zien hun punten. {1}{2}": "{0} une feuille d'exercices avec les questions où ils ont eu moins de la moitié, dans leur propre version du test. Elle est corrigée tout de suite et ils voient leurs points. {1}{2}",
+ "1 leerling krijgt": "1 élève reçoit",
+ "{0} leerlingen krijgen": "{0} élèves reçoivent",
+ "Klaarzetten": "Préparer",
+ "{0} oefenbladen staan klaar bij Mijn taken. Je vindt ze ook in Maken › Mijn oefenbladen, map {1}.": "{0} feuilles d'exercices sont prêtes dans Mes tâches. Tu les trouves aussi dans Créer › Mes feuilles, dossier {1}.",
+ "Remediëring": "Remédiation",
+ "Oefen: {0}": "Exerce-toi : {0}",
+ "Remediëring · {0}{1}": "Remédiation · {0}{1}",
+ "Deze vragen kunnen niet op een oefenblad.": "Ces questions ne peuvent pas aller sur une feuille d'exercices.",
+ "Die taak bestaat niet (meer).": "Cette tâche n'existe pas (plus).",
+ "Remediëring kan alleen na een toets.": "La remédiation ne fonctionne qu'après un test.",
+ "Er is nog niets ingeleverd voor deze toets.": "Rien n'a encore été rendu pour ce test."
 }
