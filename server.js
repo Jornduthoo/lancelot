@@ -2269,6 +2269,9 @@ io.on('connection', socket => {
       if (t.soort === 'proef' && arg.herkansing) try { punten.koppel({ kolom: t.id, van: String(arg.herkansing) }); } catch {}
       return { id: t.id };
     }));
+    // Remediëring na een toets (wens 25 nov, punt 4): eerst tonen wie wat krijgt, dan per leerling een oefenblad als taak.
+    socket.on('rm-voorstel', handle(arg => { const r = require('./src/remediering'); const a = arg || {}; return r.samenvatting(r.voorstel(r.afnameVan(a), { grens: Number(a.grens) || 0.5 })); }));
+    socket.on('rm-maak', taak(arg => { const r = require('./src/remediering'); const a = arg || {}; const out = r.maak(r.afnameVan(a), { grens: Number(a.grens) || 0.5 }); sendLibrary('oefenblad'); return out; }));
     socket.on('tk-toevoegen', taak(arg => ({ n: taken.voegToe(arg) })));
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));

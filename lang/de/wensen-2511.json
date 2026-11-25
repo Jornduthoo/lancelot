@@ -40,5 +40,22 @@
  "De {0}-versie \"{1}\" ({2}) is niet gepland, deze wel ({3}).": "Die {0}-Version „{1}“ ({2}) ist nicht geplant, diese schon ({3}).",
  "Deze toets is niet gepland, de {0}-versie \"{1}\" wel ({2}).": "Dieser Test ist nicht geplant, die {0}-Version „{1}“ schon ({2}).",
  "De 6- en de 6+-versie staan op een andere dag: deze {0}, \"{1}\" {2}.": "Die Versionen 6 und 6+ liegen an verschiedenen Tagen: diese {0}, „{1}“ {2}.",
- "{0}{1} {2} allebei de versies.": "{0}{1} {2} beide Versionen."
+ "{0}{1} {2} allebei de versies.": "{0}{1} {2} beide Versionen.",
+ "🩹 Remediëring": "🩹 Förderung",
+ "Niemand had een vraag fout die al verbeterd is. Verbeter eerst de open vragen.": "Niemand hatte eine bereits korrigierte Frage falsch. Korrigiere zuerst die offenen Fragen.",
+ "Niemand had een vraag fout (minder dan de helft van de punten).": "Niemand hatte eine Frage falsch (weniger als die Hälfte der Punkte).",
+ "{0}: vraag {1}": "{0}: Frage {1}",
+ "Nog niet alles verbeterd bij {0}: die vragen tellen nog niet mee.": "Bei {0} ist noch nicht alles korrigiert: diese Fragen zählen noch nicht.",
+ "{0} een oefenblad met de vragen waarop ze minder dan de helft haalden, in hun eigen versie van de toets. Ze verbeteren meteen en zien hun punten. {1}{2}": "{0} ein Übungsblatt mit den Fragen, bei denen sie weniger als die Hälfte hatten, in ihrer eigenen Version des Tests. Es wird sofort korrigiert und sie sehen ihre Punkte. {1}{2}",
+ "1 leerling krijgt": "1 Schüler bekommt",
+ "{0} leerlingen krijgen": "{0} Schüler bekommen",
+ "Klaarzetten": "Bereitstellen",
+ "{0} oefenbladen staan klaar bij Mijn taken. Je vindt ze ook in Maken › Mijn oefenbladen, map {1}.": "{0} Übungsblätter stehen unter Meine Aufgaben bereit. Du findest sie auch unter Erstellen › Meine Übungsblätter, Ordner {1}.",
+ "Remediëring": "Förderung",
+ "Oefen: {0}": "Übe: {0}",
+ "Remediëring · {0}{1}": "Förderung · {0}{1}",
+ "Deze vragen kunnen niet op een oefenblad.": "Diese Fragen passen nicht auf ein Übungsblatt.",
+ "Die taak bestaat niet (meer).": "Diese Aufgabe gibt es nicht (mehr).",
+ "Remediëring kan alleen na een toets.": "Förderung geht nur nach einem Test.",
+ "Er is nog niets ingeleverd voor deze toets.": "Für diesen Test wurde noch nichts abgegeben."
 }

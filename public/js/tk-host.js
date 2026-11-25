@@ -759,6 +759,8 @@ function kaart(t) {
   };
   // Een toets: één klik naar het overzicht in De Proef (punten, verbeteren, Klaar met verbeteren, gemaild).
   if (t.soort === 'proef' && t.afname) knopje('Verbeteren ▶', () => { location.href = `/proef?verbeter=${encodeURIComponent(t.afname)}`; }, 'gold');
+  // Remediëring (wens 25 nov, punt 4): per leerling een oefenblad met wat fout liep.
+  if (t.soort === 'proef' && t.afname) knopje('🩹 Remediëring', () => remediering(t));
   if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   // Beveiligd aan of uit, ook voor een toets die al loopt: wie werkt, krijgt het meteen.
@@ -1195,3 +1197,22 @@ socket.on('klas-namen', namen => {
   socket.emit('tk-bronnen', null, res => { if (res && !res.error) { tk.gast = new Set(res.gast || []); tekenNamen(); } });
   tekenNamen();
 });
+
+// ---------- Remediëring na een toets (wens 25 nov, punt 4) ----------
+// Eerst zeggen wie wat krijgt, dan per leerling (of groepje met dezelfde fouten) een oefenblad als taak klaarzetten.
+function remediering(t) {
+  socket.emit('rm-voorstel', { taak_id: t.id }, async v => {
+    if (!v || v.error) return Ui.melding((v && v.error) || 'Dat lukte niet.');
+    const kan = v.groepen.filter(g => g.kan);
+    const n = kan.reduce((s, g) => s + g.namen.length, 0);
+    if (!n) return Ui.melding(v.nogTeVerbeteren.length ? 'Niemand had een vraag fout die al verbeterd is. Verbeter eerst de open vragen.' : 'Niemand had een vraag fout (minder dan de helft van de punten).');
+    const wie = kan.map(g => `${g.namen.join(', ')}: vraag ${g.vragen.join(', ')}`).join('\n');
+    const nog = v.nogTeVerbeteren.length ? `\nNog niet alles verbeterd bij ${v.nogTeVerbeteren.map(x => x.naam).join(', ')}: die vragen tellen nog niet mee.` : '';
+    const tekst = `${n === 1 ? '1 leerling krijgt' : `${n} leerlingen krijgen`} een oefenblad met de vragen waarop ze minder dan de helft haalden, in hun eigen versie van de toets. Ze verbeteren meteen en zien hun punten.\n\n${wie}${nog}`;
+    if (!await Ui.vraag(tekst, { ja: 'Klaarzetten', nee: 'Nee' })) return;
+    socket.emit('rm-maak', { taak_id: t.id }, res => {
+      if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+      Ui.melding(`${res.bladen.filter(b => b.taak_id).length} oefenbladen staan klaar bij Mijn taken. Je vindt ze ook in Maken › Mijn oefenbladen, map ${res.map}.`);
+    });
+  });
+}
