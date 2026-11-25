@@ -2951,6 +2951,12 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
+    // Grondig nakijken in de editor (wens 25 nov, punt 3): beelden, andere goede schrijfwijzen, de 6- en 6+-versie.
+    socket.on('pf-controle', handle(({ toets, file } = {}) => {
+      const t = proeven.K.validate(toets);
+      const f = file && proeven.list().some(x => x.file === file) ? file : null;
+      return { bevindingen: require('./src/toetscontrole').controleer({ file: f, toets: t, taken: taken.lijst() }), versies: f ? require('./src/toetscontrole').andereVersies(f, proeven.list()) : [] };
+    }));
     socket.on('pf-load', handle(({ file, inst } = {}) => {
       const busy = busyWith('proef');
       if (busy) throw busyError(busy);
