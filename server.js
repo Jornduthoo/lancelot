@@ -114,6 +114,7 @@ const opvolgen = require('./src/opvolgen');
 const toestellen = require('./src/toestellen');
 const takenstandaard = require('./src/takenstandaard');
 const vandaag = require('./src/vandaag');
+const connector = require('./src/connector');
 const punten = require('./src/punten');
 const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
@@ -877,7 +878,10 @@ function takenNaarBord() {
 const VANDAAG_KIJKERS = 'vandaag-kijkers';
 function vandaagData() {
   if (!takenstandaard.read().vandaag) return { uit: true };
-  return vandaag.samenvatting(taken.lijst(), afnameLijst());
+  const d = vandaag.samenvatting(taken.lijst(), afnameLijst());
+  // De dagpresentatie van vandaag (Mijn methodes › Dagpresentaties, bv. via de connector geplaatst): één tik om te openen.
+  const p = connector.presentatieVan();
+  return p ? { ...d, presentatie: p, leeg: false } : d;
 }
 let vandaagTimer = null;
 function vandaagSoon() {
@@ -1252,6 +1256,38 @@ taal.route(app);
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
 kronieken.routes(app, isLeerkracht, express, () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); });
+// De connector voor Claude (Instellingen › Connector, docs/connector.md): MCP op /mcp en dezelfde tools op /api/v1.
+// Alleen met een sleutel die de leerkracht zelf maakte; standaard uit en alleen lezen.
+connector.routes(app, express);
+connector.init({
+  express,
+  versie: () => { try { return (bijwerken.view().huidig || {}).sha || ''; } catch { return ''; } },
+  hooks: {
+    naTaken: ({ toets, keuzes } = {}) => {
+      takenNaarBord();
+      stemSoon();
+      io.emit('tk-nieuw');
+      if (keuzes) io.emit('tk-keuzes', { id: keuzes });
+      solo.controleer();
+      if (toets) sendLibrary('proef', null, true);
+      syncSoon();
+    },
+    naToetsen: () => sendLibrary('proef'),
+    naKronieken: () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); vandaagSoon(); },
+    gezondheid: () => {
+      const b = (() => { try { return bijwerken.view(); } catch { return {}; } })();
+      const lm = (() => { try { return lesmap.view(); } catch { return {}; } })();
+      return {
+        draait: true, sinds: new Date(Date.now() - process.uptime() * 1000).toISOString(), pc: os.hostname(), poort: PORT,
+        versie: b.huidig || null, store: !!b.store, update_klaar: !!b.klaar, update_melding: b.melding || '',
+        lesmap: { ingesteld: !!lm.lesmap, ...Object.fromEntries(Object.entries(lm).filter(([k]) => !['lesmap', 'soorten'].includes(k))) },
+        leerlingen_verbonden: [...io.sockets.sockets.values()].filter(x => !x.data.host).length,
+      };
+    },
+  },
+  bijLog: r => io.to('host').emit('cn-log', r),
+  bijTunnel: v => io.to('host').emit('cn-tunnel', v),
+});
 // Voorlezen: de leerling meldt welke stem hij hoort (Vlaams, een andere, geen). Het live overzicht toont het bij zijn naam.
 app.post('/api/stem/stand', express.json({ limit: '1kb' }), (req, res) => {
   if (stem.zetStand(req.body || {})) io.to('host').emit('stem-standen', stem.standenView());
@@ -2232,6 +2268,12 @@ io.on('connection', socket => {
       return r;
     }));
     socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
+    // Instellingen › Connector: aan of uit, alleen lezen, sleutels maken en intrekken, de tunnel en het logboek.
+    const cnView = () => connector.view(lanAddresses()[0] ? `http://${lanAddresses()[0]}:${PORT}` : '');
+    socket.on('cn-view', handle(() => cnView()));
+    socket.on('cn-zet', handle(arg => { connector.zet(arg || {}); return cnView(); }));
+    socket.on('cn-sleutel', handle(arg => ({ ...connector.maakSleutel((arg || {}).naam), ...cnView() })));
+    socket.on('cn-intrek', handle(arg => { connector.trekIn((arg || {}).id); return cnView(); }));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
     socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));
     // Herhaalquizzen maken vanuit het zorgoverzicht. Ze komen bij je quizzen in de map Herhaling.

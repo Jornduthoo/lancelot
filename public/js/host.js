@@ -602,6 +602,15 @@ socket.on('pf-afnames', lijst => {
     if (d.verbeteren.length) tel.push(`${d.verbeteren.length} ${d.verbeteren.length === 1 ? 'toets' : 'toetsen'}`);
     if (d.nietAf.length) tel.push(`${d.nietAf.length} niet af`);
     $('vandaag-telling').textContent = tel.length ? `· ${tel.join(' · ')}` : '';
+    // De dagpresentatie van vandaag (Mijn methodes › Dagpresentaties): één tik en ze staat op het bord.
+    blok('vandaag-presentatie', d.presentatie ? [d.presentatie] : [], p => {
+      const li = maak('li');
+      li.append(maak('span', '', `📽 ${p.titel}`));
+      const k = maak('a', 'button', 'Openen ▶');
+      k.href = p.link;
+      li.append(k);
+      return li;
+    });
     blok('vandaag-verschijnt', d.verschijnt, t => {
       const li = maak('li');
       const s = maak('span');

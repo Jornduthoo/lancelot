@@ -2647,3 +2647,7 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .tab-meer-lijst a:hover, .tab-meer-lijst a.on { color: var(--text); background: rgb(var(--k-wit, 255 255 255) / .08); }
 .stem-stand { margin-left: .15em; cursor: help; }
 .test-geluid { margin-top: .6rem; }
+
+/* Instellingen › Connector: het logboek */
+.cn-log { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+#cn-nieuwe code { word-break: break-all; }
