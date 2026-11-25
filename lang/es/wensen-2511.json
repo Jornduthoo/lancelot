@@ -100,5 +100,21 @@
  "De toets was nog moeilijk ({0}).": "El examen todavía fue difícil ({0}).",
  "De toetsen waren nog moeilijk ({0}).": "Los exámenes todavía fueron difíciles ({0}).",
  "De taak is nog niet af.": "La tarea aún no está hecha.",
- "{0} van de {1} taken af.": "{0} de {1} tareas hechas."
+ "{0} van de {1} taken af.": "{0} de {1} tareas hechas.",
+ "↻ Herkansing{0}": "↻ Recuperación{0}",
+ "Een kopie van de toets voor {0} (onder {1}%)": "Una copia de la prueba para {0} (por debajo del {1} %)",
+ "Niemand zit onder {0}%": "Nadie está por debajo del {0} %",
+ "↻ Zelf kiezen bij Taken (dezelfde toets)": "↻ Elegir en Tareas (la misma prueba)",
+ "De toets van deze kolom bestaat niet meer.": "La prueba de esta columna ya no existe.",
+ "Nog niet verbeterd (krijgen niets): {0}.": "Aún sin corregir (no reciben nada): {0}.",
+ "Niemand zit onder {0}%.{1}": "Nadie está por debajo del {0} %.{1}",
+ "{0} de herkansing \"{1}\": een kopie van de toets, met dezelfde keuzes als de eerste keer. Ze telt als herkansing bij de punten. {2}{3}": "{0} la recuperación «{1}»: una copia de la prueba, con las mismas opciones que la primera vez. Cuenta como recuperación en las notas. {2}{3}",
+ "Herkansing geven": "Dar recuperación",
+ "De herkansing staat klaar bij Mijn taken voor {0}.": "La recuperación está lista en Mis tareas para {0}.",
+ "· herkansing": "· recuperación",
+ "Die toets staat niet bij Opvolgen (of is geen toets).": "Esa prueba no está en Seguimiento (o no es una prueba).",
+ "De grens is een procent tussen 1 en 100.": "El límite es un porcentaje entre 1 y 100.",
+ "De toets van deze kolom bestaat niet meer; een herkansing kan niet.": "La prueba de esta columna ya no existe; no es posible una recuperación.",
+ "Deze leerlingen maakten de toets niet: {0}.": "Estos alumnos no hicieron la prueba: {0}.",
+ "Niemand zit onder {0}%: er is geen herkansing nodig.": "Nadie está por debajo del {0} %: no hace falta recuperación."
 }
