@@ -99,4 +99,4 @@ function geef({ kolom, grens = 0.5, namen, metKopie = true, vanaf, tot, pogingen
   return { ...v, namen: wie, gegeven: true, taak_id: t.id, file: k.file, kopieTitel: k.titel, nieuweKopie: k.nieuw };
 }
 
-module.exports = { voorstel, geef, kopie, basis, ACHTER };
+module.exports = { voorstel, geef, kopie, basis, groep, ACHTER };

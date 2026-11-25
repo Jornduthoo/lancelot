@@ -1053,6 +1053,12 @@ app.get('/proef-kopie', (req, res) => {
 });
 
 // Weekrapport per leerling (wens 25 nov, punt 5): de gegevens meteen in de pagina, ook voor de pdf zonder venster.
+// Export voor Bingel (wens 25 nov, punt 7): de punten en feedback van één toets, om over te nemen in Bingel.
+app.get('/bingel', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'bingel.html'));
+});
 app.get('/weekrapport', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
   let data;
@@ -2288,6 +2294,7 @@ io.on('connection', socket => {
     // Remediëring na een toets (wens 25 nov, punt 4): eerst tonen wie wat krijgt, dan per leerling een oefenblad als taak.
     socket.on('rm-voorstel', handle(arg => { const r = require('./src/remediering'); const a = arg || {}; return r.samenvatting(r.voorstel(r.afnameVan(a), { grens: Number(a.grens) || 0.5 })); }));
     socket.on('rm-maak', taak(arg => { const r = require('./src/remediering'); const a = arg || {}; const out = r.maak(r.afnameVan(a), { grens: Number(a.grens) || 0.5 }); sendLibrary('oefenblad'); return out; }));
+    socket.on('bg-data', handle(arg => require('./src/bingel').data(arg || {})));
     // Weekrapport: de feedback van de leerkracht bewaren, en een pdf per leerling in Mijn lesmap.
     socket.on('wr-opmerking', handle(arg => require('./src/weekrapport').zetOpmerking(arg || {})));
     socket.on('wr-lesmap', (arg, cb) => {

@@ -366,7 +366,7 @@
 
   // De knop "Namen" op elk leerkrachtenscherm (niet op de afdrukbladen en niet bij Proberen als leerling).
   function namenKnop(socket) {
-    if (window.Ui.hostSocket || /print|fiche|proberen/.test(location.pathname)) return;
+    if (window.Ui.hostSocket || /print|fiche|proberen|weekrapport|bingel/.test(location.pathname)) return;
     window.Ui.hostSocket = socket;
     const laad = () => {
       const s = document.createElement('script');
