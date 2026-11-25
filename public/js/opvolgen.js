@@ -227,8 +227,9 @@ function tekenPunten(vak) {
       <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>${keer[id] ? `<span class="op-kol-keer">${keer[id]}e keer</span>` : ''}
       <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
       ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
-      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (onder ${$('op-grens').value}%)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}
+      ${ks[0].toets ? `<button type="button" class="op-herk" data-herk1="${esc(id)}" title="${esc(laag.length ? `Een kopie van de toets voor ${laag.join(', ')} (onder ${$('op-grens').value}%)` : `Niemand zit onder ${$('op-grens').value}%`)}">↻ Herkansing${laag.length ? ` (${laag.length})` : ''}</button>` : ''}
       <details class="op-meer"><summary>Meer ▾</summary>
+        ${ks[0].toets ? `<a class="op-herk-zelf" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (onder ${$('op-grens').value}%)` : 'Dezelfde toets nog eens geven')}">↻ Zelf kiezen bij Taken (dezelfde toets)</a>` : ''}
         ${ks.slice(1).map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(dagTekst(k.dag))}: dit is geen herkansing</button>`).join('')}
         <label>🔗 Herkansing van: <select data-herk="${esc(id)}"><option value="">geen (een eigen toets)</option>${andere(id).map(([g, t]) => `<option value="${esc(g)}"${herk[id] === g ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
       </details></th>`;
@@ -280,6 +281,7 @@ function tekenPunten(vak) {
   $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">${esc(gemKop)}</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
   const naHerk = res => { if (res && res.error) return Ui.melding(res.error); data.telt = res; teken(); };
   for (const d of $('op-wrap').querySelectorAll('.op-meer')) d.addEventListener('click', e => e.stopPropagation());
+  for (const b of $('op-wrap').querySelectorAll('[data-herk1]')) b.addEventListener('click', () => herkansing(b.dataset.herk1));
   for (const b of $('op-wrap').querySelectorAll('[data-geen]')) b.addEventListener('click', () => socket.emit('pt-herk', { kolom: b.dataset.geen, van: '' }, naHerk));
   for (const sel of $('op-wrap').querySelectorAll('select[data-herk]')) sel.addEventListener('change', () => socket.emit('pt-herk', { kolom: sel.dataset.herk, van: sel.value }, naHerk));
   for (const sel of $('op-wrap').querySelectorAll('select[data-toets]')) {
@@ -317,3 +319,21 @@ let timer = null;
 const later = () => { clearTimeout(timer); timer = setTimeout(laad, 700); };
 socket.on('tk-lijst', later);
 socket.on('pf-afnames', later);
+
+// Herkansing met één klik (wens 25 nov, punt 6): een kopie van de toets, alleen voor wie onder de grens zit.
+function herkansing(kolom) {
+  const g = Number($('op-grens').value) || 50;
+  socket.emit('hk-voorstel', { kolom, grens: g / 100 }, async v => {
+    if (!v || v.error) return Ui.melding((v && v.error) || 'Dat lukte niet.');
+    if (!v.toets) return Ui.melding('De toets van deze kolom bestaat niet meer.');
+    const nog = v.nogTeVerbeteren.length ? `\nNog niet verbeterd (krijgen niets): ${v.nogTeVerbeteren.join(', ')}.` : '';
+    if (!v.laag.length) return Ui.melding(`Niemand zit onder ${v.grens}%.${nog}`);
+    const wie = v.laag.map(l => `${l.naam} (${l.procent}%)`).join(', ');
+    const tekst = `${v.laag.length === 1 ? '1 leerling krijgt' : `${v.laag.length} leerlingen krijgen`} de herkansing "${v.kopie}": een kopie van de toets, met dezelfde keuzes als de eerste keer. Ze telt als herkansing bij de punten.\n\n${wie}${nog}`;
+    if (!await Ui.vraag(tekst, { ja: 'Herkansing geven', nee: 'Nee' })) return;
+    socket.emit('hk-geef', { kolom, grens: g / 100 }, res => {
+      if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+      Ui.melding(`De herkansing staat klaar bij Mijn taken voor ${res.namen.join(', ')}.`);
+    });
+  });
+}

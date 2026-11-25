@@ -2282,6 +2282,9 @@ io.on('connection', socket => {
       if (t.soort === 'proef' && arg.herkansing) try { punten.koppel({ kolom: t.id, van: String(arg.herkansing) }); } catch {}
       return { id: t.id };
     }));
+    // Herkansing met één klik (wens 25 nov, punt 6): eerst tonen wie, dan een kopie van de toets als taak voor hen.
+    socket.on('hk-voorstel', handle(arg => require('./src/herkansing').voorstel(arg || {})));
+    socket.on('hk-geef', taak(arg => { const r = require('./src/herkansing').geef(arg || {}); sendLibrary('proef', null, true); return r; }));
     // Remediëring na een toets (wens 25 nov, punt 4): eerst tonen wie wat krijgt, dan per leerling een oefenblad als taak.
     socket.on('rm-voorstel', handle(arg => { const r = require('./src/remediering'); const a = arg || {}; return r.samenvatting(r.voorstel(r.afnameVan(a), { grens: Number(a.grens) || 0.5 })); }));
     socket.on('rm-maak', taak(arg => { const r = require('./src/remediering'); const a = arg || {}; const out = r.maak(r.afnameVan(a), { grens: Number(a.grens) || 0.5 }); sendLibrary('oefenblad'); return out; }));

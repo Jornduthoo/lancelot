@@ -100,5 +100,21 @@
  "De toets was nog moeilijk ({0}).": "Le test était encore difficile ({0}).",
  "De toetsen waren nog moeilijk ({0}).": "Les tests étaient encore difficiles ({0}).",
  "De taak is nog niet af.": "La tâche n'est pas encore finie.",
- "{0} van de {1} taken af.": "{0} tâches sur {1} finies."
+ "{0} van de {1} taken af.": "{0} tâches sur {1} finies.",
+ "↻ Herkansing{0}": "↻ Rattrapage{0}",
+ "Een kopie van de toets voor {0} (onder {1}%)": "Une copie du test pour {0} (sous {1} %)",
+ "Niemand zit onder {0}%": "Personne n'est sous {0} %",
+ "↻ Zelf kiezen bij Taken (dezelfde toets)": "↻ Choisir soi-même dans Tâches (le même test)",
+ "De toets van deze kolom bestaat niet meer.": "Le test de cette colonne n'existe plus.",
+ "Nog niet verbeterd (krijgen niets): {0}.": "Pas encore corrigé (ne reçoivent rien) : {0}.",
+ "Niemand zit onder {0}%.{1}": "Personne n'est sous {0} %.{1}",
+ "{0} de herkansing \"{1}\": een kopie van de toets, met dezelfde keuzes als de eerste keer. Ze telt als herkansing bij de punten. {2}{3}": "{0} le rattrapage « {1} » : une copie du test, avec les mêmes choix que la première fois. Il compte comme rattrapage dans les points. {2}{3}",
+ "Herkansing geven": "Donner le rattrapage",
+ "De herkansing staat klaar bij Mijn taken voor {0}.": "Le rattrapage est prêt dans Mes tâches pour {0}.",
+ "· herkansing": "· rattrapage",
+ "Die toets staat niet bij Opvolgen (of is geen toets).": "Ce test n'est pas dans Suivi (ou n'est pas un test).",
+ "De grens is een procent tussen 1 en 100.": "Le seuil est un pourcentage entre 1 et 100.",
+ "De toets van deze kolom bestaat niet meer; een herkansing kan niet.": "Le test de cette colonne n'existe plus ; un rattrapage est impossible.",
+ "Deze leerlingen maakten de toets niet: {0}.": "Ces élèves n'ont pas fait le test : {0}.",
+ "Niemand zit onder {0}%: er is geen herkansing nodig.": "Personne n'est sous {0} % : pas besoin de rattrapage."
 }

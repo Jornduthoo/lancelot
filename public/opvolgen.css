@@ -40,6 +40,8 @@
 .op-telt { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); margin-top: 4px; white-space: nowrap; }
 .op-telt select { font-size: .72rem; padding: 1px 4px; }
 .op-herk { display: block; font-size: .72rem; margin-top: 3px; color: var(--cyan); }
+button.op-herk { background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; text-decoration: underline; }
+.op-herk-zelf { display: block; font-size: .72rem; margin: 2px 0; color: var(--cyan); }
 .op-gem { font-weight: 700; text-align: center; }
 .op-gem.een { color: var(--muted); font-weight: 600; }
 .op-gem-een { display: block; font-size: .68rem; font-weight: 400; }

@@ -100,5 +100,21 @@
  "De toets was nog moeilijk ({0}).": "Der Test war noch schwierig ({0}).",
  "De toetsen waren nog moeilijk ({0}).": "Die Tests waren noch schwierig ({0}).",
  "De taak is nog niet af.": "Die Aufgabe ist noch nicht fertig.",
- "{0} van de {1} taken af.": "{0} von {1} Aufgaben fertig."
+ "{0} van de {1} taken af.": "{0} von {1} Aufgaben fertig.",
+ "↻ Herkansing{0}": "↻ Wiederholung{0}",
+ "Een kopie van de toets voor {0} (onder {1}%)": "Eine Kopie des Tests für {0} (unter {1} %)",
+ "Niemand zit onder {0}%": "Niemand liegt unter {0} %",
+ "↻ Zelf kiezen bij Taken (dezelfde toets)": "↻ Selbst wählen bei Aufgaben (derselbe Test)",
+ "De toets van deze kolom bestaat niet meer.": "Der Test dieser Spalte existiert nicht mehr.",
+ "Nog niet verbeterd (krijgen niets): {0}.": "Noch nicht korrigiert (bekommen nichts): {0}.",
+ "Niemand zit onder {0}%.{1}": "Niemand liegt unter {0} %.{1}",
+ "{0} de herkansing \"{1}\": een kopie van de toets, met dezelfde keuzes als de eerste keer. Ze telt als herkansing bij de punten. {2}{3}": "{0} die Wiederholung „{1}“: eine Kopie des Tests, mit denselben Einstellungen wie beim ersten Mal. Sie zählt als Wiederholung bei den Punkten. {2}{3}",
+ "Herkansing geven": "Wiederholung geben",
+ "De herkansing staat klaar bij Mijn taken voor {0}.": "Die Wiederholung steht bei Meine Aufgaben bereit für {0}.",
+ "· herkansing": "· Wiederholung",
+ "Die toets staat niet bij Opvolgen (of is geen toets).": "Dieser Test steht nicht bei Verfolgen (oder ist kein Test).",
+ "De grens is een procent tussen 1 en 100.": "Die Grenze ist ein Prozentsatz zwischen 1 und 100.",
+ "De toets van deze kolom bestaat niet meer; een herkansing kan niet.": "Der Test dieser Spalte existiert nicht mehr; eine Wiederholung ist nicht möglich.",
+ "Deze leerlingen maakten de toets niet: {0}.": "Diese Schüler haben den Test nicht geschrieben: {0}.",
+ "Niemand zit onder {0}%: er is geen herkansing nodig.": "Niemand liegt unter {0} %: keine Wiederholung nötig."
 }

@@ -100,5 +100,21 @@
  "De toets was nog moeilijk ({0}).": "The test was still difficult ({0}).",
  "De toetsen waren nog moeilijk ({0}).": "The tests were still difficult ({0}).",
  "De taak is nog niet af.": "The task is not done yet.",
- "{0} van de {1} taken af.": "{0} of {1} tasks done."
+ "{0} van de {1} taken af.": "{0} of {1} tasks done.",
+ "↻ Herkansing{0}": "↻ Retake{0}",
+ "Een kopie van de toets voor {0} (onder {1}%)": "A copy of the test for {0} (below {1}%)",
+ "Niemand zit onder {0}%": "Nobody is below {0}%",
+ "↻ Zelf kiezen bij Taken (dezelfde toets)": "↻ Choose yourself in Tasks (the same test)",
+ "De toets van deze kolom bestaat niet meer.": "The test of this column no longer exists.",
+ "Nog niet verbeterd (krijgen niets): {0}.": "Not marked yet (get nothing): {0}.",
+ "Niemand zit onder {0}%.{1}": "Nobody is below {0}%.{1}",
+ "{0} de herkansing \"{1}\": een kopie van de toets, met dezelfde keuzes als de eerste keer. Ze telt als herkansing bij de punten. {2}{3}": "{0} the retake \"{1}\": a copy of the test, with the same choices as the first time. It counts as a retake in the scores. {2}{3}",
+ "Herkansing geven": "Give retake",
+ "De herkansing staat klaar bij Mijn taken voor {0}.": "The retake is ready in My tasks for {0}.",
+ "· herkansing": "· retake",
+ "Die toets staat niet bij Opvolgen (of is geen toets).": "That test is not in Follow-up (or is not a test).",
+ "De grens is een procent tussen 1 en 100.": "The threshold is a percentage between 1 and 100.",
+ "De toets van deze kolom bestaat niet meer; een herkansing kan niet.": "The test of this column no longer exists; a retake is not possible.",
+ "Deze leerlingen maakten de toets niet: {0}.": "These pupils did not take the test: {0}.",
+ "Niemand zit onder {0}%: er is geen herkansing nodig.": "Nobody is below {0}%: no retake needed."
 }
