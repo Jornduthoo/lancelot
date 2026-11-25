@@ -335,7 +335,7 @@ function maak(ctx) {
         'Punten per vraag: "punten". Uitleg bij een fout antwoord bestaat niet per vraag in een toets (wel in een quiz).',
         'Niveaus: "page" en "ridder" zijn lijsten naast "vragen" (schildknaap). "niveau_maken" maakt er een kopie van om aan te passen.',
         'Voorlezen, volgorde en punten tonen kies je per taak (taak_geven, taak_keuzes); "vasteVolgorde" per toets met "toets_instellen".',
-        'Een tijdslimiet of een aantal pogingen bestaat niet in LANcelot.',
+        'Einddatum, tijdslimiet en aantal pogingen kies je per taak (taak_geven, taak_keuzes, taak_verplaatsen, taak_heropenen).',
       ],
     };
   }

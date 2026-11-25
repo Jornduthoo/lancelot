@@ -193,10 +193,10 @@ function takenLijst({ open, soort, file } = {}) {
       for (const l of t.leerlingen) tel[l.status] = (tel[l.status] || 0) + 1;
       return {
         id: t.id, soort: t.soort, titel: t.titel, file: t.file || t.bron, vak: t.vak, status: t.dicht ? 'afgesloten' : t.vanaf ? 'gepland' : 'open',
-        gemaakt: t.gemaakt, vanaf: t.vanaf || null, einddatum: t.tot || null, tijdslimiet: t.tijd || null, ...(t.vanzelfDicht ? { vanzelf_gesloten: true } : {}),
+        gemaakt: t.gemaakt, vanaf: t.vanaf || null, einddatum: t.tot || null, tijdslimiet: t.tijd || null, max_pogingen: t.pogingen || 1, ...(t.vanzelfDicht ? { vanzelf_gesloten: true } : {}),
         afname: t.afname || null, keuzes: t.soort === 'quiz' ? undefined : taken.keuzesVoor(t.id),
         aantal: tel,
-        leerlingen: t.leerlingen.map(l => ({ naam: l.naam, niveau: l.niveau, status: l.status, gedaan: l.gedaan, totaal: l.totaal, ...(l.klaar ? { ingeleverd: l.klaar } : {}), ...(l.afwezig ? { afwezig: true } : {}), ...(l.niet ? { volgt_vak_niet: true } : {}), ...(l.elders ? { op_pc: l.elders } : {}), ...(l.tijd && l.tijd !== t.tijd ? { tijdslimiet: l.tijd } : {}), ...(l.rest !== undefined ? { tijd_over_minuten: Math.ceil(l.rest / 60000) } : {}), ...(l.tijdOp ? { tijd_was_om: true } : {}) })),
+        leerlingen: t.leerlingen.map(l => ({ naam: l.naam, niveau: l.niveau, status: l.status, gedaan: l.gedaan, totaal: l.totaal, ...(l.klaar ? { ingeleverd: l.klaar } : {}), ...(l.afwezig ? { afwezig: true } : {}), ...(l.niet ? { volgt_vak_niet: true } : {}), ...(l.elders ? { op_pc: l.elders } : {}), ...(l.tijd && l.tijd !== t.tijd ? { tijdslimiet: l.tijd } : {}), ...(l.rest !== undefined ? { tijd_over_minuten: Math.ceil(l.rest / 60000) } : {}), ...(l.tijdOp ? { tijd_was_om: true } : {}), ...(l.poging ? { poging: l.poging } : {}) })),
       };
     }),
   };
@@ -377,6 +377,14 @@ function tijdUit(v) {
   if (!(n >= 1 && n <= taken.MAX_MINUTEN)) fout(`"tijdslimiet" is 1 tot ${taken.MAX_MINUTEN} minuten (0 = geen).`);
   return n;
 }
+// Aantal pogingen (wens 25 nov, punt 1): 1 = zoals vroeger (alleen de leerkracht zet opnieuw open), tot 5.
+function pogingenUit(v) {
+  if (v === undefined) return undefined;
+  if (v === null || v === '' || Number(v) === 0) return 1;
+  const n = Math.round(Number(v));
+  if (!(n >= 1 && n <= taken.MAX_POGINGEN)) fout(`"max_pogingen" is 1 tot ${taken.MAX_POGINGEN} (1 = één keer, zoals altijd).`);
+  return n;
+}
 function tijdPerUit(per) {
   if (per === undefined || per === null) return undefined;
   if (typeof per !== 'object' || Array.isArray(per)) fout('"tijd_per_leerling" is bv. {"Lotte": 30}: minuten per naam (0 = geen limiet, null = zoals de taak).');
@@ -401,6 +409,7 @@ function taakGeven(arg = {}) {
   if (tot && vanaf && Date.parse(tot) <= Date.parse(vanaf)) fout('De einddatum moet na "vanaf" liggen.');
   const tijd = tijdUit(arg.tijdslimiet);
   const tijdPer = tijdPerUit(arg.tijd_per_leerling);
+  const pogingen = pogingenUit(arg.max_pogingen);
   if (soort === 'quiz' && (tijd || tijdPer)) fout('Een quiz heeft geen tijdslimiet (wel een einddatum).');
   // Nooit dubbel: staat dezelfde toets al open (of gepland) voor een van deze leerlingen, dan eerst vragen.
   if (!arg.opnieuw) {
@@ -420,7 +429,7 @@ function taakGeven(arg = {}) {
     uitslag: typeof arg.punten_tonen === 'boolean' ? arg.punten_tonen : std.uitslag,
     beveiligd: typeof arg.beveiligd === 'boolean' ? arg.beveiligd : std.beveiligd,
     niveau: arg.niveau, per: arg.niveau_per_leerling,
-    tot: tot || undefined, tijd: tijd || undefined,
+    tot: tot || undefined, tijd: tijd || undefined, pogingen: pogingen > 1 ? pogingen : undefined,
   };
   if (soort === 'quiz' && arg.spel) Object.assign(p, { spel: arg.spel, minuten: arg.minuten });
   const t = taken.maak(p);
@@ -432,7 +441,7 @@ function taakGeven(arg = {}) {
   return {
     taak_id: t.id, titel: t.titel, status: item && item.vanaf ? 'gepland' : 'open', vanaf: (item && item.vanaf) || null,
     keuzes: soort === 'quiz' ? undefined : taken.keuzesVoor(t.id),
-    einddatum: (item && item.tot) || null, tijdslimiet: (item && item.tijd) || null,
+    einddatum: (item && item.tot) || null, tijdslimiet: (item && item.tijd) || null, max_pogingen: (item && item.pogingen) || 1,
     leerlingen: item ? item.leerlingen.map(l => ({ naam: l.naam, niveau: l.niveau, ...(l.tijd && l.tijd !== item.tijd ? { tijdslimiet: l.tijd } : {}) })) : namen,
   };
 }
@@ -458,28 +467,50 @@ function taakSluiten({ taak_id } = {}) {
   return { taak_id: t.id, titel: t.titel, status: 'afgesloten', melding: 'Ingetrokken: wie bezig was, leverde in wat er stond. Niets van de leerlingen ging verloren. Heropenen kan met "taak_heropenen".' };
 }
 
-function taakHeropenen({ taak_id } = {}) {
-  const t = bestaandeTaak(taak_id);
-  taken.heropen({ id: t.id });
-  hooks.naTaken({});
-  return { taak_id: t.id, titel: t.titel, status: 'open' };
+// Einddatum, tijdslimiet en pogingen meegeven bij verplaatsen of heropenen (wens 25 nov, punt 1): eerst alles nakijken,
+// dan pas iets veranderen (een fout laat de taak zoals ze was).
+const TIJD_ARG = ['einddatum', 'tijdslimiet', 'max_pogingen', 'tijd_per_leerling'];
+function tijdArgs(t, arg, vanaf) {
+  const a = {};
+  for (const k of TIJD_ARG) if (arg[k] !== undefined) a[k] = arg[k];
+  if (!Object.keys(a).length) return null;
+  const tot = totUit(a.einddatum);
+  if (tot && vanaf && Date.parse(tot) <= Date.parse(vanaf)) fout('De einddatum moet na "vanaf" liggen.');
+  tijdUit(a.tijdslimiet);
+  pogingenUit(a.max_pogingen);
+  if (t.soort === 'quiz' && (a.tijdslimiet || a.tijd_per_leerling)) fout('Een quiz heeft geen tijdslimiet (wel een einddatum).');
+  tijdPerUit(a.tijd_per_leerling);
+  return a;
 }
 
-function taakVerplaatsen({ taak_id, vanaf } = {}) {
+function taakHeropenen({ taak_id, ...arg } = {}) {
+  const t = bestaandeTaak(taak_id);
+  const a = tijdArgs(t, arg, null);
+  taken.heropen({ id: t.id });
+  const k = a ? taakKeuzes({ taak_id: t.id, ...a }).keuzes : undefined;
+  hooks.naTaken({});
+  return { taak_id: t.id, titel: t.titel, status: 'open', ...(k ? { keuzes: k } : {}) };
+}
+
+function taakVerplaatsen({ taak_id, vanaf, ...arg } = {}) {
   const t = bestaandeTaak(taak_id);
   const v = vanafUit(vanaf);
+  const a = tijdArgs(t, arg, v);
   taken.zetVanaf({ id: t.id, vanaf: v });
+  const k = a ? taakKeuzes({ taak_id: t.id, ...a }).keuzes : undefined;
   hooks.naTaken({});
-  return { taak_id: t.id, titel: t.titel, status: v ? 'gepland' : 'open', vanaf: v };
+  return { taak_id: t.id, titel: t.titel, status: v ? 'gepland' : 'open', vanaf: v, ...(k ? { keuzes: k } : {}) };
 }
 
-function taakKeuzes({ taak_id, voorlezen, punten_tonen, volgorde, verbeteren, einddatum, tijdslimiet, tijd_per_leerling } = {}) {
+function taakKeuzes({ taak_id, voorlezen, punten_tonen, volgorde, verbeteren, einddatum, tijdslimiet, tijd_per_leerling, max_pogingen } = {}) {
   const t = bestaandeTaak(taak_id);
   const p = { id: t.id };
   const tot = totUit(einddatum === (t.tot || '') ? undefined : einddatum);
   if (tot !== undefined) p.tot = tot;
   const tijd = tijdUit(tijdslimiet);
   if (tijd !== undefined) p.tijd = tijd;
+  const pog = pogingenUit(max_pogingen);
+  if (pog !== undefined) p.pogingen = pog;
   const tijdPer = tijdPerUit(tijd_per_leerling);
   if (t.soort === 'quiz' && (tijd !== undefined || tijdPer)) fout('Een quiz heeft geen tijdslimiet (wel een einddatum).');
   if (voorlezen !== undefined) p.voorlees = voorlezen;
@@ -512,7 +543,14 @@ const B = description => ({ type: 'boolean', description });
 const NAMEN = { type: 'array', items: { type: 'string' }, description: 'Namen zoals op de klaslijst (tool "klas").' };
 const VOORLEES = S('uit, page (enkel wie op Page werkt) of iedereen.', { enum: ['uit', 'page', 'iedereen'] });
 const VOLG = S('schud (vragen en keuzes door elkaar), vragen (vragen in volgorde, keuzes geschud) of alles (alles in volgorde).', { enum: ['schud', 'vragen', 'alles'] });
+const POGINGEN = { type: 'integer', minimum: 1, maximum: 5, description: 'Hoe vaak de leerling de taak mag maken: na het inleveren begint hij zelf opnieuw met een leeg blad, zolang de taak open is (zijn laatste poging telt; bij een toets gaat zijn vorige inzending uit de afname). 1 of leeg = één keer (standaard, zoals altijd).' };
 const TIJD_PER = { type: 'object', additionalProperties: { type: ['integer', 'null'] }, description: 'Een eigen tijdslimiet per leerling, bv. {"Lotte": 40} voor een zorgleerling. 0 = geen limiet, null = zoals de taak.' };
+// Bij verplaatsen en heropenen: dezelfde keuzes als bij taak_keuzes.
+const TIJD_SCHEMA = {
+  einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM"; leeg ("") = geen einddatum meer.'),
+  tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Minuten per leerling (0 = geen).' },
+  tijd_per_leerling: TIJD_PER, max_pogingen: POGINGEN,
+};
 const DAGP = S('Datum JJJJ-MM-DD.');
 
 const TOOLS = [
@@ -533,12 +571,12 @@ const TOOLS = [
   { name: 'toets_bewaren', schrijft: true, title: 'Toets bewaren', description: 'Een toets aanmaken of bijwerken uit JSON (hetzelfde formaat als "toets" teruggeeft: title, vak, vragen, en eventueel page/ridder voor de niveaus). Zonder file: nieuwe toets (fout als de titel al bestaat). Met file: bijwerken; werd die toets al gegeven, dan komt er een nieuwe versie en blijft het werk van de leerlingen staan.', inputSchema: obj({ toets: { type: ['object', 'string'], description: 'De toets als JSON.' }, file: S('Bestaande toets om bij te werken (optioneel).'), map: S('Map, bv. "Wiskunde/Blok 3". Bestaat ze niet, dan maakt LANcelot ze.'), dubbel_mag: B('Toch een nieuwe toets als de titel al bestaat.') }, ['toets']), fn: toetsBewaren, log: (a, r) => ({ titel: r.titel, file: r.file }) },
   { name: 'toets_kopieren', schrijft: true, title: 'Toets kopiëren', description: 'Een kopie van een toets maken (bv. een versie 6+), eventueel met een nieuwe titel en in een map.', inputSchema: obj({ file: S('De toets om te kopiëren.'), titel: S('Titel van de kopie.'), map: S('Map van de kopie.') }, ['file']), fn: toetsKopieren, log: (a, r) => ({ titel: r.titel, file: r.file }) },
   { name: 'toets_naar_map', schrijft: true, title: 'Toets naar een map', description: 'Een toets in een map zetten (bv. "Archief/Wiskunde/2026-11"). Lege map = bovenaan.', inputSchema: obj({ file: S('De toets.'), map: S('De map.') }, ['file']), fn: toetsNaarMap, log: (a, r) => ({ file: r.file, map: r.map }) },
-  { name: 'taak_geven', schrijft: true, title: 'Taak geven', description: 'Een toets (soort proef, standaard), oefenblad of quiz toewijzen aan leerlingen of de hele klas, meteen of gepland (vanaf, bv. een quiz op een werkdag om 18.05). Keuzes die je niet meegeeft, komen uit Instellingen › Taken. Einddatum en tijdslimiet staan standaard uit. Fout als dezelfde taak al open staat voor die leerlingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets, het oefenblad of de quiz.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), namen: NAMEN, hele_klas: B('Iedereen van de klas (zonder gasten).'), vanaf: S('Pas zichtbaar vanaf "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc). Leeg = meteen.'), voorlezen: VOORLEES, volgorde: VOLG, punten_tonen: B('De leerling ziet zijn punten na het inleveren.'), beveiligd: B('Volledig scherm; wegklikken wordt gemeld.'), verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), niveau: S('Iedereen op dit niveau (page, schildknaap, ridder). Leeg = ieder zijn eigen niveau.'), niveau_per_leerling: { type: 'object', additionalProperties: { type: 'string' }, description: 'Per naam een niveau, bv. {"Lotte": "ridder"}.' }, opnieuw: B('Toch geven, ook als dezelfde taak al open staat (herkansing).'), spel: S('Quiz: de leerling speelt ze alleen in dit spel (zonder spel: vraag per vraag).', { enum: Object.keys(taken.SOLO) }), minuten: { type: 'integer', enum: taken.MINUTEN, description: 'Quiz in een spel: hoe lang (minuten).' }, einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc), zoals taak_intrekken: wie bezig is, levert in. Leeg = de leerkracht sluit zelf.'), tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Toets of oefenblad: minuten vanaf het moment dat de leerling begint; daarna levert hij vanzelf in. 0 of leeg = geen (standaard).' }, tijd_per_leerling: TIJD_PER }, ['file']), fn: taakGeven, log: (a, r) => ({ titel: r.titel, n: (r.leerlingen || []).length, vanaf: r.vanaf }) },
+  { name: 'taak_geven', schrijft: true, title: 'Taak geven', description: 'Een toets (soort proef, standaard), oefenblad of quiz toewijzen aan leerlingen of de hele klas, meteen of gepland (vanaf, bv. een quiz op een werkdag om 18.05). Keuzes die je niet meegeeft, komen uit Instellingen › Taken. Einddatum en tijdslimiet staan standaard uit. Fout als dezelfde taak al open staat voor die leerlingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets, het oefenblad of de quiz.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), namen: NAMEN, hele_klas: B('Iedereen van de klas (zonder gasten).'), vanaf: S('Pas zichtbaar vanaf "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc). Leeg = meteen.'), voorlezen: VOORLEES, volgorde: VOLG, punten_tonen: B('De leerling ziet zijn punten na het inleveren.'), beveiligd: B('Volledig scherm; wegklikken wordt gemeld.'), verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), niveau: S('Iedereen op dit niveau (page, schildknaap, ridder). Leeg = ieder zijn eigen niveau.'), niveau_per_leerling: { type: 'object', additionalProperties: { type: 'string' }, description: 'Per naam een niveau, bv. {"Lotte": "ridder"}.' }, opnieuw: B('Toch geven, ook als dezelfde taak al open staat (herkansing).'), spel: S('Quiz: de leerling speelt ze alleen in dit spel (zonder spel: vraag per vraag).', { enum: Object.keys(taken.SOLO) }), minuten: { type: 'integer', enum: taken.MINUTEN, description: 'Quiz in een spel: hoe lang (minuten).' }, einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM" (tijd van de klas-pc), zoals taak_intrekken: wie bezig is, levert in. Leeg = de leerkracht sluit zelf.'), tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Toets of oefenblad: minuten vanaf het moment dat de leerling begint; daarna levert hij vanzelf in. 0 of leeg = geen (standaard).' }, tijd_per_leerling: TIJD_PER, max_pogingen: POGINGEN }, ['file']), fn: taakGeven, log: (a, r) => ({ titel: r.titel, n: (r.leerlingen || []).length, vanaf: r.vanaf }) },
   { name: 'taak_leerlingen_toevoegen', schrijft: true, title: 'Leerlingen toevoegen', description: 'Leerlingen bij een gegeven taak zetten.', inputSchema: obj({ taak_id: S('Id van de taak.'), namen: NAMEN }, ['taak_id', 'namen']), fn: taakToevoegen, log: (a, r) => ({ titel: r.titel, n: r.toegevoegd }) },
-  { name: 'taak_verplaatsen', schrijft: true, title: 'Taak verplaatsen', description: 'Het startmoment van een geplande taak veranderen (vanaf), of leeg om ze meteen te laten verschijnen. Kan alleen zolang de taak gepland is of niemand begon.', inputSchema: obj({ taak_id: S('Id van de taak.'), vanaf: S('JJJJ-MM-DDTHH:MM of leeg.') }, ['taak_id']), fn: taakVerplaatsen, log: (a, r) => ({ titel: r.titel, vanaf: r.vanaf }) },
-  { name: 'taak_keuzes', schrijft: true, title: 'Keuzes van een taak', description: 'Voorlezen, punten tonen, einddatum en tijdslimiet veranderen (geldt meteen voor iedereen, ook wie bezig is), en de volgorde of het verbeteren (voor wie nog niet begon). Ook een eigen tijd per leerling. Bij een quiz alleen de einddatum.', inputSchema: obj({ taak_id: S('Id van de taak.'), voorlezen: VOORLEES, punten_tonen: B('Punten tonen na het inleveren.'), volgorde: VOLG, verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM"; leeg ("") = geen einddatum meer. Ook bij een quiz.'), tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Minuten per leerling (0 = geen). Geldt meteen, ook voor wie bezig is.' }, tijd_per_leerling: TIJD_PER }, ['taak_id']), fn: taakKeuzes, log: (a, r) => ({ titel: r.titel }) },
+  { name: 'taak_verplaatsen', schrijft: true, title: 'Taak verplaatsen', description: 'Het startmoment van een geplande taak veranderen (vanaf), of leeg om ze meteen te laten verschijnen. Kan alleen zolang de taak gepland is of niemand begon.', inputSchema: obj({ taak_id: S('Id van de taak.'), vanaf: S('JJJJ-MM-DDTHH:MM of leeg.'), ...TIJD_SCHEMA }, ['taak_id']), fn: taakVerplaatsen, log: (a, r) => ({ titel: r.titel, vanaf: r.vanaf }) },
+  { name: 'taak_keuzes', schrijft: true, title: 'Keuzes van een taak', description: 'Voorlezen, punten tonen, einddatum en tijdslimiet veranderen (geldt meteen voor iedereen, ook wie bezig is), en de volgorde of het verbeteren (voor wie nog niet begon). Ook een eigen tijd per leerling. Bij een quiz alleen de einddatum.', inputSchema: obj({ taak_id: S('Id van de taak.'), voorlezen: VOORLEES, punten_tonen: B('Punten tonen na het inleveren.'), volgorde: VOLG, verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM"; leeg ("") = geen einddatum meer. Ook bij een quiz.'), tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Minuten per leerling (0 = geen). Geldt meteen, ook voor wie bezig is.' }, tijd_per_leerling: TIJD_PER, max_pogingen: POGINGEN }, ['taak_id']), fn: taakKeuzes, log: (a, r) => ({ titel: r.titel }) },
   { name: 'taak_intrekken', schrijft: true, title: 'Taak intrekken', description: 'Een taak afsluiten (intrekken). Wie bezig is, levert in wat er staat; niets van de leerlingen gaat verloren. Heropenen kan.', inputSchema: obj({ taak_id: S('Id van de taak.') }, ['taak_id']), fn: taakSluiten, log: (a, r) => ({ titel: r.titel }) },
-  { name: 'taak_heropenen', schrijft: true, title: 'Taak heropenen', description: 'Een afgesloten taak weer openzetten.', inputSchema: obj({ taak_id: S('Id van de taak.') }, ['taak_id']), fn: taakHeropenen, log: (a, r) => ({ titel: r.titel }) },
+  { name: 'taak_heropenen', schrijft: true, title: 'Taak heropenen', description: 'Een afgesloten taak weer openzetten, eventueel meteen met een nieuwe einddatum, tijdslimiet of aantal pogingen.', inputSchema: obj({ taak_id: S('Id van de taak.'), ...TIJD_SCHEMA }, ['taak_id']), fn: taakHeropenen, log: (a, r) => ({ titel: r.titel }) },
   { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: 'Een html-presentatie (dia\'s als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag. Een bestaande wordt nooit overschreven.', inputSchema: obj({ html: S('De volledige html.'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam }) },
 ];
 

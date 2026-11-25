@@ -1,0 +1,17 @@
+{
+ "Na het inleveren mag de leerling zelf opnieuw beginnen met een leeg blad, zolang de taak open is. Zijn laatste poging telt.": "Nach dem Abgeben darf der Schüler mit einem leeren Blatt neu beginnen, solange die Aufgabe offen ist. Sein letzter Versuch zählt.",
+ "Pogingen ↻": "Versuche ↻",
+ "Eén keer (zoals altijd)": "Einmal (wie immer)",
+ "2 pogingen": "2 Versuche",
+ "3 pogingen": "3 Versuche",
+ "5 pogingen": "5 Versuche",
+ "{0} pogingen": "{0} Versuche",
+ "Met een einddatum sluit de quiz vanzelf. Met meer pogingen mag de leerling na het inleveren zelf opnieuw.": "Mit einem Enddatum schließt das Quiz von selbst. Mit mehr Versuchen darf der Schüler nach dem Abgeben neu beginnen.",
+ "↻ Nog eens proberen (poging {0} van {1})": "↻ Nochmal versuchen (Versuch {0} von {1})",
+ "Opnieuw beginnen met een leeg blad? Je laatste poging telt.": "Mit einem leeren Blatt neu beginnen? Dein letzter Versuch zählt.",
+ "Lever eerst in, dan kan je opnieuw beginnen.": "Gib zuerst ab, dann kannst du neu beginnen.",
+ "Je gebruikte al je pogingen.": "Du hast alle deine Versuche verbraucht.",
+ "Bij een quiz stel je alleen de einddatum en het aantal pogingen in.": "Bei einem Quiz stellst du nur das Enddatum und die Anzahl der Versuche ein.",
+ "↻ {0} pogingen: de leerling mag zelf opnieuw": "↻ {0} Versuche: der Schüler darf neu beginnen",
+ "Opnieuw": "Nochmal"
+}

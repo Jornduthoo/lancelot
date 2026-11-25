@@ -524,6 +524,7 @@ $('tk-geef').addEventListener('click', async () => {
     return;
   }
   const tijd = tk.soort === 'quiz' ? undefined : Number($('tk-tijd').value) || undefined;
+  const pogingen = Number($('tk-pogingen').value) || undefined;
   // Dezelfde toets al gegeven aan (een deel van) deze leerlingen? Eerst vragen.
   if (!tk.meer && tk.soort === 'proef') {
     const al = new Set();
@@ -552,7 +553,7 @@ $('tk-geef').addEventListener('click', async () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd, pogingen, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       // Eén herkansing: de volgende taak die je hier geeft, is weer een gewone.
       if (!res.error && tk.herkansing) { tk.herkansing = null; const i = document.querySelector('.tk-herk-info'); if (i) i.remove(); }
@@ -562,7 +563,7 @@ $('tk-geef').addEventListener('click', async () => {
       const nog = () => {
         if (!rest.length) return volgende();
         const [niveau, wie] = rest.shift();
-        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd }, r2 => {
+        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, tot: einde || undefined, tijd, pogingen }, r2 => {
           if (r2.error) fouten.push(r2.error);
           nog();
         });
@@ -588,6 +589,7 @@ $('tk-geef').addEventListener('click', async () => {
     $('tk-tot').value = '';
     totKeuze('tk-tot-kies', 'tk-tot-label', 'tk-tot');
     $('tk-tijd').value = '';
+    $('tk-pogingen').value = '';
     if (start) return Ui.melding(klaar === 1 ? `De taak is gepland voor ${wie}. Ze verschijnt ${wanneerTekst(start)} bij Mijn taken.` : `${klaar} taken zijn gepland voor ${wie}. Ze verschijnen ${wanneerTekst(start)} bij Mijn taken.`);
     Ui.melding(klaar === 1 ? `De taak staat klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.` : `${klaar} taken staan klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.`);
   };
@@ -732,6 +734,7 @@ function kaart(t) {
   if (t.tot && !t.dicht) titel.append(el('small', 'tk-taak-tot', `⏳ Sluit vanzelf: ${totTekst(t.tot)}`));
   if (t.dicht && t.vanzelfDicht) titel.append(el('small', 'tk-taak-tot', '⏳ Vanzelf gesloten op de einddatum'));
   if (t.tijd) titel.append(el('small', 'tk-taak-tijd', `⏱ ${t.tijd} minuten per leerling`));
+  if (t.pogingen > 1) titel.append(el('small', 'tk-taak-tijd', `↻ ${t.pogingen} pogingen: de leerling mag zelf opnieuw`));
   const vs = verschil(t);
   if (vs) titel.append(el('small', 'tk-taak-verschil', `≠ ${vs}`));
   // Op een andere pc anders (wens 24 nov, punt 4): daar nog open, of daar (nog) niet open. Verdwijnt na de sync.
@@ -791,6 +794,7 @@ function kaart(t) {
     // Tijdslimiet: een eigen tijd (anders dan de taak), en wie inleverde omdat de tijd om was.
     if (l.tijd && l.tijd !== t.tijd) naam.append(el('span', 'tk-ll-tijd', ` ⏱${l.tijd}′`));
     if (l.tijdOp) naam.append(el('span', 'tk-ll-tijd', ' ⏱ om'));
+    if (l.poging > 1) naam.append(el('span', 'tk-ll-tijd', ` ↻${l.poging}`));
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
@@ -1130,11 +1134,14 @@ function keuzes(t) {
     const tijdSel = $('kz-tijd');
     if (k.tijd && ![...tijdSel.options].some(o => o.value === String(k.tijd))) tijdSel.add(new Option(`${k.tijd} minuten`, String(k.tijd)));
     tijdSel.value = k.tijd ? String(k.tijd) : '';
+    const pogSel = $('kz-pogingen');
+    if (k.pogingen > 1 && ![...pogSel.options].some(o => o.value === String(k.pogingen))) pogSel.add(new Option(`${k.pogingen} pogingen`, String(k.pogingen)));
+    pogSel.value = k.pogingen > 1 ? String(k.pogingen) : '';
     $('kz-feedback').value = k.feedback;
     $('kz-voorlees').value = k.voorlees;
     $('kz-volgorde').value = k.volgorde;
     $('kz-uitslag').checked = !!k.uitslag;
-    $('kz-uitleg').textContent = quiz ? 'Met een einddatum sluit de quiz vanzelf.' : k.bezig
+    $('kz-uitleg').textContent = quiz ? 'Met een einddatum sluit de quiz vanzelf. Met meer pogingen mag de leerling na het inleveren zelf opnieuw.' : k.bezig
       ? `Voorlezen, punten tonen en de tijdslimiet gelden meteen, ook voor wie al bezig is. ${blad ? 'Verbeteren' : 'De volgorde'} verandert alleen voor wie nog niet begon.`
       : 'Je kan dit veranderen zolang de taak bestaat.';
     $('tk-keuzes').showModal();
@@ -1148,7 +1155,7 @@ $('kz-ok').addEventListener('click', () => {
   // Een nieuwe einddatum moet in de toekomst liggen (dezelfde als voordien mag blijven staan).
   if (einde && einde !== k.tot && !(Date.parse(einde) > Date.now())) return Ui.melding('Kies een einddatum in de toekomst.');
   $('tk-keuzes').close();
-  const d = { id: k.id, tot: einde };
+  const d = { id: k.id, tot: einde, pogingen: Number($('kz-pogingen').value) || 1 };
   if (k.soort !== 'quiz') {
     Object.assign(d, { voorlees: $('kz-voorlees').value, uitslag: $('kz-uitslag').checked, tijd: Number($('kz-tijd').value) || null });
     if (k.soort === 'oefenblad') d.feedback = $('kz-feedback').value; else d.volgorde = $('kz-volgorde').value;
