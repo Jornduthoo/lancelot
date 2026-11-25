@@ -21,6 +21,18 @@
   // Kopiëren zonder iets ervoor te zetten (Ui.kopieer zet bij een andere taal een opdracht voor de AI vooraan).
   function kopieer(tekst, knop) {
     const klaar = () => { const oud = knop.textContent; knop.textContent = '✓ Gekopieerd'; setTimeout(() => { knop.textContent = oud; }, 1500); };
+    // Eerst de oude manier (werkt ook in ingebouwde vensters zonder klembord-toestemming), dan het klembord.
+    const t = document.createElement('textarea');
+    t.value = tekst;
+    t.setAttribute('readonly', '');
+    t.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(t);
+    t.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch {}
+    t.remove();
+    knop.focus({ preventScroll: true });
+    if (ok) return klaar();
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tekst).then(klaar, () => Ui.melding(tekst));
     else Ui.melding(tekst);
   }
