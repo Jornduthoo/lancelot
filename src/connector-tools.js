@@ -16,6 +16,7 @@ const kronieken = require('./kronieken');
 const takenstandaard = require('./takenstandaard');
 const stem = require('./stem');
 const gegevens = require('./gegevens');
+const toetscontrole = require('./toetscontrole');
 const K = proeven.K;
 
 const PRESENTATIES = 'Dagpresentaties';
@@ -156,7 +157,7 @@ function toetsLezen({ file } = {}) {
 
 // Een toets nakijken vóór de les: kan hij af, heeft elke vraag een sleutel, klopt voorlezen bij een taaltoets.
 // Zonder file maar met "toets": een droge run (niets bewaard), om een toets na te kijken vóór hij bewaard wordt.
-function toetsControleren({ file, toets } = {}) {
+function toetsControleren({ file, toets, andere_versie } = {}) {
   let f = null;
   let t;
   if (!file && toets !== undefined) {
@@ -180,9 +181,21 @@ function toetsControleren({ file, toets } = {}) {
     if (taal !== 'nl' && /frans|fran/i.test(vak) && keuzes.voorlees !== 'uit') bevindingen.push({ soort: 'voorlezen', tekst: `Taak ${tk.id} (${tk.titel}): voorlezen staat op "${keuzes.voorlees}" bij een Franse toets.` });
     if (keuzes.voorlees !== 'uit' && !s.aan) bevindingen.push({ soort: 'voorlezen', tekst: `Taak ${tk.id}: voorlezen staat aan, maar de stem van LANcelot is niet ingesteld. De leerlingen horen de stem van hun toestel.` });
   }
+  // Uitgebreid (wens 25 nov, punt 3): beelden, andere goede schrijfwijzen, de 6- en 6+-versie.
+  const lijst = proeven.list();
+  const takenNu = taken.lijst();
+  let extra = toetscontrole.controleer({ file: f, toets: t, lijst, taken: takenNu });
+  let versies = f ? toetscontrole.andereVersies(f, lijst) : [];
+  if (f && andere_versie) {
+    const a = toetsBestaat(andere_versie);
+    const item = lijst.find(x => x.file === a);
+    versies = [{ file: a, titel: item ? item.title : a, versie: toetscontrole.isPlus(item || { file: a }) ? '6+' : '6' }];
+    extra = extra.filter(b => b.soort !== 'versie').concat(toetscontrole.versies(f, t, lijst, takenNu, [item || { file: a, title: a }]));
+  }
+  bevindingen.push(...extra);
   const handwerk = K.niveausVan(t).reduce((n, nv) => n + K.vragenVan(K.lijstVoor(t, nv)).filter(v => K.handPunten(v.q)).length, 0);
   const poort = (hooks.gezondheid() || {}).poort || 3000;
-  return { ...(f ? { file: f, voorbeeld: `http://localhost:${poort}/proef-proberen?file=${encodeURIComponent(f)}` } : { droge_run: true }), titel: t.title, vak, niveaus: K.niveausVan(t), vragen: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), zelf_te_verbeteren: handwerk, in_orde: !bevindingen.length, bevindingen };
+  return { ...(f ? { file: f, voorbeeld: `http://localhost:${poort}/proef-proberen?file=${encodeURIComponent(f)}` } : { droge_run: true }), titel: t.title, vak, niveaus: K.niveausVan(t), vragen: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), zelf_te_verbeteren: handwerk, ...(f ? { andere_versies: versies } : {}), in_orde: !bevindingen.some(b => b.soort !== 'antwoorden'), bevindingen };
 }
 
 function takenLijst({ open, soort, file } = {}) {
@@ -558,7 +571,7 @@ const TOOLS = [
   { name: 'klas', title: 'Klaslijst', description: 'De klaslijst: namen en niveaus (Page, Schildknaap, Ridder), ook per vak. Gebruik deze namen bij het toewijzen.', inputSchema: obj({}), fn: klasInfo },
   { name: 'toetsen', title: 'Toetsen opzoeken', description: 'Alle toetsen (De Proef): file, titel, map, vak, aantal vragen, punten, niveaus, klaar om af te nemen, wanneer gegeven. Kijk hier eerst, zodat je nooit een toets dubbel maakt. Bij meer dan 80 toetsen zonder zoek of map krijg je eerst het aantal per map.', inputSchema: obj({ zoek: S('Stuk van de titel (optioneel).'), map: S('Alleen toetsen in deze map en haar submappen (optioneel).'), alles: B('Ook bij een grote lijst alle toetsen geven (anders bij meer dan 80 een overzicht per map).') }), fn: toetsenLijst },
   { name: 'toets', title: 'Toets lezen', description: 'De volledige toets (JSON zoals LANcelot hem inleest) en wat er nog ontbreekt om hem af te nemen.', inputSchema: obj({ file: S('Bestandsnaam van de toets.') }, ['file']), fn: toetsLezen },
-  { name: 'toets_controleren', title: 'Toets controleren', description: 'Controle vóór de les: ontbreekt er iets, heeft elke vraag een sleutel, staat voorlezen uit bij een Franse toets, is de voorleesstem ingesteld. Geeft een lijst bevindingen en een voorbeeldlink. Met "toets" in plaats van "file": een droge run vóór het bewaren.', inputSchema: obj({ file: S('Bestandsnaam van de toets.'), toets: { type: ['object', 'string'], description: 'Of: een toets als JSON om na te kijken zonder te bewaren (droge run).' } }), fn: toetsControleren },
+  { name: 'toets_controleren', title: 'Toets controleren', description: 'Controle vóór de les: ontbreekt er iets, heeft elke vraag een sleutel, staat voorlezen uit bij een Franse toets, is de voorleesstem ingesteld; afbeeldingen die ontbreken, niet te lezen of te klein zijn (soort "beeld"); bij getypte antwoorden mogelijke andere goede schrijfwijzen (soort "antwoorden", met "voorstel": jij beslist, toevoegen met vraag_wijzigen en |); bestaat de 6- en de 6+-versie en zijn ze allebei gepland, op dezelfde dag (soort "versie", plus "andere_versies"). "in_orde" kijkt niet naar de voorstellen. Geeft ook een voorbeeldlink. Met "toets" in plaats van "file": een droge run vóór het bewaren.', inputSchema: obj({ file: S('Bestandsnaam van de toets.'), toets: { type: ['object', 'string'], description: 'Of: een toets als JSON om na te kijken zonder te bewaren (droge run).' }, andere_versie: S('Optioneel: het bestand van de andere versie (6 of 6+), als de titels niet op elkaar lijken.') }), fn: toetsControleren },
   { name: 'taken', title: 'Taken en toewijzingen', description: 'Alle gegeven taken (toetsen, oefenbladen, quizzen): id, titel, file, status (open, gepland, afgesloten), vanaf, einddatum, tijdslimiet, keuzes (voorlezen, volgorde, punten tonen) en per leerling de status (nieuw, bezig, klaar).', inputSchema: obj({ open: B('Alleen taken die nog niet afgesloten zijn.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), file: S('Alleen taken van deze toets of dit bestand.') }), fn: takenLijst },
   { name: 'afnames', title: 'Afgenomen toetsen', description: 'De afgenomen toetsen (resultaten in De Proef), met datum, aantal leerlingen en hoeveel er nog te verbeteren is.', inputSchema: obj({ van: DAGP, tot: DAGP }), fn: afnamesLijst },
   { name: 'resultaten_toets', title: 'Resultaten van een toets', description: 'Per leerling de punten, het percentage, de punten per vraag en de tijd; per vraag het gemiddelde en hoe vaak fout; de vragen die het vaakst fout waren; wie nog niet inleverde.', inputSchema: obj({ taak_id: S('Id van de taak (tool "taken").'), afname: S('Of: de afname (tool "afnames").') }), fn: resultatenToets },

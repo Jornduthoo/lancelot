@@ -1604,3 +1604,21 @@ if (params.get('verbeter')) openAfname(params.get('verbeter'), false, () => {
   if (i >= 0) leerlingAfname(i);
   else if (live && afname.taak) leerlingLive(live);
 });
+
+// Grondig nakijken (wens 25 nov, punt 3): afbeeldingen, andere goede schrijfwijzen, de 6- en 6+-versie. Alleen kijken, niets verandert.
+$('e-controle-knop').addEventListener('click', () => {
+  const box = $('e-controle');
+  let toets;
+  try { toets = readEditor(); } catch (err) { return Ui.melding(err.message); }
+  socket.emit('pf-controle', { toets, file: editingFile }, res => {
+    box.classList.remove('hidden');
+    if (!res || res.error) { box.textContent = (res && res.error) || 'Nakijken lukte niet.'; return; }
+    const groep = (soort, kop) => {
+      const l = res.bevindingen.filter(b => b.soort === soort);
+      return l.length ? `<strong>${kop}</strong><ul>${l.map(b => `<li>${esc(b.tekst)}</li>`).join('')}</ul>` : '';
+    };
+    const versies = (res.versies || []).length ? `<p>Andere versie: ${res.versies.map(v => `${esc(v.versie)} · ${esc(v.titel)}`).join(', ')}</p>` : '';
+    box.innerHTML = (groep('beeld', '🖼 Afbeeldingen') + groep('antwoorden', '✏️ Misschien ook goed (jij beslist; zet ze erbij met |)') + groep('versie', '6 en 6+') + versies)
+      || '<p>✔ Niets gevonden: de afbeeldingen zijn goed, de antwoorden hebben geen voor de hand liggende andere schrijfwijze.</p>';
+  });
+});
