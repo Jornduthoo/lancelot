@@ -1273,6 +1273,13 @@ connector.init({
       syncSoon();
     },
     naToetsen: () => sendLibrary('proef'),
+    naBib: kind => sendLibrary(kind),
+    syncNu: async () => {
+      if (!settings.read().lesmap) return { ingesteld: false };
+      try { await runSync(); } catch {}
+      const lm = lesmap.view();
+      return { ingesteld: true, ...Object.fromEntries(Object.entries(lm).filter(([k]) => !['lesmap', 'soorten'].includes(k))) };
+    },
     naKronieken: () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); vandaagSoon(); },
     gezondheid: () => {
       const b = (() => { try { return bijwerken.view(); } catch { return {}; } })();

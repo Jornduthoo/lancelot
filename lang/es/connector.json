@@ -78,5 +78,20 @@
  "De tunnel viel weg. LANcelot probeert het zo opnieuw (internet nodig).": "El túnel se cayó. LANcelot lo volverá a intentar enseguida (hace falta internet).",
  "Deze taak is afgesloten. Heropen ze eerst.": "Esta tarea está cerrada. Vuelve a abrirla primero.",
  "Er zijn al leerlingen aan deze taak begonnen: verplaatsen kan niet meer.": "Algunos alumnos ya empezaron esta tarea: ya no se puede mover.",
- "Kies een moment in de toekomst.": "Elige un momento en el futuro."
+ "Kies een moment in de toekomst.": "Elige un momento en el futuro.",
+ "Toets {0}: vraag {1} toegevoegd": "Prueba {0}: pregunta {1} añadida",
+ "Toets {0}: vraag {1} gewijzigd": "Prueba {0}: pregunta {1} cambiada",
+ "Toets {0}: vraag {1} verplaatst": "Prueba {0}: pregunta {1} movida",
+ "Toets {0}: vraag {1} weggehaald": "Prueba {0}: pregunta {1} quitada",
+ "Toets {0} aangepast": "Prueba {0} ajustada",
+ "Toets {0}: niveau {1} gemaakt": "Prueba {0}: nivel {1} creado",
+ "Toets {0}: beeld of geluid bij vraag {1}": "Prueba {0}: imagen o sonido en la pregunta {1}",
+ "Toets {0} teruggezet naar een vorige versie": "Prueba {0} restaurada a una versión anterior",
+ "{0} toetsen bewaard": "{0} pruebas guardadas",
+ "Quiz {0} bewaard": "Quiz {0} guardado",
+ "Oefenblad {0} bewaard": "Ficha {0} guardada",
+ "Map {0} gemaakt": "Carpeta {0} creada",
+ "Map {0} heet nu {1}": "La carpeta {0} ahora se llama {1}",
+ "{0} naar de map {1}": "{0} a la carpeta {1}",
+ "Mijn lesmap gesynchroniseerd": "Mi carpeta de clase sincronizada"
 }
