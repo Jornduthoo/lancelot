@@ -1052,6 +1052,19 @@ app.get('/proef-kopie', (req, res) => {
   res.type('html').send(html);
 });
 
+// Weekrapport per leerling (wens 25 nov, punt 5): de gegevens meteen in de pagina, ook voor de pdf zonder venster.
+app.get('/weekrapport', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  let data;
+  try { data = require('./src/weekrapport').data({ van: req.query.van ? String(req.query.van) : undefined, tot: req.query.tot ? String(req.query.tot) : undefined, naam: req.query.pdf && req.query.naam ? String(req.query.naam) : undefined }); } catch (err) { return res.status(400).send(err.message); }
+  if (req.query.pdf) data.pdf = true;
+  const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  const html = fs.readFileSync(path.join(__dirname, 'public', 'weekrapport.html'), 'utf8')
+    .replace('<script src="/socket.io/socket.io.js"></script>', () => `<script>window.RAPPORT = ${json};</script><script src="/socket.io/socket.io.js"></script>`);
+  res.setHeader('Cache-Control', 'no-store');
+  res.type('html').send(html);
+});
+
 // Het toetsarchief (src/toetsarchief.js): de pdf's maakt dezelfde browser zonder venster, uit de afname in het geheugen
 // (zo lukt het ook als de afname net verwijderd werd). De opgave: de toets zoals ze toen afgenomen werd.
 const metData = (naam, json) => fs.readFileSync(path.join(__dirname, 'public', 'proef-print.html'), 'utf8')
@@ -2272,6 +2285,14 @@ io.on('connection', socket => {
     // Remediëring na een toets (wens 25 nov, punt 4): eerst tonen wie wat krijgt, dan per leerling een oefenblad als taak.
     socket.on('rm-voorstel', handle(arg => { const r = require('./src/remediering'); const a = arg || {}; return r.samenvatting(r.voorstel(r.afnameVan(a), { grens: Number(a.grens) || 0.5 })); }));
     socket.on('rm-maak', taak(arg => { const r = require('./src/remediering'); const a = arg || {}; const out = r.maak(r.afnameVan(a), { grens: Number(a.grens) || 0.5 }); sendLibrary('oefenblad'); return out; }));
+    // Weekrapport: de feedback van de leerkracht bewaren, en een pdf per leerling in Mijn lesmap.
+    socket.on('wr-opmerking', handle(arg => require('./src/weekrapport').zetOpmerking(arg || {})));
+    socket.on('wr-lesmap', (arg, cb) => {
+      if (typeof cb !== 'function') return;
+      const a = arg || {};
+      require('./src/weekrapport').naarLesmap({ van: a.van, tot: a.tot, url: (naam, van, tot) => `http://127.0.0.1:${PORT}/weekrapport?pdf=1&van=${van}&tot=${tot}&naam=${encodeURIComponent(naam)}` })
+        .then(r => { cb({ ok: true, ...r }); if (r.gemaakt) syncSoon(); }).catch(err => cb({ error: err.message }));
+    });
     socket.on('tk-toevoegen', taak(arg => ({ n: taken.voegToe(arg) })));
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));
