@@ -142,5 +142,16 @@
  "Voldoende, maar nog wat oefenen.": "Sufficient, but practise a bit more.",
  "Dit was nog moeilijk.": "This was still difficult.",
  "Omrekenen kan op 10, 20 of 100 (of 0: zoals de toets).": "Convert to 10, 20 or 100 (or 0: as the test).",
- "niet gemaakt": "not taken"
+ "niet gemaakt": "not taken",
+ "📡 Live": "📡 Live",
+ "{0} (vraag {1}, {2} min)": "{0} (question {1}, {2} min)",
+ "✔ Klaar{0}": "✔ Done{0}",
+ "{0}Vraag {1}{2}{3}": "{0}Question {1}{2}{3}",
+ "van {0}": "of {0}",
+ "Afwezig: haalt in": "Absent: catches up",
+ "Bekijk het werk van deze leerling": "View this pupil's work",
+ "{0} bezig · {1} klaar · {2} nog niet begonnen": "{0} busy · {1} done · {2} not started",
+ "⚠ Lang op één vraag: {0}": "⚠ Long on one question: {0}",
+ "Lang op één vraag vanaf": "Long on one question from",
+ "8 min": "8 min"
 }

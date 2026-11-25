@@ -221,3 +221,18 @@
 .tk-klok.bijna { background: rgb(var(--k-rood) / .9); border-color: rgb(var(--k-rood-l)); color: rgb(var(--k-wit)); }
 /* Op een gsm staat de titel rechtsboven: de klok net eronder. */
 @media (max-width: 700px) { .tk-klok { top: 74px; right: 8px; padding: 4px 10px; font-size: 1rem; } }
+/* Live overzicht tijdens een toets (wens 25 nov, punt 8) */
+.tk-live { width: min(1100px, 96vw); }
+.tk-live-samen { margin: 0 0 6px; font-weight: 700; }
+.tk-live-vast { margin: 0 0 10px; padding: 8px 12px; color: var(--bad); font-weight: 700; box-shadow: inset 4px 0 0 var(--bad), inset 0 0 0 1px var(--line); }
+.tk-live-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; max-height: 62vh; overflow: auto; padding: 2px; }
+.tk-live-ll { --k: var(--muted); position: relative; display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 14px; text-align: left; color: var(--text); background: rgb(var(--k-bg) / .5); box-shadow: inset 4px 0 0 var(--k), inset 0 0 0 1px var(--line); font: inherit; cursor: pointer; overflow: hidden; }
+.tk-live-ll strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-live-ll.bezig { --k: var(--gold); }
+.tk-live-ll.klaar { --k: var(--good); background: rgb(var(--k-groen) / .08); }
+.tk-live-ll.vast { --k: var(--bad); background: rgb(var(--k-rood, 220 60 60) / .12); }
+.tk-live-ll.vast .tk-live-wat { color: var(--bad); }
+.tk-live-ll.bezig .tk-live-wat { color: var(--gold); }
+.tk-live-wat { font-weight: 700; font-size: .92rem; }
+.tk-live-klein { font-size: .78rem; color: var(--muted); min-height: 1em; }
+.tk-live .actions { align-items: center; }

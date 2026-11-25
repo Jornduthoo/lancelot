@@ -142,5 +142,16 @@
  "Voldoende, maar nog wat oefenen.": "Ausreichend, aber noch etwas üben.",
  "Dit was nog moeilijk.": "Das war noch schwierig.",
  "Omrekenen kan op 10, 20 of 100 (of 0: zoals de toets).": "Umrechnen geht auf 10, 20 oder 100 (oder 0: wie der Test).",
- "niet gemaakt": "nicht gemacht"
+ "niet gemaakt": "nicht gemacht",
+ "📡 Live": "📡 Live",
+ "{0} (vraag {1}, {2} min)": "{0} (Frage {1}, {2} Min.)",
+ "✔ Klaar{0}": "✔ Fertig{0}",
+ "{0}Vraag {1}{2}{3}": "{0}Frage {1}{2}{3}",
+ "van {0}": "von {0}",
+ "Afwezig: haalt in": "Abwesend: holt nach",
+ "Bekijk het werk van deze leerling": "Die Arbeit dieses Schülers ansehen",
+ "{0} bezig · {1} klaar · {2} nog niet begonnen": "{0} dabei · {1} fertig · {2} nicht begonnen",
+ "⚠ Lang op één vraag: {0}": "⚠ Lange bei einer Frage: {0}",
+ "Lang op één vraag vanaf": "Lange bei einer Frage ab",
+ "8 min": "8 Min."
 }

@@ -449,7 +449,7 @@ function toetsStand(t, w) {
     punten += Number(w.auto[id]) || 0;
     hand += K.handPunten(q);
   }
-  return { punten, autoMax: max, hand, voorlees: voorleesVoor(t, w), pos: w.pos || 0 };
+  return { punten, autoMax: max, hand, voorlees: voorleesVoor(t, w), pos: w.pos || 0, paginas: toets(t, w).lijst.length, ...(w.status === 'bezig' && w.posSinds ? { posSinds: w.posSinds, actief: w.actief || w.posSinds } : {}) };
 }
 
 // Wat de leerling haalde, als de leerkracht dat toont na het inleveren (de open vragen tellen pas na het verbeteren).
@@ -1359,9 +1359,17 @@ function toetsAntwoord({ id, naam, vraag, waarde, pos } = {}) {
   nogOpen(t, w);
   if (t.soort !== 'proef') throw new Error('Dit is geen toets.');
   const { lijst, perms } = toets(t, w);
-  if (pos !== undefined) w.pos = Math.max(0, Math.round(Number(pos)) || 0);
+  // Live overzicht (wens 25 nov, punt 8): sinds wanneer de leerling op deze vraag staat, en wanneer hij iets deed.
+  const nu = new Date().toISOString();
+  let anders = false;
+  if (pos !== undefined) {
+    const p = Math.max(0, Math.round(Number(pos)) || 0);
+    if (p !== (w.pos || 0) || !w.posSinds) { w.posSinds = nu; anders = true; }
+    w.pos = p;
+  }
+  w.actief = nu;
   // Op Start drukken (of een andere vraag kiezen) is ook begonnen: dan ziet de leerkracht hem meteen als bezig.
-  if (vraag === undefined) { if (pos !== undefined && w.status === 'nieuw') { begin(t, w); save(); } return { ok: true }; }
+  if (vraag === undefined) { if (pos !== undefined && w.status === 'nieuw') { begin(t, w); save(); } else if (anders) save(); return { ok: true }; }
   const v = K.vragenVan(lijst).find(x => x.id === vraag);
   if (!v) throw new Error('Onbekende vraag.');
   begin(t, w);
