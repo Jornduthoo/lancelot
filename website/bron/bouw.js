@@ -338,7 +338,7 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
     <section class="blok download" id="download">
       <h2 class="titel">${esc(t.download.titel)}</h2>
       <p class="intro">${esc(STORE ? t.store.tekst : t.download.tekst)}</p>
-      ${STORE ? `<a class="knop" href="${STORE}" rel="noopener">${esc(t.store.knop)}</a>` : `<p class="binnenkort">${esc(t.nav.download)}</p>`}
+      ${STORE ? `<a class="knop" href="${STORE}" rel="noopener">${esc(t.store.knop)}</a>` : `<p class="binnenkort">${esc(t.hero.knop)}</p>`}
       <p class="noot">${esc(t.download.noot)}</p>
       ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     </section>
@@ -346,7 +346,7 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
     <section class="blok" id="faq">
       <h2 class="titel">${esc(t.faq.titel)}</h2>
       <div class="faq">
-        ${t.faq.lijst.map((x, i) => `<details><summary>${esc(x.v)}</summary><p>${esc(STORE && i === 0 ? t.store.faq : x.a)}</p></details>`).join('\n        ')}
+        ${t.faq.lijst.filter((x, i) => STORE || i !== 1).map((x, i) => `<details><summary>${esc(x.v)}</summary><p>${esc(STORE && i === 0 ? t.store.faq : x.a)}</p></details>`).join('\n        ')}
       </div>
     </section>`;
 
