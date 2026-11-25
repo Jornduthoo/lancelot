@@ -192,6 +192,8 @@ function toetsKeuzes(t, p) {
   if (p.keuzesVast === true) t.keuzesVast = true;
   if (p.uitslag === true) t.uitslag = true;
   if (p.beveiligd === true) t.beveiligd = true;
+  // Reflectie na het inleveren (wens 25 nov, punt 10): standaard aan, uit te zetten per toets.
+  if (p.reflectie === false) t.geenReflectie = true;
 }
 // Ziet de leerling zijn punten na het inleveren? Een oefenblad van vroeger: ja.
 const puntenZien = t => (t.soort === 'oefenblad' ? t.uitslag !== false : !!t.uitslag);
@@ -362,6 +364,7 @@ function keuzesNaarTaak(t, p, absoluut) {
     vlag('keuzesVast', p.keuzesVast);
   }
   vlag('uitslag', p.uitslag);
+  if (typeof p.reflectie === 'boolean') vlag('geenReflectie', !p.reflectie);
   if (absoluut) vlag('beveiligd', p.beveiligd);
 }
 function zetKeuzes({ id, ...p } = {}) {
@@ -381,6 +384,7 @@ function keuzesVan(t) {
     id: t.id, soort: t.soort, feedback: t.feedback, uitslag: puntenZien(t), bezig, tot: t.tot || null, tijd: t.tijd || null, tijdPer: t.tijdPer || null, pogingen: pogingenVan(t),
     voorlees: t.voorlees || (t.soort === 'oefenblad' ? 'iedereen' : 'uit'),
     volgorde: t.soort === 'proef' ? (t.keuzesVast ? 'alles' : t.vragenVast ? 'vragen' : 'schud') : 'alles',
+    ...(t.soort === 'proef' ? { reflectie: !t.geenReflectie } : {}),
   };
 }
 // Beveiligd (volledig scherm, wegklikken gemeld): ook achteraf aan of uit te zetten, voor wie nog werkt.
@@ -597,7 +601,7 @@ function schoonLes(l) {
 // Voor de leerling: alleen het doel en de criteria.
 const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag, beveiligd, tot, tijd, tijdPer, pogingen } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag, beveiligd, reflectie, tot, tijd, tijdPer, pogingen } = {}) {
   controleerTot(tot, schoonVanaf(vanaf));
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
@@ -608,7 +612,7 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, le
     feedback: feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: new Date().toISOString(), dicht: false, inhoud, werk: {},
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
-  toetsKeuzes(t, { voorlees, vragenVast, keuzesVast, uitslag, beveiligd });
+  toetsKeuzes(t, { voorlees, vragenVast, keuzesVast, uitslag, beveiligd, reflectie });
   tijdKeuzes(t, { tot: tot || undefined, tijd: tijd || undefined, tijdPer: tijdPer || undefined, pogingen: pogingen || undefined });
   t.keuzesTijd = t.gemaakt;
   const uitLes = lesVan(les);
@@ -688,7 +692,7 @@ function planBewaar(t) {
       namenTijd: t.namenTijd || null,
       // Afgesloten of open, met wanneer: zo sluit een taak op al je pc's (de laatste wijziging wint).
       dicht: !!t.dicht, dichtTijd: t.dichtTijd || null,
-      voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: puntenZien(t), beveiligd: !!t.beveiligd,
+      voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: puntenZien(t), beveiligd: !!t.beveiligd, reflectie: !t.geenReflectie,
       // Wanneer de keuzes (voorlezen, punten tonen…) voor het laatst veranderden. Een plan zonder dit is van vroeger:
       // dan krijgt een oefenblad de keuzes van vroeger (altijd voorlezen, punten tonen).
       keuzesTijd: t.keuzesTijd || null,
@@ -1169,12 +1173,13 @@ function lijst() {
     toestellen: anders(t),
     afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
     beveiligd: t.soort === 'proef' ? !!t.beveiligd : undefined,
+    reflectie: t.soort === 'proef' ? !t.geenReflectie : undefined,
     tot: t.tot || null, tijd: t.tijd || null, vanzelfDicht: !!t.vanzelfDicht, pogingen: pogingenVan(t),
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...(w.poging ? { poging: w.poging + 1 } : {}), elders: w.elders ? w.elders.pc : undefined,
       // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
       ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
       ...(w.status === 'nieuw' && wacht(t, key(w.naam)) ? { wacht: true } : {}),
-      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...tijdLeerling(t, w) }))
+      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...(t.soort === 'proef' && t.werk[key(w.naam)] && t.werk[key(w.naam)].reflectie ? { reflectie: t.werk[key(w.naam)].reflectie } : {}), ...tijdLeerling(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }
@@ -1217,7 +1222,7 @@ function detail({ id, naam } = {}) {
       else if (q.type === 'blad') zones[qid] = q.velden;
       punten[qid] = [K.handPunten(q) ? null : Number(w.auto[qid]) || 0, K.maxVan(q)];
     }
-    return { ...base, view: K.studentView(t.inhoud, lijst, { img: d => d }), answers: w.answers, sleutel, zones, punten, afname: (afnameVan(t) || {}).file || null };
+    return { ...base, view: K.studentView(t.inhoud, lijst, { img: d => d }), answers: w.answers, sleutel, zones, punten, afname: (afnameVan(t) || {}).file || null, reflectie: (t.werk[key(naam)] || {}).reflectie || null };
   }
   if (t.soort === 'quiz') {
     return {
@@ -1283,7 +1288,7 @@ function open({ id, naam } = {}) {
   const klaar = t.dicht || w.status === 'klaar';
   const base = { tot: t.tot || null, totRest: totRest(t), ...tijdVoor(t, w), tijdOp: !!w.tijdOp, id, soort: t.soort, titel: t.titel, poging: w.poging || 0, pogingen: pogingenVan(t), nogEens: kanNogEens(t, w), spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), taal: stem.taalVanVak(t.vak), ...voortgang(t, w) };
   if (t.soort === 'proef') {
-    if (klaar) return { ...base, uitslag: uitslagVoor(t, w) };
+    if (klaar) return { ...base, uitslag: uitslagVoor(t, w), ...(w.status === 'klaar' && !t.geenReflectie ? { reflectie: { vragen: toets(t, w).lijst.length, gedaan: w.reflectie || null } } : {}) };
     // De toets staat open op zijn scherm: de volgorde ligt vast voor hem, ook als de leerkracht ze nu verandert.
     if (!w.vast) { zetVast(t, w); save(); }
     const { lijst, order, perms } = toets(t, w);
@@ -1415,7 +1420,7 @@ function naarAfname(t, w) {
   const nieuw = !rec;
   if (nieuw) rec = { title: t.titel, datum: t.gemaakt, toetsFile: t.file, instellingen: { taak: true }, toets: t.inhoud, spelers: [], klaar: false, gelogd: false, taak: t.id };
   const oud = rec.spelers.find(s => key(s.naam) === key(w.naam));
-  const s = { naam: w.naam, niveau: w.niveau, antwoorden: w.answers, auto: w.auto, hand: {}, events: wegVoorAfname(w), begon: w.begin, ingeleverd: w.klaar, extra: 0, t: Date.now() };
+  const s = { naam: w.naam, niveau: w.niveau, antwoorden: w.answers, auto: w.auto, hand: {}, events: wegVoorAfname(w), begon: w.begin, ingeleverd: w.klaar, extra: 0, t: Date.now(), ...(w.reflectie ? { reflectie: w.reflectie } : {}) };
   // Weer opengezet en opnieuw ingeleverd: wat de leerkracht al verbeterde blijft staan.
   if (oud && oud.niveau === s.niveau) Object.assign(s, { hand: oud.hand || {}, over: oud.over, vak: oud.vak, ht: oud.ht, gelogd: oud.gelogd });
   rec.spelers = rec.spelers.filter(x => x !== oud).concat(s).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
@@ -1461,6 +1466,40 @@ function inleverenWerk(t, w) {
       doel: block.doel, juist: w.results[f.id] === true && (vastVan(t, w).feedback !== 'direct' || w.first[f.id] !== false), leeg: w.answers[f.id] === undefined,
     };
   }));
+}
+
+// Reflectie na een toets (wens 25 nov, punt 10): hoe zeker was de leerling (1 😟, 2 🙂, 3 😃) en wat vond hij moeilijk
+// (vraagnummers zoals hij ze zag, "niets", en/of een kort tekstje). Mag overgeslagen worden; aanpassen kan zolang
+// de taak open is. Het gaat ook bij zijn inzending in de afname, zodat De Proef het bij de resultaten toont.
+const REFLECTIE_TEKST = 140;
+function reflectie({ id, naam, zeker, moeilijk, niets, tekst } = {}) {
+  const { t, w } = werkVan(id, naam);
+  if (t.soort !== 'proef') throw new Error('Dit is geen toets.');
+  if (w.status !== 'klaar') throw new Error('Lever eerst je toets in.');
+  if (t.geenReflectie) throw new Error('Bij deze toets hoeft dat niet.');
+  const { lijst, order } = toets(t, w);
+  const n = lijst.length;
+  const z = Number(zeker);
+  // De leerling ziet de vragen misschien door elkaar: "gezien" is zijn nummer, "moeilijk" het nummer in de toets.
+  const gezien = niets ? [] : [...new Set((Array.isArray(moeilijk) ? moeilijk : []).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= n))].sort((a, b) => a - b);
+  const r = {
+    zeker: [1, 2, 3].includes(z) ? z : null,
+    moeilijk: [...new Set(gezien.map(x => (order && order[x - 1] !== undefined ? order[x - 1] + 1 : x)))].sort((a, b) => a - b),
+    gezien,
+    niets: !!niets,
+    tekst: String(tekst || '').replace(/\s+/g, ' ').trim().slice(0, REFLECTIE_TEKST),
+    t: new Date().toISOString(),
+  };
+  if (!r.zeker && !r.moeilijk.length && !r.niets && !r.tekst) throw new Error('Kies een smiley of vul iets in.');
+  w.reflectie = r;
+  save();
+  // Bij de inzending in de afname (De Proef › Resultaten). Mislukt dat, dan staat het nog altijd bij de taak.
+  try {
+    const rec = afnameVan(t);
+    const s = rec && rec.spelers.find(x => key(x.naam) === key(w.naam));
+    if (s) { s.reflectie = r; proeven.schrijfAfname(rec); }
+  } catch (err) { console.error('Reflectie bij de afname zetten mislukt:', err.message); }
+  return { ok: true, reflectie: r };
 }
 
 // Een quizvraag beantwoorden: één poging per vraag, meteen naar het logboek.
@@ -1542,4 +1581,4 @@ function voorleesBronnen() {
   return uit;
 }
 
-module.exports = { nogEens, MAX_POGINGEN, tik, zetTijd, rest, MAX_MINUTEN, openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, zetVanaf, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { reflectie, nogEens, MAX_POGINGEN, tik, zetTijd, rest, MAX_MINUTEN, openIds, staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, zetVanaf, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

@@ -935,3 +935,8 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .pf-bron-page .pf-q.pf-markeren.actief .pf-inbron-knop { display: none; }
 .pf-markeer-laag { max-height: none; }
 @media (max-width: 760px) { .pf-laag { top: 0; } }
+/* Reflectie na een toets (wens 25 nov, punt 10) */
+.pf-refl-overzicht { margin: 8px 0 10px; padding: 10px 14px; line-height: 1.6; box-shadow: inset 4px 0 0 var(--gold), inset 0 0 0 1px var(--line); }
+.pf-refl-overzicht details { margin-top: 4px; }
+.pf-refl-overzicht ul { margin: 4px 0 0; padding-left: 20px; }
+.pf-resultaten td.pf-refl { font-size: .85rem; max-width: 260px; }
