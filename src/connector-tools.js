@@ -123,13 +123,28 @@ function klasInfo() {
   };
 }
 
-function toetsenLijst({ zoek, map } = {}) {
+// Zonder zoekterm of map bij een grote bib: per map het aantal, zodat het antwoord klein blijft (een klas heeft er snel honderden).
+const TOETSEN_MAX = 80;
+function toetsenLijst({ zoek, map, alles } = {}) {
   const z = String(zoek || '').toLowerCase();
+  const m = String(map || '').toLowerCase();
+  const lijst = proeven.list()
+    .filter(t => (!z || t.title.toLowerCase().includes(z) || t.file.includes(z)) && (!m || (t.folder || '').toLowerCase().startsWith(m)));
+  if (!alles && lijst.length > TOETSEN_MAX && !z && !m) {
+    const perMap = {};
+    for (const t of lijst) perMap[t.folder || ''] = (perMap[t.folder || ''] || 0) + 1;
+    return {
+      aantal: lijst.length,
+      uitleg: `Er zijn ${lijst.length} toetsen. Vraag ze op per map (map) of zoek op titel (zoek); "alles": true geeft ze toch allemaal.`,
+      mappen: Object.entries(perMap).sort((a, b) => a[0].localeCompare(b[0])).map(([naam, n]) => ({ map: naam, toetsen: n })),
+    };
+  }
+  const kort = !alles && lijst.length > TOETSEN_MAX;
   return {
-    toetsen: proeven.list()
-      .filter(t => (!z || t.title.toLowerCase().includes(z) || t.file.includes(z)) && (!map || (t.folder || '').toLowerCase().startsWith(String(map).toLowerCase())))
-      .map(t => ({ file: t.file, titel: t.title, map: t.folder || '', vak: t.vak || '', vragen: t.count, punten: t.punten, niveaus: t.niveaus, klaar: t.klaar, gegeven: t.gegeven, gewijzigd: t.gewijzigd, ...(t.dubbel ? { dubbel_met: t.dubbel } : {}) })),
-    mappen: proeven.lib.folders(),
+    aantal: lijst.length,
+    ...(kort ? { uitleg: `Alleen de eerste ${TOETSEN_MAX} van ${lijst.length}. Zoek nauwkeuriger of geef "alles": true.` } : {}),
+    toetsen: (kort ? lijst.slice(0, TOETSEN_MAX) : lijst).map(t => ({ file: t.file, titel: t.title, map: t.folder || '', vak: t.vak || '', vragen: t.count, punten: t.punten, niveaus: t.niveaus, klaar: t.klaar, gegeven: t.gegeven, gewijzigd: t.gewijzigd, ...(t.dubbel ? { dubbel_met: t.dubbel } : {}) })),
+    ...(z || m ? {} : { mappen: proeven.lib.folders() }),
   };
 }
 
@@ -449,7 +464,7 @@ const DAGP = S('Datum JJJJ-MM-DD.');
 const TOOLS = [
   { name: 'gezondheid', title: 'Gezondheidscontrole', description: 'Draait LANcelot, welke versie, gaat de sync met Mijn lesmap goed, is de voorleesstem ingesteld en hoeveel tekens werden deze maand voorgelezen, hoeveel leerlingen en open taken. Geeft nooit sleutels terug.', inputSchema: obj({}), fn: gezondheid },
   { name: 'klas', title: 'Klaslijst', description: 'De klaslijst: namen en niveaus (Page, Schildknaap, Ridder), ook per vak. Gebruik deze namen bij het toewijzen.', inputSchema: obj({}), fn: klasInfo },
-  { name: 'toetsen', title: 'Toetsen opzoeken', description: 'Alle toetsen (De Proef): file, titel, map, vak, aantal vragen, punten, niveaus, klaar om af te nemen, wanneer gegeven. Kijk hier eerst, zodat je nooit een toets dubbel maakt.', inputSchema: obj({ zoek: S('Stuk van de titel (optioneel).'), map: S('Alleen toetsen in deze map (optioneel).') }), fn: toetsenLijst },
+  { name: 'toetsen', title: 'Toetsen opzoeken', description: 'Alle toetsen (De Proef): file, titel, map, vak, aantal vragen, punten, niveaus, klaar om af te nemen, wanneer gegeven. Kijk hier eerst, zodat je nooit een toets dubbel maakt. Bij meer dan 80 toetsen zonder zoek of map krijg je eerst het aantal per map.', inputSchema: obj({ zoek: S('Stuk van de titel (optioneel).'), map: S('Alleen toetsen in deze map en haar submappen (optioneel).'), alles: B('Ook bij een grote lijst alle toetsen geven (anders bij meer dan 80 een overzicht per map).') }), fn: toetsenLijst },
   { name: 'toets', title: 'Toets lezen', description: 'De volledige toets (JSON zoals LANcelot hem inleest) en wat er nog ontbreekt om hem af te nemen.', inputSchema: obj({ file: S('Bestandsnaam van de toets.') }, ['file']), fn: toetsLezen },
   { name: 'toets_controleren', title: 'Toets controleren', description: 'Controle vóór de les: ontbreekt er iets, heeft elke vraag een sleutel, staat voorlezen uit bij een Franse toets, is de voorleesstem ingesteld. Geeft een lijst bevindingen.', inputSchema: obj({ file: S('Bestandsnaam van de toets.') }, ['file']), fn: toetsControleren },
   { name: 'taken', title: 'Taken en toewijzingen', description: 'Alle gegeven taken (toetsen, oefenbladen, quizzen): id, titel, file, status (open, gepland, afgesloten), vanaf, keuzes (voorlezen, volgorde, punten tonen) en per leerling de status (nieuw, bezig, klaar).', inputSchema: obj({ open: B('Alleen taken die nog niet afgesloten zijn.'), soort: S('proef, oefenblad of quiz.', { enum: ['proef', 'oefenblad', 'quiz'] }), file: S('Alleen taken van deze toets of dit bestand.') }), fn: takenLijst },
