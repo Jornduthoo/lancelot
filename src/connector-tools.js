@@ -217,7 +217,7 @@ function takenLijst({ open, soort, file } = {}) {
 
 function afnamesLijst({ van, tot } = {}) {
   return {
-    afnames: proeven.afnames().filter(a => (!van || dag(a.datum) >= van) && (!tot || dag(a.datum) <= tot))
+    afnames: proeven.afnames().filter(a => proeven.afnameInPeriode(a, van, tot, dag))
       .map(a => ({ afname: a.file, titel: a.title, datum: a.datum, leerlingen: a.leerlingen, nog_te_verbeteren: a.open, verbeterd: a.klaar, taak_id: a.taak, toets_file: a.toetsFile })),
   };
 }
@@ -260,25 +260,41 @@ function resultatenToets(arg = {}) {
 // Reflectie na een toets (wens 25 nov, punt 10): zeker = 1 niet zeker, 2 een beetje, 3 heel zeker; moeilijk = vraagnummers in de toets.
 const reflectieUit = r => ({ zeker: r.zeker || null, zeker_tekst: ({ 1: 'niet zeker', 2: 'een beetje zeker', 3: 'heel zeker' })[r.zeker] || null, moeilijk: r.niets ? [] : r.moeilijk || [], niets_moeilijk: !!r.niets, tekst: r.tekst || '' });
 
+// De punten van een toets als taak, uit de afname in De Proef (ook als ze automatisch verbeterd werd).
+function toetsPunten(taakId, k) {
+  const a = proeven.afnameVanTaak(taakId);
+  if (!a) return {};
+  let rec;
+  try { rec = proeven.laadAfname(a.file); } catch { return {}; }
+  const s = rec.spelers.find(x => sleutel(x.naam) === k);
+  if (!s) return {};
+  const st = proeven.stand(rec, s);
+  return { afname: a.file, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open };
+}
+
 function resultatenLeerling({ naam, van, tot } = {}) {
   const l = klas.match(naam);
   if (!l) fout(`"${naam}" staat niet op de klaslijst.`);
   const k = sleutel(l.naam);
   const toetsen = [];
   for (const a of proeven.afnames()) {
-    const d = dag(a.datum);
-    if ((van && d < van) || (tot && d > tot)) continue;
+    if (!proeven.afnameInPeriode(a, van, tot, dag)) continue;
     let rec;
     try { rec = proeven.laadAfname(a.file); } catch { continue; }
     const s = rec.spelers.find(x => sleutel(x.naam) === k);
     if (!s) continue;
+    // De dag waarop de leerling inleverde telt (een toets als taak kan dagen na het geven gemaakt worden).
+    const wanneer = proeven.datumVan(rec, s);
+    const d = dag(wanneer);
+    if ((van && d < van) || (tot && d > tot)) continue;
     const st = proeven.stand(rec, s);
-    toetsen.push({ afname: a.file, titel: rec.title, datum: rec.datum, vak: proeven.vakVan(rec.toets), niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open, ...(s.reflectie ? { reflectie: reflectieUit(s.reflectie) } : {}) });
+    toetsen.push({ afname: a.file, titel: rec.title, datum: wanneer, ...(dag(rec.datum) !== d ? { gegeven: rec.datum } : {}), vak: proeven.vakVan(rec.toets), niveau: s.niveau, punten: st.punten, max: st.max, procent: procent(st.punten, st.max), nog_te_verbeteren: st.open, ...(s.reflectie ? { reflectie: reflectieUit(s.reflectie) } : {}) });
   }
   const tk = taken.lijst().filter(t => (!van || dag(t.dag) >= van) && (!tot || dag(t.dag) <= tot)).map(t => {
     const w = t.leerlingen.find(x => sleutel(x.naam) === k);
-    return w ? { taak_id: t.id, soort: t.soort, titel: t.titel, dag: t.dag, status: w.status, gedaan: w.gedaan, totaal: w.totaal, ...(t.soort === 'oefenblad' ? { juist: w.juist, te_verbeteren: w.score } : {}) } : null;
+    return w ? { taak_id: t.id, soort: t.soort, titel: t.titel, dag: t.dag, status: w.status, gedaan: w.gedaan, totaal: w.totaal, ...(t.soort === 'oefenblad' ? { juist: w.juist, te_verbeteren: w.score } : {}), ...(t.soort === 'proef' ? toetsPunten(t.id, k) : {}) } : null;
   }).filter(Boolean);
+  toetsen.sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
   return { naam: l.naam, van: van || null, tot: tot || null, toetsen, taken: tk };
 }
 

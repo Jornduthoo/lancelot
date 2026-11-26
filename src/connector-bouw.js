@@ -465,11 +465,12 @@ function maak(ctx) {
     const t = tot || (() => { const d = new Date(`${v}T12:00:00`); d.setDate(d.getDate() + 6); return ctx.dag(d); })();
     const rijen = [];
     for (const a of proeven.afnames()) {
-      const d = ctx.dag(a.datum);
-      if (d < v || d > t) continue;
+      if (!proeven.afnameInPeriode(a, v, t, ctx.dag)) continue;
       let rec;
       try { rec = proeven.laadAfname(a.file); } catch { continue; }
       for (const s of rec.spelers) {
+        const d = ctx.dag(proeven.datumVan(rec, s));
+        if (d < v || d > t) continue;
         const st = proeven.stand(rec, s);
         rijen.push({ datum: d, soort: 'toets', titel: rec.title, vak: proeven.vakVan(rec.toets), naam: s.naam, niveau: s.niveau, punten: st.punten, max: st.max, procent: st.max ? Math.round((st.punten / st.max) * 1000) / 10 : null, status: st.open ? 'nog te verbeteren' : 'verbeterd' });
       }

@@ -264,7 +264,8 @@ function haalToetsen(r) {
   let nieuw = 0;
   for (const a of proeven.afnames()) {
     const dag = String(a.datum || '').slice(0, 10);
-    if (bekend.has(a.file) || !dag || dag < r.van || (r.tot && dag > r.tot)) continue;
+    // Ook een toets als taak die vroeger gegeven werd maar in de periode ingeleverd werd.
+    if (bekend.has(a.file) || !dag || !proeven.afnameInPeriode(a, r.van, r.tot, x => String(x || '').slice(0, 10))) continue;
     let rec;
     try { rec = proeven.laadAfname(a.file); } catch { continue; }
     let vak = vakVanToets(rec.toets, r.vakken);

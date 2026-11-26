@@ -182,6 +182,27 @@ function stand(rec, s) {
 
 // De lijst leest niet elke keer elk bestand opnieuw: alleen wat veranderde (op deze pc of via de lesmap).
 const memo = new Map();
+// Wanneer een leerling deze toets maakte: het moment van inleveren. Een toets als taak krijgt als datum de dag
+// waarop de taak gemaakt werd (rec.datum), maar de leerlingen leveren vaak dagen later in: tel dan die dag.
+// Zonder inlevermoment (oude afnames): de datum van de afname.
+const isoVan = v => {
+  if (!v) return '';
+  const d = new Date(typeof v === 'number' ? v : String(v));
+  return Number.isNaN(d.getTime()) ? '' : d.toISOString();
+};
+function datumVan(rec, s) {
+  return isoVan(s && s.ingeleverd) || isoVan(s && s.begon) || isoVan(rec && rec.datum) || String((rec && rec.datum) || '');
+}
+// Valt (een deel van) de afname in de periode? dagFn zet een datum om naar JJJJ-MM-DD (lokale dag).
+function afnameInPeriode(a, van, tot, dagFn) {
+  const e = dagFn(a.eerste || a.datum);
+  const l = dagFn(a.laatste || a.datum);
+  const d = dagFn(a.datum);
+  const begin = [d, e].filter(Boolean).sort()[0] || '';
+  const eind = [d, l].filter(Boolean).sort().pop() || '';
+  return (!van || eind >= van) && (!tot || begin <= tot);
+}
+
 function afnames() {
   if (!fs.existsSync(AFNAMES())) return [];
   const namen = fs.readdirSync(AFNAMES()).filter(f => f.endsWith('.json') && !f.startsWith('_'));
@@ -195,7 +216,8 @@ function afnames() {
       if (oud && oud.sleutel === sleutel) return oud.item;
       const rec = laadAfname(file);
       const open = rec.spelers.reduce((n, s) => n + stand(rec, s).open, 0);
-      const item = { file, title: rec.title, datum: rec.datum, leerlingen: rec.spelers.length, open, klaar: !!rec.klaar, taak: rec.taak || null, gemaild: rec.spelers.filter(s => s.gemaild).length, toetsFile: rec.toetsFile || null };
+      const dagen = rec.spelers.map(s => datumVan(rec, s)).filter(Boolean).sort();
+      const item = { file, title: rec.title, datum: rec.datum, leerlingen: rec.spelers.length, open, klaar: !!rec.klaar, taak: rec.taak || null, gemaild: rec.spelers.filter(s => s.gemaild).length, toetsFile: rec.toetsFile || null, eerste: dagen[0] || rec.datum, laatste: dagen[dagen.length - 1] || rec.datum };
       memo.set(file, { sleutel, item });
       return item;
     } catch {
@@ -372,4 +394,4 @@ function kopieVan(rec, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { vakVan, set gegevenHook(fn) { gegevenHook = fn; }, afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, kopieVan, K };
+module.exports = { vakVan, datumVan, afnameInPeriode, set gegevenHook(fn) { gegevenHook = fn; }, afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, kopieVan, K };

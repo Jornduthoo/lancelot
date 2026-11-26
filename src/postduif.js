@@ -110,8 +110,9 @@ function verwijder(id) {
 function toetsen(van, tot) {
   const uit = [];
   for (const a of proeven.afnames()) {
-    const d = lokaleDag(a.datum);
-    if (d < van || d > tot) continue;
+    if (!proeven.afnameInPeriode(a, van, tot, lokaleDag)) continue;
+    // Een toets als taak: de dag waarop de leerlingen inleverden, niet de dag waarop de taak gegeven werd.
+    const d = [lokaleDag(a.datum), lokaleDag(a.laatste || a.datum)].filter(x => x >= van && x <= tot).pop() || lokaleDag(a.eerste || a.datum);
     let rec;
     try { rec = proeven.laadAfname(a.file); } catch { continue; }
     const per = {};
