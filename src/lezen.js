@@ -39,6 +39,25 @@ const VRAGEN = [
   'Wie vind je het leukste of het stomste personage? Waarom?',
   'Schrijf de eerste zin over van de bladzijde waar je stopte.',
   'Vertel in één zin wat je las aan iemand die het boek niet kent.',
+  'Welk gevoel had een personage in wat je las? Welke woorden in de tekst tonen dat?',
+  'Waar en wanneer speelde het stuk dat je las? Hoe weet je dat?',
+  'Wat gebeurde er in wat je las, en waardoor gebeurde het?',
+  'Wie vertelt het verhaal: een personage (ik) of een verteller? Hoe merk je dat?',
+  'Welke eigenschap past bij het hoofdpersonage (dapper, slim, verlegen...)? Geef een voorbeeld uit wat je las.',
+  'Kwam er een nieuw personage bij? Wie is het en wat deed het?',
+  'Wat was het belangrijkste dat gebeurde in wat je las? Waarom vind je dat?',
+  'Welke zin vond je mooi, grappig of spannend? Schrijf hem over.',
+  'Welke tekening zou je maken bij wat je las? Beschrijf ze.',
+  'Lijkt een personage op jou of op iemand die je kent? Waarin?',
+  'Wat zou er gebeuren als het hoofdpersonage een andere keuze maakte?',
+  'Wat denkt een personage, maar zegt het niet? Waarom denk je dat?',
+  'Welk probleem was er tussen twee personages? Hoe liep het af?',
+  'Schrijf twee dingen op die je te weten kwam over een personage.',
+  'Wat vond je verrassend in wat je las? Had je het verwacht?',
+  'Welk woord las je dat je niet kende? Wat denk je dat het betekent?',
+  'Schrijf een zin over waarin iemand iets zegt. Wie zegt het?',
+  'Schrijf een zin over met een vraagteken of een uitroepteken.',
+  'Schrijf een zin over uit wat je las. Wat is het onderwerp en wat is de persoonsvorm?',
   '* Hoe heet het hoofdpersonage?',
   '* Wie schreef je boek?',
   '* Welk personage kwam voor in wat je las? Schrijf de naam.',
@@ -51,6 +70,25 @@ const VRAGEN = [
   '* Hoeveel personages kwamen voor in wat je las?',
   '* Welke score geef je je boek vandaag, van 1 tot 5?',
   '* Welk nieuw woord leerde je?',
+  '* Welk zelfstandig naamwoord las je? Schrijf er een op.',
+  '* Schrijf drie zelfstandige naamwoorden op uit wat je las.',
+  '* Welk werkwoord las je? Schrijf het op zoals het in de zin stond.',
+  '* Schrijf een werkwoord op uit wat je las. Wat is het hele werkwoord?',
+  '* Schrijf een werkwoord in de verleden tijd op uit wat je las.',
+  '* Welk bijvoeglijk naamwoord las je? Bij welk woord hoorde het?',
+  '* Schrijf een verkleinwoord op dat je las.',
+  '* Schrijf een woord in het meervoud op dat je las.',
+  '* Schrijf een samengesteld woord op dat je las (zoals voetbalveld).',
+  '* Welk persoonlijk voornaamwoord (ik, jij, hij, zij, wij...) las je? Over wie ging het?',
+  '* Schrijf een naam op die met een hoofdletter in je boek stond.',
+  '* Schrijf een woord uit je boek op en zijn tegenstelling (zoals groot en klein).',
+  '* Welk lang woord las je? Hoeveel lettergrepen heeft het?',
+  '* Welk woord vertelde wanneer iets gebeurde (zoals toen, plots, de volgende dag)?',
+  '* Welk gevoel paste bij wat je las: blij, bang, boos, verdrietig of verbaasd?',
+  '* Welke kleur kwam voor in wat je las? Wat had die kleur?',
+  '* Wie zei als laatste iets in wat je las?',
+  '* Welk getal kwam voor in wat je las?',
+  '* Is je boek echt gebeurd of verzonnen?',
 ];
 // Een vraag als tekst ('* ...' = kort antwoord) naar { tekst, kort }.
 function vraagVan(v) {
@@ -62,7 +100,7 @@ const standaard = () => VRAGEN.map(v => {
   const q = vraagVan(v);
   return `${q.kort ? '* ' : ''}${taal.t(q.tekst)}`;
 });
-const MAX_VRAGEN = 60;
+const MAX_VRAGEN = 120;
 // Meer bladzijden dan dit per dag sinds de vorige keer: dat valt op.
 const SPRONG_PER_DAG = 35;
 
@@ -169,15 +207,24 @@ function syncSamen(hier, daar) {
 }
 
 // Elke leerling een andere vraag, en elke dag een andere: een vaste mengeling van dag en naam.
-// Nooit dezelfde vraag als de vorige keer.
-function vraagVoor(dag, key, vragen, vorigeVraag = '') {
+// Nooit een vraag die de leerling de laatste keren al kreeg (zo blijft het fris), zolang er genoeg vragen zijn.
+const NIET_HERHALEN = 10;
+function vraagVoor(dag, key, vragen, recent = []) {
   const lijst = vragen.map(vraagVan).filter(q => q.tekst);
   if (!lijst.length) return vraagVan(VRAGEN[0]);
+  const al = (Array.isArray(recent) ? recent : [recent]).filter(Boolean);
+  // Bij een korte eigen lijst: minstens één vraag blijft altijd over.
+  const vermijd = new Set(al.slice(-Math.min(NIET_HERHALEN, lijst.length - 1)));
   let h = 2166136261;
   for (const c of `${dag}|${key}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   let i = h % lijst.length;
-  if (lijst.length > 1 && lijst[i].tekst === vorigeVraag) i = (i + 1) % lijst.length;
+  for (let n = 0; n < lijst.length && vermijd.has(lijst[i].tekst); n++) i = (i + 1) % lijst.length;
   return lijst[i];
+}
+
+// De vragen die de leerling de laatste keren kreeg (oudste eerst).
+function recenteVragen(j, key, dag) {
+  return Object.keys(j.dagen).filter(d => d < dag && j.dagen[d][key]).sort().slice(-NIET_HERHALEN).map(d => j.dagen[d][key].vraag);
 }
 
 // De laatste keer vóór vandaag: welk boek en welke bladzijde.
@@ -198,7 +245,7 @@ function view(naam, now = new Date()) {
   const vandaag = (j.dagen[dag] || {})[w.key] || null;
   const vorig = vorige(j, w.key, dag);
   // Al ingevuld vandaag: dezelfde vraag houden, ook als de leerkracht de vragen intussen aanpaste.
-  const q = vandaag ? { tekst: vandaag.vraag, kort: !!vandaag.kort } : vraagVoor(dag, w.key, s.vragen, vorig ? vorig.vraag : '');
+  const q = vandaag ? { tekst: vandaag.vraag, kort: !!vandaag.kort } : vraagVoor(dag, w.key, s.vragen, recenteVragen(j, w.key, dag));
   return {
     naam: w.naam,
     dag,
