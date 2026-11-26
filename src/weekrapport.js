@@ -93,14 +93,17 @@ function data({ van, tot, naam } = {}) {
   const inWeek = d => d >= w.van && d <= w.tot;
   // Toetsen: elke afname van de week.
   for (const a of proeven.afnames()) {
-    if (!inWeek(dag(a.datum))) continue;
+    if (!proeven.afnameInPeriode(a, w.van, w.tot, dag)) continue;
     let rec;
     try { rec = proeven.laadAfname(a.file); } catch { continue; }
     for (const s of rec.spelers) {
       const r = per.get(key(s.naam));
       if (!r) continue;
+      // De dag waarop de leerling inleverde (een toets als taak kan dagen na het geven gemaakt worden).
+      const d = dag(proeven.datumVan(rec, s));
+      if (!inWeek(d)) continue;
       const st = proeven.stand(rec, s);
-      r.toetsen.push({ titel: rec.title, datum: dag(rec.datum), vak: proeven.vakVan(rec.toets) || '', punten: st.punten, max: st.max, procent: st.max ? Math.round((st.punten / st.max) * 100) : null, op10: op10(st.punten, st.max), nogTeVerbeteren: st.open });
+      r.toetsen.push({ titel: rec.title, datum: d, vak: proeven.vakVan(rec.toets) || '', punten: st.punten, max: st.max, procent: st.max ? Math.round((st.punten / st.max) * 100) : null, op10: op10(st.punten, st.max), nogTeVerbeteren: st.open });
     }
   }
   // Taken (oefenbladen en quizzen; een toets staat al bij de toetsen) die deze week gegeven werden.
