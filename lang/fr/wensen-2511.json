@@ -196,5 +196,12 @@
  "· {0} min niets ingevuld": "· {0} min sans rien remplir",
  "⚠ Lang vast: {0}": "⚠ Bloqué depuis longtemps : {0}",
  "Toets of quiz: zo lang op één vraag. Oefenblad: zo lang niets ingevuld.": "Test ou quiz : aussi longtemps sur une question. Fiche : aussi longtemps sans rien remplir.",
- "Lang vast vanaf": "Bloqué à partir de"
+ "Lang vast vanaf": "Bloqué à partir de",
+ "Hulp vragen: je naam komt op het scherm van de leerkracht": "Demander de l'aide : ton nom apparaît sur l'écran de l'enseignant",
+ "Kleiner": "Plus petit",
+ "Kleiner maken tot een bolletje": "Réduire en une petite bulle",
+ "Leerlingen vragen hulp: tik om te zien wie": "Des élèves demandent de l'aide : touche pour voir qui",
+ "Wie eerst vroeg, staat bovenaan.": "Celui qui a demandé en premier est en haut.",
+ "+ nog 1 leerling": "+ encore 1 élève",
+ "+ nog {0} leerlingen": "+ encore {0} élèves"
 }

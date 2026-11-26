@@ -196,5 +196,12 @@
  "· {0} min niets ingevuld": "· {0} min nothing filled in",
  "⚠ Lang vast: {0}": "⚠ Stuck for a long time: {0}",
  "Toets of quiz: zo lang op één vraag. Oefenblad: zo lang niets ingevuld.": "Test or quiz: this long on one question. Worksheet: this long with nothing filled in.",
- "Lang vast vanaf": "Stuck from"
+ "Lang vast vanaf": "Stuck from",
+ "Hulp vragen: je naam komt op het scherm van de leerkracht": "Ask for help: your name appears on the teacher's screen",
+ "Kleiner": "Smaller",
+ "Kleiner maken tot een bolletje": "Shrink to a small bubble",
+ "Leerlingen vragen hulp: tik om te zien wie": "Pupils ask for help: tap to see who",
+ "Wie eerst vroeg, staat bovenaan.": "Whoever asked first is at the top.",
+ "+ nog 1 leerling": "+ 1 more pupil",
+ "+ nog {0} leerlingen": "+ {0} more pupils"
 }
