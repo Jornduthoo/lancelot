@@ -44,3 +44,22 @@ test('de lijst toont per leerling de vraag, het aantal vragen en sinds wanneer h
   assert.strictEqual(r.m.status, 'nieuw');
   assert.strictEqual(r.m.posSinds, undefined);
 });
+
+test('live bij oefenbladen en quizzen: wanneer de leerling iets deed', () => {
+  const A = fs.mkdtempSync(path.join(os.tmpdir(), 'live-'));
+  fs.mkdirSync(path.join(A, 'oefenbladen'));
+  fs.copyFileSync(path.join(ROOT, 'oefenbladen', 'voorbeeld-belgie.json'), path.join(A, 'oefenbladen', 'blad.json'));
+  const r = run(A, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    const t = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte', 'Mats'] });
+    taken.open({ id: t.id, naam: 'Lotte' });
+    const d = taken.detail({ id: t.id, naam: 'Lotte' });
+    const id = Object.keys(d.solutions || {})[0];
+    taken.antwoord({ id: t.id, naam: 'Lotte', veld: id, waarde: 'x' });
+    const ll = taken.lijst()[0].leerlingen;
+    return { lotte: ll.find(l => l.naam === 'Lotte'), mats: ll.find(l => l.naam === 'Mats') };
+  `);
+  assert.strictEqual(r.lotte.status, 'bezig');
+  assert.ok(r.lotte.actief);
+  assert.strictEqual(r.mats.actief, undefined);
+});
