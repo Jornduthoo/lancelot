@@ -2204,7 +2204,8 @@ button .ic + *, .button .ic { margin-right: .1em; }
    met de naam groot, rustig goud. Kleiner = het bolletje rechtsonder. */
 .hulp-bord { position: fixed; right: 16px; bottom: 16px; z-index: 60; width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 120px); overflow: auto; padding: 12px; border-radius: 18px; background: rgb(var(--k-panel) / .96); border: 2px solid rgb(var(--k-goud) / .85); box-shadow: 0 0 0 5px rgb(var(--k-goud) / .15), 0 10px 30px rgb(var(--k-zwart) / .5); color: rgb(var(--k-tekst)); animation: hulp-in .35s ease-out; }
 .hulp-bord-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-weight: 800; font-size: 1.05rem; color: rgb(var(--k-goud)); letter-spacing: .02em; }
-.hulp-bord-kop .hulp-klein { padding: 4px 12px; font-size: .9rem; }
+.hulp-kop-knoppen { display: flex; gap: 6px; }
+.hulp-bord-kop .hulp-klein, .hulp-bord-kop .hulp-toon { padding: 4px 12px; font-size: .9rem; }
 .hulp-kaarten { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .hulp-kaarten li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: rgb(var(--k-goud) / .1); border: 1px solid rgb(var(--k-goud) / .35); animation: hulp-in .35s ease-out; }
 .hulp-kaarten li::before { content: '✋'; font-size: clamp(1.8rem, 3.4vw, 2.6rem); line-height: 1; }
