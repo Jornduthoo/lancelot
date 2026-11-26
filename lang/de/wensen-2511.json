@@ -209,5 +209,7 @@
  "goed: {0}": "gut: {0}",
  "Schrijf het kort (mag ook leeg)": "Schreib es kurz auf (darf leer bleiben)",
  "Wat was moeilijk?": "Was war schwierig?",
- "Wat ging goed?": "Was lief gut?"
+ "Wat ging goed?": "Was lief gut?",
+ "Geluidje bij een hulpvraag staat aan: tik om uit te zetten": "Ton bei einer Hilfeanfrage ist an: tippen zum Ausschalten",
+ "Geluidje bij een hulpvraag staat uit: tik om aan te zetten": "Ton bei einer Hilfeanfrage ist aus: tippen zum Einschalten"
 }

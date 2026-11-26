@@ -209,5 +209,7 @@
  "goed: {0}": "bien réussi : {0}",
  "Schrijf het kort (mag ook leeg)": "Écris-le brièvement (peut rester vide)",
  "Wat was moeilijk?": "Qu'est-ce qui était difficile ?",
- "Wat ging goed?": "Qu'est-ce qui s'est bien passé ?"
+ "Wat ging goed?": "Qu'est-ce qui s'est bien passé ?",
+ "Geluidje bij een hulpvraag staat aan: tik om uit te zetten": "Le son pour une demande d'aide est activé : touche pour le couper",
+ "Geluidje bij een hulpvraag staat uit: tik om aan te zetten": "Le son pour une demande d'aide est coupé : touche pour l'activer"
 }

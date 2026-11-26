@@ -209,5 +209,7 @@
  "goed: {0}": "bien: {0}",
  "Schrijf het kort (mag ook leeg)": "Escríbelo brevemente (puede quedar vacío)",
  "Wat was moeilijk?": "¿Qué fue difícil?",
- "Wat ging goed?": "¿Qué salió bien?"
+ "Wat ging goed?": "¿Qué salió bien?",
+ "Geluidje bij een hulpvraag staat aan: tik om uit te zetten": "El sonido de petición de ayuda está activado: toca para quitarlo",
+ "Geluidje bij een hulpvraag staat uit: tik om aan te zetten": "El sonido de petición de ayuda está desactivado: toca para activarlo"
 }

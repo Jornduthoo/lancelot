@@ -240,7 +240,7 @@
   const hulpBord = document.createElement('section');
   hulpBord.className = 'hulp-bord hidden';
   hulpBord.setAttribute('aria-live', 'polite');
-  hulpBord.innerHTML = '<div class="hulp-bord-kop"><span>✋ Hulp gevraagd</span><button type="button" class="secondary hulp-klein" title="Kleiner maken tot een bolletje">Kleiner</button></div><ol class="hulp-kaarten"></ol><button type="button" class="secondary hulp-meer hidden"></button>';
+  hulpBord.innerHTML = '<div class="hulp-bord-kop"><span>✋ Hulp gevraagd</span><span class="hulp-kop-knoppen"><button type="button" class="secondary hulp-toon"></button><button type="button" class="secondary hulp-klein" title="Kleiner maken tot een bolletje">Kleiner</button></span></div><ol class="hulp-kaarten"></ol><button type="button" class="secondary hulp-meer hidden"></button>';
   const hulpKnop = document.createElement('button');
   hulpKnop.type = 'button';
   hulpKnop.className = 'hulp-wacht hidden';
@@ -251,7 +251,42 @@
   document.body.append(hulpBord, hulpKnop, hulpVenster);
   let hulpLijst = [];
   let klein = false;
-  let gezien = new Set();
+  let gezien = null;
+  // Geluidje bij een nieuwe hulpvraag (Jorn 26 nov): zacht belletje, uit te zetten met 🔔/🔕 op het paneel.
+  // Zwijgt ook als het geluid van LANcelot uit staat (knop Geluid in de kopbalk).
+  const LS_TOON = 'lancelot-hulp-geluid';
+  let toonAan = true;
+  try { toonAan = localStorage.getItem(LS_TOON) !== '0'; } catch {}
+  let actx = null;
+  const belletje = () => {
+    try {
+      if (!toonAan || localStorage.getItem('lancelot-muted') === '1') return;
+    } catch {}
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      actx = actx || new AC();
+      if (actx.state === 'suspended') actx.resume();
+      const t0 = actx.currentTime + .02;
+      for (const [f, d] of [[880, 0], [1320, .18]]) {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(.0001, t0 + d);
+        g.gain.exponentialRampToValueAtTime(.12, t0 + d + .02);
+        g.gain.exponentialRampToValueAtTime(.0001, t0 + d + .7);
+        o.connect(g).connect(actx.destination);
+        o.start(t0 + d);
+        o.stop(t0 + d + .75);
+      }
+    } catch {}
+  };
+  const toonKnop = () => {
+    const k = hulpBord.querySelector('.hulp-toon');
+    k.textContent = toonAan ? '🔔' : '🔕';
+    k.title = toonAan ? 'Geluidje bij een hulpvraag staat aan: tik om uit te zetten' : 'Geluidje bij een hulpvraag staat uit: tik om aan te zetten';
+    k.setAttribute('aria-pressed', toonAan ? 'true' : 'false');
+  };
   const geleden = iso => { const m = Math.floor((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'net' : `${m} min geleden`; };
   const geholpen = h => socket.emit('hulp-geholpen', { naam: h.naam }, () => {});
   const regel = (h, tag) => {
@@ -275,7 +310,8 @@
     const n = hulpLijst.length;
     // Een nieuwe vraag zet de kaarten weer groot, zodat je ze zeker ziet.
     const nu = new Set(hulpLijst.map(h => h.naam));
-    if ([...nu].some(x => !gezien.has(x))) klein = false;
+    const nieuw = gezien && [...nu].some(x => !gezien.has(x));
+    if (nieuw) { klein = false; belletje(); }
     gezien = nu;
     hulpBord.classList.toggle('hidden', !n || klein);
     hulpKnop.classList.toggle('hidden', !n || !klein);
@@ -288,6 +324,13 @@
     hulpVenster.querySelector('.hulp-rij').replaceChildren(...hulpLijst.map(h => regel(h, 'li')));
     if (!n && hulpVenster.open) hulpVenster.close();
   };
+  toonKnop();
+  hulpBord.querySelector('.hulp-toon').addEventListener('click', () => {
+    toonAan = !toonAan;
+    try { localStorage.setItem(LS_TOON, toonAan ? '1' : '0'); } catch {}
+    toonKnop();
+    if (toonAan) belletje();
+  });
   hulpBord.querySelector('.hulp-klein').addEventListener('click', () => { klein = true; hulpTeken(); });
   hulpBord.querySelector('.hulp-meer').addEventListener('click', () => { hulpTeken(); if (!hulpVenster.open) hulpVenster.showModal(); });
   hulpKnop.addEventListener('click', () => { klein = false; hulpTeken(); });
