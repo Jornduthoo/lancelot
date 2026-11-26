@@ -38,3 +38,8 @@ test('de pagina Taken tekent de namen pas bij openklappen en de kiezer pas bij o
   assert.match(js, /mountKiezer\(tk\.soort\);/);
   assert.match(js, /function kaartVan\(t, vorige\)/);
 });
+
+test('kopbalk: Taken gaat ook vanaf het startscherm naar /taken (niet naar een rijk)', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'public', 'js', 'ui.js'), 'utf8');
+  assert.match(js, /window\.snelNaar && doel\.startsWith\('\/host'\)\) return window\.snelNaar/);
+});
