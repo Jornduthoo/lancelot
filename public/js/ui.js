@@ -673,7 +673,7 @@
     });
     async function ga(doel) {
       // Op het startscherm zelf: geen nieuwe pagina, gewoon het rijk openen (host.js).
-      if (location.pathname === '/host' && window.snelNaar) return window.snelNaar(doel.split('#')[1] || '');
+      if (location.pathname === '/host' && window.snelNaar && doel.startsWith('/host')) return window.snelNaar(doel.split('#')[1] || '');
       const stop = document.getElementById('stop');
       const spel = stop && !stop.classList.contains('hidden') && stop.getClientRects().length;
       if (spel && !await window.Ui.vraag('Er loopt nog een spel. Het blijft gewoon lopen en je vindt het terug in De Arena. Toch weggaan?')) return;
