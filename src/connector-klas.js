@@ -197,8 +197,22 @@ function maak(ctx) {
     return { gegeven: r.gegeven, aan: ll.map(l => l.naam), eer: Number(aantal), reden: String(reden || '').slice(0, 40) };
   }
 
+  // Dezelfde bron als Mijn klas › Lezen op deze pc. Niets ingevuld: een duidelijke fout in plaats van lege cellen.
   function leescheck({ dagen } = {}) {
-    return { aan: !!(lezen.staat && lezen.staat().aan), ...lezen.overzicht({ dagen }) };
+    const o = lezen.overzicht({ dagen });
+    const ingevuld = o.leerlingen.reduce((n, r) => n + r.gedaan, 0);
+    if (!ingevuld) {
+      const sync = (hooks().gezondheid && hooks().gezondheid().lesmap) || {};
+      fout(`Op deze pc (waar de connector draait) staat geen enkele Leescheck in de laatste ${o.dagen.length} schooldagen${o.aan ? '' : ', en de Leescheck staat hier uit'}. `
+        + (sync.ingesteld
+          ? 'Vullen de leerlingen hem in op een andere pc (bv. het digibord)? Dan komt het hier binnen via Mijn lesmap zodra beide pc\'s bijgewerkt zijn en gesynchroniseerd hebben (tool "sync_starten").'
+          : 'Vullen de leerlingen hem in op een andere pc? Stel dan op beide pc\'s Mijn lesmap in (Instellingen › Lesmap), dan komt het hier binnen.'));
+    }
+    return {
+      aan: o.aan, dagen: o.dagen, vandaag: o.vandaag, telling: o.telling,
+      // Enkel de dagen met iets in, zodat het antwoord klein blijft.
+      leerlingen: o.leerlingen.map(r => ({ naam: r.naam, ...(r.opLijst ? {} : { niet_op_klaslijst: true }), gedaan: r.gedaan, gemist: r.gemist, opvallend: r.opvallend, boek: r.boek, blz: r.blz, dagen: r.cellen })),
+    };
   }
 
   // ---------- De Zonnewijzer (weekplanning) ----------
@@ -254,7 +268,7 @@ function maak(ctx) {
     { name: 'runenwoorden', title: 'Woorden van het Runenraadsel', description: 'De woorden van de week van Het Runenraadsel (woordraadspel: elke dag een geheim woord per niveau): woord, betekenis, voorbeeldzin, niveau, al gespeeld, het doel, en de regels. Kijk hier eerst, zodat je niets dubbel zet.', inputSchema: obj({}), fn: runenwoorden },
     { name: 'ontdek_inhoud', title: 'Weetjes en woorden in Het rijk van Lancelot', description: 'De eigen inhoud van de ontdekwereld Het rijk van Lancelot: de weetjes (meerkeuze-raadsels in De Sterrenwacht, met nr), de woorden van De Woordenwachter, en wie erin mag (dicht, klaar, open).', inputSchema: obj({}), fn: ontdekInhoud },
     { name: 'zorg_notities', title: 'Zorgnotities', description: 'De notities voor de zorg (Mijn klas › Zorg): van één leerling, of zonder naam van iedereen die er heeft. Nieuwste eerst.', inputSchema: obj({ naam: S('Naam zoals op de klaslijst (leeg = iedereen).') }), fn: zorgNotities },
-    { name: 'leescheck', title: 'Leescheck', description: 'De Leescheck (Mijn klas › Lezen): per leerling de voorbije schooldagen (boek, bladzijde, antwoord) en wat opvalt (niets ingevuld, geen nieuwe bladzijden, rare sprong, kort of hetzelfde antwoord).', inputSchema: obj({ dagen: { type: 'integer', enum: [5, 10, 20, 40], description: 'Hoeveel schooldagen (standaard 10).' } }), fn: leescheck },
+    { name: 'leescheck', title: 'Leescheck', description: 'De Leescheck (Mijn klas › Lezen): per leerling de voorbije schooldagen (boek, bladzijde, antwoord) en wat opvalt (niets ingevuld, geen nieuwe bladzijden, rare sprong, kort of hetzelfde antwoord). Zelfde bron als Mijn klas › Lezen; wat op een andere pc ingevuld werd, komt via Mijn lesmap. Niets gevonden = een fout met de uitleg waarom.', inputSchema: obj({ dagen: { type: 'integer', enum: [5, 10, 20, 40], description: 'Hoeveel schooldagen (standaard 10).' } }), fn: leescheck },
     { name: 'weekplanning', title: 'Weekplanning (Zonnewijzer)', description: 'De weekplanning in De Zonnewijzer: per dag de lesuren uit het rooster (van, tot, vak) met hun plek en de geplande les (titel, doel, succescriteria, notitie, gekoppelde oefeningen). Standaard deze week.', inputSchema: obj({ week: S('JJJJ-Www (bv. 2026-W48) of een dag JJJJ-MM-DD; leeg = deze week.') }), fn: weekplanning },
 
     { name: 'runenwoorden_toevoegen', schrijft: true, title: 'Runenwoorden toevoegen', description: `Woorden bij de woorden van de week van Het Runenraadsel zetten. Wat er al staat blijft; een woord dat er al staat wordt enkel aangevuld (betekenis of zin die ontbrak). ${runenRegels} Gaat mee met Mijn lesmap.`, inputSchema: obj({ woorden: RUNENWOORDEN, doel: S('Optioneel: de code van het leerplandoel (bv. 1.5.GL6.3).') }, ['woorden']), fn: runenwoordenToevoegen, log: (a, r) => ({ n: r.toegevoegd }) },

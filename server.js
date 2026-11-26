@@ -726,6 +726,8 @@ lesmap.init([
   { kind: 'toetsmail', dir: toetsmail.LESMAP_DIR, remote: 'toetsen-mailen', validate: toetsmail.syncGeldig, merge: toetsmail.lesmapSamen },
   // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
+  // De Leescheck: de leerlingen vullen in op het digibord, je ziet het ook op je andere pc's (en via de connector).
+  { kind: 'lezen', dir: () => lezen.DIR, perKlas: true, remote: 'leescheck', validate: lezen.syncGeldig, merge: lezen.syncSamen, altijdSamen: true },
   // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
   { kind: 'runen', dir: () => runen.WOORDEN_DIR, perKlas: true, remote: 'runenraadsel', validate: runen.lijstGeldig },
   // In Beeld: welke kaartensets je ophaalde en de kaarten van de week. De andere pc haalt die sets dan zelf op.

@@ -4,6 +4,7 @@
 // een rare sprong, een heel kort antwoord of hetzelfde antwoord als eerder of als een klasgenoot.
 // Standaard staat de Leescheck uit: pas als de leerkracht hem aanzet (Mijn klas > Lezen), zien leerlingen de knop.
 // Alles staat per klas in de map lezen/ (in .gitignore): instellingen.json en één bestand per schooljaar.
+// Die map gaat mee met Mijn lesmap: wat leerlingen op het digibord invullen, zie je ook op je andere pc's (en via de connector).
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
@@ -97,6 +98,8 @@ function instellingen() {
 function zet({ aan, vragen } = {}) {
   const d = leesJson(INSTELLINGEN(), {});
   if (typeof aan === 'boolean') d.aan = aan;
+  // Wanneer het laatst gewijzigd: bij Mijn lesmap wint de laatste wijziging.
+  d.t = new Date().toISOString();
   if (typeof vragen === 'string') {
     d.vragen = vragen.split('\n').map(v => v.trim().replace(/\s+/g, ' ').slice(0, 200)).filter(Boolean).slice(0, MAX_VRAGEN);
   }
@@ -121,7 +124,48 @@ function wie(naam) {
 function jaar(now = new Date()) {
   const sj = logboek.schooljaar(now);
   const d = leesJson(jaarFile(sj), null);
-  return d && typeof d.dagen === 'object' ? d : { schooljaar: sj, dagen: {} };
+  return d && typeof d.dagen === 'object' && d.dagen ? opDezeLijst(d) : { schooljaar: sj, dagen: {} };
+}
+
+// Van een andere pc (Mijn lesmap) komt een leerling met het id van daar: op naam terugzoeken op de klaslijst van hier.
+// Twee keer dezelfde leerling op één dag: de laatste invulling telt.
+function opDezeLijst(j) {
+  const ids = new Set(klas.read().leerlingen.map(l => `id:${l.id}`));
+  for (const [dag, per] of Object.entries(j.dagen)) {
+    if (!per || typeof per !== 'object') { delete j.dagen[dag]; continue; }
+    for (const [key, e] of Object.entries(per)) {
+      if (ids.has(key) || !e || !e.naam) continue;
+      const l = klas.match(e.naam);
+      if (!l) continue;
+      const k = `id:${l.id}`;
+      delete per[key];
+      if (!per[k] || String(e.t || '') > String(per[k].t || '')) per[k] = { ...e, naam: l.naam };
+    }
+  }
+  return j;
+}
+
+// ---------- Mee met Mijn lesmap ----------
+
+function syncGeldig(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.');
+  if ('dagen' in d && (!d.dagen || typeof d.dagen !== 'object' || Array.isArray(d.dagen))) throw new Error('Ongeldig bestand.');
+}
+
+// Twee pc's vulden in: alles samen. Een schooljaar: per dag en per leerling de laatste invulling.
+// De instellingen (aan of uit, eigen vragen): de laatste wijziging wint.
+function syncSamen(hier, daar) {
+  const a = JSON.parse(hier), b = JSON.parse(daar);
+  if (!('dagen' in a) && !('dagen' in b)) return JSON.stringify(String(b.t || '') > String(a.t || '') ? b : a);
+  const uit = { ...a, dagen: {} };
+  for (const bron of [a, b]) {
+    for (const [dag, per] of Object.entries(bron.dagen || {})) {
+      if (!per || typeof per !== 'object') continue;
+      const doel = uit.dagen[dag] || (uit.dagen[dag] = {});
+      for (const [key, e] of Object.entries(per)) if (!doel[key] || String((e && e.t) || '') > String(doel[key].t || '')) doel[key] = e;
+    }
+  }
+  return JSON.stringify(uit);
 }
 
 // Elke leerling een andere vraag, en elke dag een andere: een vaste mengeling van dag en naam.
@@ -275,4 +319,4 @@ function overzicht({ dagen = 10 } = {}, now = new Date()) {
   };
 }
 
-module.exports = { VRAGEN, staat, zet, view, bewaar, overzicht, schooldagen, signalen, datum, get DIR() { return DIR(); } };
+module.exports = { syncGeldig, syncSamen, VRAGEN, staat, zet, view, bewaar, overzicht, schooldagen, signalen, datum, get DIR() { return DIR(); } };
