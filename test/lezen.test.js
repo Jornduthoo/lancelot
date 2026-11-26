@@ -117,3 +117,28 @@ test('nooit twee dagen na elkaar dezelfde vraag, en een korte vraag (*) geeft ge
   for (const sig of res.kortCellen) assert.deepStrictEqual(sig, []);
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+
+test('standaardvragen: ook taalbeschouwing (zelfstandig naamwoord, werkwoord...), en tien keer na elkaar telkens een andere vraag', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lezen-'));
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
+    lezen.zet({ aan: true });
+    const dagen = lezen.schooldagen(30, dag('2026-12-18'));
+    const vragen = [];
+    for (const d of dagen) {
+      const v = lezen.view('Lotte', dag(d));
+      vragen.push(v.vraag);
+      lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: 10 + vragen.length * 5, antwoord: 'Ze vindt een boek over een walvis.' }, dag(d));
+    }
+    return { vragen, alle: lezen.staat().vragen };
+  `);
+  assert.ok(res.alle.length >= 60);
+  for (const w of ['zelfstandig naamwoord', 'werkwoord', 'bijvoeglijk naamwoord', 'gevoel', 'persoonsvorm']) {
+    assert.ok(res.alle.some(v => v.includes(w)), w);
+  }
+  for (let i = 0; i < res.vragen.length; i++) {
+    const eerder = res.vragen.slice(Math.max(0, i - 10), i);
+    assert.ok(!eerder.includes(res.vragen[i]), `herhaald: ${res.vragen[i]}`);
+  }
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
