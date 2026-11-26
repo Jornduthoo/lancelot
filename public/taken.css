@@ -231,7 +231,7 @@
 .tk-live-ll.bezig { --k: var(--gold); }
 .tk-live-ll.klaar { --k: var(--good); background: rgb(var(--k-groen) / .08); }
 .tk-live-ll.vast { --k: var(--bad); background: rgb(var(--k-rood, 220 60 60) / .12); }
-.tk-live-ll.vast .tk-live-wat { color: var(--bad); }
+.tk-live-ll.vast .tk-live-wat, .tk-live-ll.bezig.vast .tk-live-wat { color: var(--bad); }
 .tk-live-ll.bezig .tk-live-wat { color: var(--gold); }
 .tk-live-wat { font-weight: 700; font-size: .92rem; }
 .tk-live-klein { font-size: .78rem; color: var(--muted); min-height: 1em; }

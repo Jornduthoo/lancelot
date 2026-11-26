@@ -1179,7 +1179,7 @@ function lijst() {
       // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
       ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
       ...(w.status === 'nieuw' && wacht(t, key(w.naam)) ? { wacht: true } : {}),
-      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...(t.soort === 'proef' && t.werk[key(w.naam)] && t.werk[key(w.naam)].reflectie ? { reflectie: t.werk[key(w.naam)].reflectie } : {}), ...tijdLeerling(t, w) }))
+      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : w.status === 'bezig' ? { actief: w.actief || w.begin || null } : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...(t.soort === 'proef' && t.werk[key(w.naam)] && t.werk[key(w.naam)].reflectie ? { reflectie: t.werk[key(w.naam)].reflectie } : {}), ...tijdLeerling(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }
@@ -1340,6 +1340,7 @@ function antwoord({ id, naam, veld, waarde } = {}) {
   if (!field) throw new Error('Onbekend vakje.');
   const now = Date.now();
   begin(t, w);
+  w.actief = new Date().toISOString();
   const direct = vastVan(t, w).feedback === 'direct';
   const guard = direct && closed(field);
   w.lock = w.lock || {};
@@ -1513,6 +1514,7 @@ function quizAntwoord({ id, naam, keuze } = {}) {
   const k = Number(keuze);
   if (!Number.isInteger(k) || k < 0 || k >= q.answers.length) throw new Error('Kies een antwoord.');
   begin(t, w);
+  w.actief = new Date().toISOString();
   const juist = k === q.correct;
   w.antwoorden.push({ i, keuze: k, juist });
   logboek.add([{ naam: w.naam, spel: 'Taak', bron: t.titel, sessie: `taak-${t.id}`, vraag: q.question, doel: q.doel, juist }]);
@@ -1547,6 +1549,7 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   [w.volgorde[plek], w.volgorde[w.antwoorden.length]] = [w.volgorde[w.antwoorden.length], w.volgorde[plek]];
   const q = t.inhoud.questions[i];
   begin(t, w);
+  w.actief = new Date().toISOString();
   w.antwoorden.push({ i, keuze: Number.isInteger(keuze) ? keuze : -1, juist: !!juist });
   logboek.add([{ naam: w.naam, spel: 'Taak', bron: t.titel, sessie: `taak-${t.id}`, vraag: q.question, doel: q.doel, juist: !!juist }]);
   const klaar = w.antwoorden.length >= w.volgorde.length;

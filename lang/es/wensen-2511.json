@@ -151,8 +151,6 @@
  "Afwezig: haalt in": "Ausente: recupera",
  "Bekijk het werk van deze leerling": "Ver el trabajo de este alumno",
  "{0} bezig · {1} klaar · {2} nog niet begonnen": "{0} trabajando · {1} terminados · {2} sin empezar",
- "⚠ Lang op één vraag: {0}": "⚠ Mucho tiempo en una pregunta: {0}",
- "Lang op één vraag vanaf": "Mucho tiempo en una pregunta desde",
  "8 min": "8 min",
  "✋ Hulp gevraagd · intrekken": "✋ Ayuda pedida · cancelar",
  "✋ Hulp vragen": "✋ Pedir ayuda",
@@ -192,5 +190,11 @@
  "Lever eerst je toets in.": "Primero entrega tu prueba.",
  "Bij deze toets hoeft dat niet.": "No hace falta en esta prueba.",
  "Kies een smiley of vul iets in.": "Elige una carita o escribe algo.",
- "Reflectie bij de afname zetten mislukt:": "No se pudo añadir la reflexión a la prueba:"
+ "Reflectie bij de afname zetten mislukt:": "No se pudo añadir la reflexión a la prueba:",
+ "{0} ({1} min niets ingevuld)": "{0} ({1} min sin rellenar nada)",
+ "{0}Bezig{1}": "{0}Trabajando{1}",
+ "· {0} min niets ingevuld": "· {0} min sin rellenar nada",
+ "⚠ Lang vast: {0}": "⚠ Atascado mucho tiempo: {0}",
+ "Toets of quiz: zo lang op één vraag. Oefenblad: zo lang niets ingevuld.": "Prueba o quiz: tanto tiempo en una pregunta. Ficha: tanto tiempo sin rellenar nada.",
+ "Lang vast vanaf": "Atascado desde"
 }
