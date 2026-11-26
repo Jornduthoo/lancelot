@@ -205,5 +205,9 @@
  "Leerlingen vragen hulp: tik om te zien wie": "Des élèves demandent de l'aide : touche pour voir qui",
  "Wie eerst vroeg, staat bovenaan.": "Celui qui a demandé en premier est en haut.",
  "+ nog 1 leerling": "+ encore 1 élève",
- "+ nog {0} leerlingen": "+ encore {0} élèves"
+ "+ nog {0} leerlingen": "+ encore {0} élèves",
+ "goed: {0}": "bien réussi : {0}",
+ "Schrijf het kort (mag ook leeg)": "Écris-le brièvement (peut rester vide)",
+ "Wat was moeilijk?": "Qu'est-ce qui était difficile ?",
+ "Wat ging goed?": "Qu'est-ce qui s'est bien passé ?"
 }

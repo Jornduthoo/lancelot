@@ -1292,7 +1292,7 @@ function open({ id, naam } = {}) {
   const klaar = t.dicht || w.status === 'klaar';
   const base = { tot: t.tot || null, totRest: totRest(t), ...tijdVoor(t, w), tijdOp: !!w.tijdOp, id, soort: t.soort, titel: t.titel, poging: w.poging || 0, pogingen: pogingenVan(t), nogEens: kanNogEens(t, w), spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), taal: stem.taalVanVak(t.vak), ...voortgang(t, w) };
   if (t.soort === 'proef') {
-    if (klaar) return { ...base, uitslag: uitslagVoor(t, w), ...(w.status === 'klaar' && !t.geenReflectie ? { reflectie: { vragen: toets(t, w).lijst.length, gedaan: w.reflectie || null } } : {}) };
+    if (klaar) return { ...base, uitslag: uitslagVoor(t, w), ...(w.status === 'klaar' && !t.geenReflectie ? { reflectie: { gedaan: w.reflectie || null } } : {}) };
     // De toets staat open op zijn scherm: de volgorde ligt vast voor hem, ook als de leerkracht ze nu verandert.
     if (!w.vast) { zetVast(t, w); save(); }
     const { lijst, order, perms } = toets(t, w);
@@ -1473,29 +1473,20 @@ function inleverenWerk(t, w) {
   }));
 }
 
-// Reflectie na een toets (wens 25 nov, punt 10): hoe zeker was de leerling (1 😟, 2 🙂, 3 😃) en wat vond hij moeilijk
-// (vraagnummers zoals hij ze zag, "niets", en/of een kort tekstje). Mag overgeslagen worden; aanpassen kan zolang
-// de taak open is. Het gaat ook bij zijn inzending in de afname, zodat De Proef het bij de resultaten toont.
+// Reflectie na een toets (wens 25 nov, punt 10; algemeen sinds 26 nov): hoe zeker was de leerling (1 😟, 2 🙂, 3 😃),
+// wat was moeilijk en wat ging goed. Mag overgeslagen worden; aanpassen kan zolang de taak open is. Het gaat ook bij zijn inzending in de afname, zodat De Proef het bij de resultaten toont.
 const REFLECTIE_TEKST = 140;
-function reflectie({ id, naam, zeker, moeilijk, niets, tekst } = {}) {
+function reflectie({ id, naam, zeker, tekst, goed } = {}) {
   const { t, w } = werkVan(id, naam);
   if (t.soort !== 'proef') throw new Error('Dit is geen toets.');
   if (w.status !== 'klaar') throw new Error('Lever eerst je toets in.');
   if (t.geenReflectie) throw new Error('Bij deze toets hoeft dat niet.');
-  const { lijst, order } = toets(t, w);
-  const n = lijst.length;
   const z = Number(zeker);
-  // De leerling ziet de vragen misschien door elkaar: "gezien" is zijn nummer, "moeilijk" het nummer in de toets.
-  const gezien = niets ? [] : [...new Set((Array.isArray(moeilijk) ? moeilijk : []).map(Number).filter(x => Number.isInteger(x) && x >= 1 && x <= n))].sort((a, b) => a - b);
-  const r = {
-    zeker: [1, 2, 3].includes(z) ? z : null,
-    moeilijk: [...new Set(gezien.map(x => (order && order[x - 1] !== undefined ? order[x - 1] + 1 : x)))].sort((a, b) => a - b),
-    gezien,
-    niets: !!niets,
-    tekst: String(tekst || '').replace(/\s+/g, ' ').trim().slice(0, REFLECTIE_TEKST),
-    t: new Date().toISOString(),
-  };
-  if (!r.zeker && !r.moeilijk.length && !r.niets && !r.tekst) throw new Error('Kies een smiley of vul iets in.');
+  const schoon = v => String(v || '').replace(/\s+/g, ' ').trim().slice(0, REFLECTIE_TEKST);
+  // Algemeen (Jorn 26 nov): na het inleveren ziet de leerling de vragen niet meer, dus geen vraagnummers.
+  // tekst = wat was moeilijk, goed = wat ging goed. Oude reflecties met vraagnummers (moeilijk, niets) blijven leesbaar.
+  const r = { zeker: [1, 2, 3].includes(z) ? z : null, tekst: schoon(tekst), goed: schoon(goed), t: new Date().toISOString() };
+  if (!r.zeker && !r.tekst && !r.goed) throw new Error('Kies een smiley of vul iets in.');
   w.reflectie = r;
   save();
   // Bij de inzending in de afname (De Proef › Resultaten). Mislukt dat, dan staat het nog altijd bij de taak.
