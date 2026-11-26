@@ -233,47 +233,68 @@
   laad();
   setInterval(() => { if (modal.classList.contains('hidden')) laad(); }, 2500);
 
-  // Hulpknop (wens 25 nov, punt 9): wie stil hulp vroeg, in volgorde. Op het bord staat alleen het aantal (✋ 2);
-  // de namen zie je pas als je erop tikt. Afvinken met ✔ Geholpen: de leerling ziet dat zijn vraag weg is.
+  // Hulpknop (wens 25 nov, punt 9): wie stil hulp vroeg, in volgorde. Jorn (26 nov): groot op het bord, met de naam.
+  // Rechts op elk leerkrachtenscherm staat per leerling een kaart (✋ naam, waar en hoe lang al) met ✔ Geholpen.
+  // Kleiner vouwt de kaarten tot het bolletje ✋ 2; vraagt er iemand nieuw hulp, dan gaan ze vanzelf weer open.
+  const MAX_KAARTEN = 4;
+  const hulpBord = document.createElement('section');
+  hulpBord.className = 'hulp-bord hidden';
+  hulpBord.setAttribute('aria-live', 'polite');
+  hulpBord.innerHTML = '<div class="hulp-bord-kop"><span>✋ Hulp gevraagd</span><button type="button" class="secondary hulp-klein" title="Kleiner maken tot een bolletje">Kleiner</button></div><ol class="hulp-kaarten"></ol><button type="button" class="secondary hulp-meer hidden"></button>';
   const hulpKnop = document.createElement('button');
   hulpKnop.type = 'button';
   hulpKnop.className = 'hulp-wacht hidden';
-  hulpKnop.title = 'Leerlingen vroegen stil hulp: tik om te zien wie';
+  hulpKnop.title = 'Leerlingen vragen hulp: tik om te zien wie';
   const hulpVenster = document.createElement('dialog');
   hulpVenster.className = 'ui-venster hulp-venster';
-  hulpVenster.innerHTML = '<h2>✋ Hulp gevraagd</h2><p class="muted small">Wie eerst vroeg, staat bovenaan. De andere leerlingen zien dit niet.</p><ol class="hulp-rij"></ol><div class="actions"><button type="button" class="secondary hulp-sluit">Sluiten</button></div>';
-  document.body.append(hulpKnop, hulpVenster);
+  hulpVenster.innerHTML = '<h2>✋ Hulp gevraagd</h2><p class="muted small">Wie eerst vroeg, staat bovenaan.</p><ol class="hulp-rij"></ol><div class="actions"><button type="button" class="secondary hulp-sluit">Sluiten</button></div>';
+  document.body.append(hulpBord, hulpKnop, hulpVenster);
   let hulpLijst = [];
+  let klein = false;
+  let gezien = new Set();
   const geleden = iso => { const m = Math.floor((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'net' : `${m} min geleden`; };
-  const hulpTeken = () => {
-    hulpKnop.textContent = `✋ ${hulpLijst.length}`;
-    hulpKnop.setAttribute('aria-label', hulpLijst.length === 1 ? '1 leerling vraagt hulp' : `${hulpLijst.length} leerlingen vragen hulp`);
-    hulpKnop.classList.toggle('hidden', !hulpLijst.length);
-    const ol = hulpVenster.querySelector('.hulp-rij');
-    ol.replaceChildren(...hulpLijst.map(h => {
-      const li = document.createElement('li');
-      const tekst = document.createElement('span');
-      tekst.className = 'hulp-wie';
-      const b = document.createElement('strong');
-      b.textContent = h.naam;
-      const klein = document.createElement('small');
-      klein.textContent = `${h.waar ? `${h.waar} · ` : ''}${geleden(h.sinds)}`;
-      tekst.append(b, klein);
-      const ok = document.createElement('button');
-      ok.type = 'button';
-      ok.className = 'gold';
-      ok.textContent = '✔ Geholpen';
-      ok.addEventListener('click', () => socket.emit('hulp-geholpen', { naam: h.naam }, () => {}));
-      li.append(tekst, ok);
-      return li;
-    }));
-    if (!hulpLijst.length && hulpVenster.open) hulpVenster.close();
+  const geholpen = h => socket.emit('hulp-geholpen', { naam: h.naam }, () => {});
+  const regel = (h, tag) => {
+    const li = document.createElement(tag);
+    const tekst = document.createElement('span');
+    tekst.className = 'hulp-wie';
+    const b = document.createElement('strong');
+    b.textContent = h.naam;
+    const kl = document.createElement('small');
+    kl.textContent = `${h.waar ? `${h.waar} · ` : ''}${geleden(h.sinds)}`;
+    tekst.append(b, kl);
+    const ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'gold';
+    ok.textContent = '✔ Geholpen';
+    ok.addEventListener('click', () => geholpen(h));
+    li.append(tekst, ok);
+    return li;
   };
-  hulpKnop.addEventListener('click', () => { hulpTeken(); if (!hulpVenster.open) hulpVenster.showModal(); });
+  const hulpTeken = () => {
+    const n = hulpLijst.length;
+    // Een nieuwe vraag zet de kaarten weer groot, zodat je ze zeker ziet.
+    const nu = new Set(hulpLijst.map(h => h.naam));
+    if ([...nu].some(x => !gezien.has(x))) klein = false;
+    gezien = nu;
+    hulpBord.classList.toggle('hidden', !n || klein);
+    hulpKnop.classList.toggle('hidden', !n || !klein);
+    hulpKnop.textContent = `✋ ${n}`;
+    hulpKnop.setAttribute('aria-label', n === 1 ? '1 leerling vraagt hulp' : `${n} leerlingen vragen hulp`);
+    hulpBord.querySelector('.hulp-kaarten').replaceChildren(...hulpLijst.slice(0, MAX_KAARTEN).map(h => regel(h, 'li')));
+    const meer = hulpBord.querySelector('.hulp-meer');
+    meer.classList.toggle('hidden', n <= MAX_KAARTEN);
+    meer.textContent = n - MAX_KAARTEN === 1 ? '+ nog 1 leerling' : `+ nog ${n - MAX_KAARTEN} leerlingen`;
+    hulpVenster.querySelector('.hulp-rij').replaceChildren(...hulpLijst.map(h => regel(h, 'li')));
+    if (!n && hulpVenster.open) hulpVenster.close();
+  };
+  hulpBord.querySelector('.hulp-klein').addEventListener('click', () => { klein = true; hulpTeken(); });
+  hulpBord.querySelector('.hulp-meer').addEventListener('click', () => { hulpTeken(); if (!hulpVenster.open) hulpVenster.showModal(); });
+  hulpKnop.addEventListener('click', () => { klein = false; hulpTeken(); });
   hulpVenster.querySelector('.hulp-sluit').addEventListener('click', () => hulpVenster.close());
   socket.on('hulp', l => { hulpLijst = Array.isArray(l) ? l : []; hulpTeken(); });
   const hulpLaad = () => socket.emit('hulp-lijst', null, l => { hulpLijst = Array.isArray(l) ? l : []; hulpTeken(); });
   socket.on('connect', hulpLaad);
   hulpLaad();
-  setInterval(() => { if (hulpVenster.open) hulpTeken(); }, 30000);
+  setInterval(() => { if (hulpLijst.length) hulpTeken(); }, 30000);
 })();

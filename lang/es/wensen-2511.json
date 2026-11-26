@@ -198,5 +198,12 @@
  "Toets of quiz: zo lang op één vraag. Oefenblad: zo lang niets ingevuld.": "Prueba o quiz: tanto tiempo en una pregunta. Ficha: tanto tiempo sin rellenar nada.",
  "Lang vast vanaf": "Atascado desde",
  "📡 Live ▶": "📡 En directo ▶",
- "Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is": "Seguir en directo: quién está en qué pregunta, quién está atascado y quién ha terminado"
+ "Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is": "Seguir en directo: quién está en qué pregunta, quién está atascado y quién ha terminado",
+ "Hulp vragen: je naam komt op het scherm van de leerkracht": "Pedir ayuda: tu nombre aparece en la pantalla del docente",
+ "Kleiner": "Más pequeño",
+ "Kleiner maken tot een bolletje": "Reducir a una burbuja",
+ "Leerlingen vragen hulp: tik om te zien wie": "Alumnos piden ayuda: toca para ver quién",
+ "Wie eerst vroeg, staat bovenaan.": "Quien pidió primero está arriba.",
+ "+ nog 1 leerling": "+ 1 alumno más",
+ "+ nog {0} leerlingen": "+ {0} alumnos más"
 }

@@ -666,7 +666,7 @@ function hulpToon() {
   const h = tk.hulp || {};
   $('tk-hulp').textContent = h.gevraagd ? '✋ Hulp gevraagd · intrekken' : '✋ Hulp vragen';
   $('tk-hulp').classList.toggle('on', !!h.gevraagd);
-  $('tk-hulp').title = h.gevraagd ? 'Tik om je vraag in te trekken' : 'Stil hulp vragen: alleen de leerkracht ziet het';
+  $('tk-hulp').title = h.gevraagd ? 'Tik om je vraag in te trekken' : 'Hulp vragen: je naam komt op het scherm van de leerkracht';
   const info = h.gevraagd ? (h.plaats > 2 ? `De leerkracht komt zo. Er zijn nog ${h.plaats - 1} leerlingen voor jou.` : h.plaats === 2 ? 'De leerkracht komt zo. Er is nog 1 leerling voor jou.' : 'De leerkracht komt zo. Jij bent de volgende.') : '';
   $('tk-hulp-info').textContent = info;
   $('tk-hulp-info').classList.toggle('hidden', !info);
