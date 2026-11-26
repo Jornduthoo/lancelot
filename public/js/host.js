@@ -555,7 +555,10 @@ socket.on('pf-afnames', lijst => {
   if (bezig) delen.push(`${bezig} ${bezig === 1 ? 'leerling' : 'leerlingen'} bezig`);
   if (open) delen.push(`${open} ${open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`);
   $('toets-banier-tekst').textContent = `📝 ${nu.length === 1 ? nu[0].title : `${nu.length} toetsen`}: ${delen.join(' · ')}`;
-  b.href = nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
+  // Eén toets die nu loopt (als taak): meteen live meevolgen. Anders naar het verbeteren.
+  const live = nu.length === 1 && nu[0].bezig && nu[0].taak;
+  b.href = live ? `/taken?live=${encodeURIComponent(nu[0].taak)}` : nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
+  b.querySelector('b').textContent = live ? '📡 Live ▶' : 'Bekijk ▶';
 });
 
 // ---------- Vandaag (wensenlijst 20 nov, punt 9) ----------
@@ -636,6 +639,13 @@ socket.on('pf-afnames', lijst => {
       if (a.bezig) s.append(' · ', maak('em', '', `${a.bezig} bezig`));
       if (a.open) s.append(' · ', maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`));
       li.append(s);
+      // Loopt de toets nog (iemand is bezig): meteen live meevolgen, wie op welke vraag zit en wie vastzit.
+      if (a.bezig && a.taak) {
+        const l = maak('a', 'button gold', '📡 Live');
+        l.href = `/taken?live=${encodeURIComponent(a.taak)}`;
+        l.title = 'Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is';
+        li.append(l);
+      }
       const k = maak('a', 'button secondary', a.open ? 'Verbeteren ▶' : 'Bekijk ▶');
       k.href = `/proef?verbeter=${encodeURIComponent(a.file)}`;
       li.append(k);

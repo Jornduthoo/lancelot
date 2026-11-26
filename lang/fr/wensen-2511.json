@@ -196,5 +196,7 @@
  "· {0} min niets ingevuld": "· {0} min sans rien remplir",
  "⚠ Lang vast: {0}": "⚠ Bloqué depuis longtemps : {0}",
  "Toets of quiz: zo lang op één vraag. Oefenblad: zo lang niets ingevuld.": "Test ou quiz : aussi longtemps sur une question. Fiche : aussi longtemps sans rien remplir.",
- "Lang vast vanaf": "Bloqué à partir de"
+ "Lang vast vanaf": "Bloqué à partir de",
+ "📡 Live ▶": "📡 En direct ▶",
+ "Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is": "Suivre en direct : qui est à quelle question, qui bloque et qui a fini"
 }

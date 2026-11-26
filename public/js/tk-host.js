@@ -1210,6 +1210,8 @@ $('kz-ok').addEventListener('click', () => {
   socket.emit('tk-keuzes', d, res => { if (res && res.error) Ui.melding(res.error); });
 });
 
+// Vanaf het startscherm (Vandaag › 📡 Live): meteen het live overzicht van die taak.
+let openLive = vraag.get('live') || null;
 let openNaam = vraag.get('taak') && vraag.get('naam') ? { id: vraag.get('taak'), naam: vraag.get('naam') } : null;
 socket.on('connect', () => {
   // Eerst de gegeven taken (die wil je meteen zien), daarna wat je nodig hebt om een nieuwe taak te geven.
@@ -1230,6 +1232,7 @@ socket.on('connect', () => {
       openNaam = null;
     }
     tekenTaken();
+    if (openLive) { if (tk.taken.some(x => x.id === openLive)) live(openLive); openLive = null; }
   });
 });
 // Thuis klaarzetten: met Mijn lesmap gaan de klaslijst en de taken mee naar het digibord.
