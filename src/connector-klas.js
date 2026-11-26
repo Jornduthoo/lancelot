@@ -15,6 +15,7 @@ const notities = require('./notities');
 const burchten = require('./burchten');
 const lezen = require('./lezen');
 const zonnewijzer = require('./zonnewijzer');
+const kronieken = require('./kronieken');
 const niveaus = require('./niveaus');
 
 const RUNEN_MAX = 60;
@@ -201,6 +202,9 @@ function maak(ctx) {
   function leescheck({ dagen } = {}) {
     const o = lezen.overzicht({ dagen });
     const ingevuld = o.leerlingen.reduce((n, r) => n + r.gedaan, 0);
+    // Uit (wens 26 nov, punt 2): dat eerst en duidelijk zeggen, nooit een lege lijst.
+    const uit = 'Leescheck staat uit (Mijn klas › Lezen, op de pc waar de connector draait). De leerlingen zien de knop Leescheck dan niet en vullen niets in. Aanzetten: Mijn klas › Lezen › Leescheck aan.';
+    if (!o.aan && !ingevuld) return { aan: false, melding: uit };
     if (!ingevuld) {
       const sync = (hooks().gezondheid && hooks().gezondheid().lesmap) || {};
       fout(`Op deze pc (waar de connector draait) staat geen enkele Leescheck in de laatste ${o.dagen.length} schooldagen${o.aan ? '' : ', en de Leescheck staat hier uit'}. `
@@ -209,7 +213,7 @@ function maak(ctx) {
           : 'Vullen de leerlingen hem in op een andere pc? Stel dan op beide pc\'s Mijn lesmap in (Instellingen › Lesmap), dan komt het hier binnen.'));
     }
     return {
-      aan: o.aan, dagen: o.dagen, vandaag: o.vandaag, telling: o.telling,
+      aan: o.aan, ...(o.aan ? {} : { melding: `${uit} Hieronder wat er eerder ingevuld werd.` }), dagen: o.dagen, vandaag: o.vandaag, telling: o.telling,
       // Enkel de dagen met iets in, zodat het antwoord klein blijft.
       leerlingen: o.leerlingen.map(r => ({ naam: r.naam, ...(r.opLijst ? {} : { niet_op_klaslijst: true }), gedaan: r.gedaan, gemist: r.gemist, opvallend: r.opvallend, boek: r.boek, blz: r.blz, dagen: r.cellen })),
     };
@@ -226,17 +230,72 @@ function maak(ctx) {
     fout('Geef "week" als JJJJ-Www (bv. 2026-W48) of een dag JJJJ-MM-DD.');
   }
 
+  // ---------- Bordboeken per les (wens 26 nov, punt 4) ----------
+  // Een les (map + nummer in Mijn methodes) kan aan pagina's in boeken gekoppeld zijn: een pdf (met pagina) of een online
+  // bordboek (met het adres van de juiste pagina). Zo moet een dagplan de link nooit raden.
+  const boekSleutel = b => (b.soort === 'online' ? `online:${b.id}` : b.map ? `${b.map}/${b.naam}` : b.naam);
+  const boekVan = b => ({ boek: boekSleutel(b), naam: b.naam, soort: b.soort === 'online' ? 'online' : b.soort, map: b.map || '', ...(b.soort === 'online' ? { url: b.url } : {}) });
+  function linksVan(lijst, map, nr) {
+    if (!map || !nr) return [];
+    const boeken = new Map(lijst.bestanden.map(b => [boekSleutel(b), b]));
+    return ((lijst.lessen[map] || {})[nr] || []).filter(l => boeken.has(l.boek)).map(l => {
+      const b = boeken.get(l.boek);
+      return b.soort === 'online'
+        ? { naam: b.naam, soort: 'online', boek: l.boek, url: l.url || b.url, open_op_bord: b.inbed === false ? l.url || b.url : `/kronieken?${new URLSearchParams({ online: b.id, url: l.url || '' })}` }
+        : { naam: b.naam, soort: b.soort, boek: l.boek, pagina: l.pagina || 1, open_op_bord: `/kronieken?${new URLSearchParams({ map: b.map, naam: b.naam, pagina: l.pagina || 1 })}` };
+    });
+  }
+  // Alles van één geplande les: de link die bij de les zelf bewaard werd, en de koppelingen van Mijn methodes.
+  function bordboekLinks(les, lijst) {
+    const uit = les.bordboek ? [{ naam: les.bordboek.naam, soort: 'online', url: les.bordboek.url, open_op_bord: les.bordboek.url, bij_de_les: true }] : [];
+    return [...uit, ...linksVan(lijst, les.map, les.nr)];
+  }
+
+  function bordboeken({ map } = {}) {
+    const lijst = kronieken.lijst();
+    const past = m => !map || m === map || String(m).startsWith(`${map}/`);
+    const boeken = lijst.bestanden.filter(b => b.soort !== 'html' && past(b.map)).map(boekVan);
+    const lessen = [];
+    for (const [m, per] of Object.entries(lijst.lessen)) {
+      if (!past(m)) continue;
+      for (const nr of Object.keys(per).map(Number).sort((a, b) => a - b)) {
+        const links = linksVan(lijst, m, nr);
+        if (links.length) lessen.push({ map: m, les: nr, links });
+      }
+    }
+    return { boeken, lessen, uitleg: 'Een link bij één geplande les: "les_plannen" met "bordboek". Een vaste link per les van een methode (Mijn methodes, map + lesnummer): "bordboek_koppelen".' };
+  }
+
+  function bordboekKoppelen({ map, les, boek, url, pagina } = {}) {
+    const lijst = kronieken.lijst();
+    const b = lijst.bestanden.find(x => boekSleutel(x) === String(boek || '') || (x.soort === 'online' && x.id === String(boek || '')));
+    if (!b || b.soort === 'html') fout('Dat boek staat niet in Mijn methodes. Kies "boek" uit de tool "bordboeken" (bv. "online:ab12cd34ef56" of "Rekenen/Blok 4/werkschrift.pdf").');
+    if (!lijst.mappen.includes(String(map || ''))) fout(`De map "${map}" bestaat niet in Mijn methodes (tool "bordboeken").`);
+    if (b.soort === 'online' && url && !/^https?:\/\//i.test(String(url))) fout('"url" is het volledige adres van de pagina, beginnend met https://.');
+    try {
+      kronieken.koppel({ map, les, boek: boekSleutel(b), pagina, url: b.soort === 'online' ? url : undefined });
+    } catch (e) { fout(e.message); }
+    roep('naKronieken');
+    return { map, les: Number(les), links: linksVan(kronieken.lijst(), map, Math.floor(Number(les))), melding: 'Bewaard bij deze les in Mijn methodes. Een les in De Zonnewijzer met deze map en dit lesnummer toont de knop vanzelf.' };
+  }
+
   function weekplanning({ week } = {}) {
     const id = weekId(week);
     const w = zonnewijzer.week(id);
     const r = zonnewijzer.roosters();
     const rooster = r.roosters.find(x => x.id === w.rooster) || r.roosters.find(x => x.id === r.standaard) || r.roosters[0];
+    let lijst = null;
+    const boekLijst = () => lijst || (lijst = kronieken.lijst());
     const dagen = [1, 2, 3, 4, 5].map(d => {
       if (w.vrij[d]) return { dag: DAG[d], vrij: w.vrij[d] };
       const uren = (w.dagen[d] || rooster.dagen[d] || []).filter(u => u.soort === 'les');
       return {
         dag: DAG[d],
-        lesuren: uren.map((u, i) => ({ plek: `${d}-${i}`, van: u.van, tot: u.tot, vak: u.vak, ...(w.lessen[`${d}-${i}`] ? { les: w.lessen[`${d}-${i}`] } : {}) })),
+        lesuren: uren.map((u, i) => {
+          const les = w.lessen[`${d}-${i}`];
+          const links = les ? bordboekLinks(les, boekLijst()) : [];
+          return { plek: `${d}-${i}`, van: u.van, tot: u.tot, vak: u.vak, ...(les ? { les } : {}), ...(links.length ? { bordboek_links: links } : {}) };
+        }),
       };
     });
     return { week: id, rooster: rooster.naam, dagen, uitleg: 'Een les hangt aan een plek "dag-lesuur" (1 = maandag, lesuren tellen vanaf 0, pauzes niet). Plannen met "les_plannen".' };
@@ -261,15 +320,18 @@ function maak(ctx) {
   const RUNENWOORDEN = { type: ['array', 'string'], items: { type: 'object' }, description: '[{"woord":"kompas","betekenis":"een toestel dat het noorden aanwijst","zin":"Met een kompas vind je de weg."}]' };
   const WEETJES = { type: ['array', 'string'], items: { type: 'object' }, description: 'Meerkeuze-weetjes: [{"niveau":"page","onderwerp":"Dieren","vraag":"Hoeveel harten heeft een octopus?","opties":["1","2","3"],"juist":2,"weetje":"Een octopus heeft drie harten en blauw bloed."}]. Page 3 keuzes, schildknaap en ridder 4; "juist" telt vanaf 0. Feitelijk juist, Belgisch-Nederlands.' };
   const OD_WOORDEN = { type: ['array', 'string'], items: { type: 'object' }, description: 'Woorden voor De Woordenwachter: [{"niveau":"page","woord":"oogst","betekenis":"...","zin":"..."}].' };
-  const LES = { type: ['object', 'string'], description: '{"vak":"Rekenen","titel":"Breuken vergelijken","nr":12,"doel":"Ik kan ...","criteria":["Ik ...","Ik ..."],"notitie":"...","doelen":["1.5.GL6.3"]}. Bij een plek waar al een les staat, veranderen alleen de velden die je meegeeft.' };
+  const LES = { type: ['object', 'string'], description: '{"vak":"Rekenen","titel":"Breuken vergelijken","nr":12,"doel":"Ik kan ...","criteria":["Ik ...","Ik ..."],"notitie":"...","doelen":["1.5.GL6.3"],"bordboek":{"url":"https://…","naam":"Bingel · Talent 6 blz. 39"}}. "bordboek" = de juiste link naar het bordboek voor deze les (op het bord een knop bij de les). Met "map" + "nr" van een les in Mijn methodes komen ook de vaste koppelingen van die les mee (tool "bordboeken"). Bij een plek waar al een les staat, veranderen alleen de velden die je meegeeft.' };
   const naam = r => ({ naam: r.naam });
 
   return [
     { name: 'runenwoorden', title: 'Woorden van het Runenraadsel', description: 'De woorden van de week van Het Runenraadsel (woordraadspel: elke dag een geheim woord per niveau): woord, betekenis, voorbeeldzin, niveau, al gespeeld, het doel, en de regels. Kijk hier eerst, zodat je niets dubbel zet.', inputSchema: obj({}), fn: runenwoorden },
     { name: 'ontdek_inhoud', title: 'Weetjes en woorden in Het rijk van Lancelot', description: 'De eigen inhoud van de ontdekwereld Het rijk van Lancelot: de weetjes (meerkeuze-raadsels in De Sterrenwacht, met nr), de woorden van De Woordenwachter, en wie erin mag (dicht, klaar, open).', inputSchema: obj({}), fn: ontdekInhoud },
     { name: 'zorg_notities', title: 'Zorgnotities', description: 'De notities voor de zorg (Mijn klas › Zorg): van één leerling, of zonder naam van iedereen die er heeft. Nieuwste eerst.', inputSchema: obj({ naam: S('Naam zoals op de klaslijst (leeg = iedereen).') }), fn: zorgNotities },
-    { name: 'leescheck', title: 'Leescheck', description: 'De Leescheck (Mijn klas › Lezen): per leerling de voorbije schooldagen (boek, bladzijde, antwoord) en wat opvalt (niets ingevuld, geen nieuwe bladzijden, rare sprong, kort of hetzelfde antwoord). Zelfde bron als Mijn klas › Lezen; wat op een andere pc ingevuld werd, komt via Mijn lesmap. Niets gevonden = een fout met de uitleg waarom.', inputSchema: obj({ dagen: { type: 'integer', enum: [5, 10, 20, 40], description: 'Hoeveel schooldagen (standaard 10).' } }), fn: leescheck },
-    { name: 'weekplanning', title: 'Weekplanning (Zonnewijzer)', description: 'De weekplanning in De Zonnewijzer: per dag de lesuren uit het rooster (van, tot, vak) met hun plek en de geplande les (titel, doel, succescriteria, notitie, gekoppelde oefeningen). Standaard deze week.', inputSchema: obj({ week: S('JJJJ-Www (bv. 2026-W48) of een dag JJJJ-MM-DD; leeg = deze week.') }), fn: weekplanning },
+    { name: 'leescheck', title: 'Leescheck', description: 'De Leescheck (Mijn klas › Lezen): per leerling de voorbije schooldagen (boek, bladzijde, antwoord) en wat opvalt (niets ingevuld, geen nieuwe bladzijden, rare sprong, kort of hetzelfde antwoord). Zelfde bron als Mijn klas › Lezen; wat op een andere pc ingevuld werd, komt via Mijn lesmap. Staat hij uit: aan=false en de melding "Leescheck staat uit". Niets gevonden = een fout met de uitleg waarom.', inputSchema: obj({ dagen: { type: 'integer', enum: [5, 10, 20, 40], description: 'Hoeveel schooldagen (standaard 10).' } }), fn: leescheck },
+    { name: 'weekplanning', title: 'Weekplanning (Zonnewijzer)', description: 'De weekplanning in De Zonnewijzer: per dag de lesuren uit het rooster (van, tot, vak) met hun plek en de geplande les (titel, doel, succescriteria, notitie, gekoppelde oefeningen) en "bordboek_links": de bewaarde links naar het bordboek van die les (gebruik die, raad nooit zelf een link). Standaard deze week.', inputSchema: obj({ week: S('JJJJ-Www (bv. 2026-W48) of een dag JJJJ-MM-DD; leeg = deze week.') }), fn: weekplanning },
+
+    { name: 'bordboeken', title: 'Bordboeken per les', description: 'De boeken in Mijn methodes (pdf\'s en online bordboeken zoals Bingel, met "boek"-sleutel) en per les (map + lesnummer) de bewaarde links naar de juiste pagina. Kijk hier voor je in een dagplan of dagpresentatie naar een bordboek linkt.', inputSchema: obj({ map: S('Optioneel: alleen deze map en haar submappen, bv. "Rekenen/Blok 4".') }), fn: bordboeken },
+    { name: 'bordboek_koppelen', schrijft: true, title: 'Bordboek koppelen aan een les', description: 'Per les van een methode (map + lesnummer in Mijn methodes) de juiste link naar het bordboek bewaren: bij een online bordboek het adres van de juiste pagina, bij een pdf het paginanummer. Staat er voor dat boek al een link bij die les, dan wordt die vervangen; andere boeken blijven. Gaat mee met Mijn lesmap.', inputSchema: obj({ map: S('De map van de les in Mijn methodes, bv. "Rekenen/Blok 4" (tool "bordboeken").'), les: { type: 'integer', minimum: 1, maximum: 999, description: 'Lesnummer.' }, boek: S('Sleutel van het boek uit "bordboeken", bv. "online:ab12cd34ef56" of "Rekenen/Blok 4/werkschrift.pdf".'), url: S('Online bordboek: het volledige adres van de juiste pagina (leeg = het boek zelf).'), pagina: { type: 'integer', minimum: 1, description: 'Pdf: de pagina.' } }, ['map', 'les', 'boek']), fn: bordboekKoppelen, log: (a, r) => ({ map: r.map, les: r.les }) },
 
     { name: 'runenwoorden_toevoegen', schrijft: true, title: 'Runenwoorden toevoegen', description: `Woorden bij de woorden van de week van Het Runenraadsel zetten. Wat er al staat blijft; een woord dat er al staat wordt enkel aangevuld (betekenis of zin die ontbrak). ${runenRegels} Gaat mee met Mijn lesmap.`, inputSchema: obj({ woorden: RUNENWOORDEN, doel: S('Optioneel: de code van het leerplandoel (bv. 1.5.GL6.3).') }, ['woorden']), fn: runenwoordenToevoegen, log: (a, r) => ({ n: r.toegevoegd }) },
     { name: 'runenwoord_wijzigen', schrijft: true, title: 'Runenwoord wijzigen', description: 'Eén woord van de week van Het Runenraadsel aanpassen: betekenis, voorbeeldzin of het woord zelf (bv. een tikfout).', inputSchema: obj({ woord: S('Het woord zoals het nu staat.'), betekenis: S('Nieuwe betekenis.'), zin: S('Nieuwe voorbeeldzin.'), nieuw_woord: S('Optioneel: het verbeterde woord.') }, ['woord']), fn: runenwoordWijzigen, log: (a, r) => ({ woord: r.gewijzigd.woord }) },

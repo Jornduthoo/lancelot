@@ -16,6 +16,9 @@ Ze opent op het bord in de gewone lezer: dia per dia, en de punten van een dia v
 - Geen `section.dia`? Dan telt elke `<section>` in `<body>` als dia. Ook geen sections: het hele bestand is één dia.
 - Eigen JavaScript in het bestand draait **niet**. Formulieren werken niet. Afbeeldingen, lettertypes en video mogen
   via `https://` of als `data:`-adres in het bestand zelf.
+- Lettertypes die al in LANcelot zitten: `font-family: 'Barlow'` (400, 600, 700), `'Questrial'`, `'Mali'` (400, 600, 700),
+  ook `'Cinzel'`, `'Exo 2'` en `'Orbitron'`. LANcelot zet de `@font-face` zelf in de presentatie (uit `public/fonts`, met CORS),
+  dus geen Google Fonts-link of ingebakken lettertype nodig: het bestand blijft klein.
 
 ## Bedienen
 

@@ -43,7 +43,7 @@ function voorstel({ kolom, grens = 0.5 } = {}) {
   const toets = ks[0].toets;
   return {
     kolom: eerste, laatste: ks[ks.length - 1].id, titel: ks[0].titel, toets: toets || null, grens: Math.round(g * 100), telt: keuze,
-    herkansingen: ks.length - 1, laag, hoog: hoog.length, nogTeVerbeteren: open, nietGemaakt: niet,
+    herkansingen: ks.filter(c => !(ov.telt.versie || {})[c.id]).length - 1, laag, hoog: hoog.length, nogTeVerbeteren: open, nietGemaakt: niet,
     kopie: toets ? kopieNaam(toets) : null,
   };
 }

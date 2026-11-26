@@ -160,8 +160,21 @@ function isHtml(data) {
 const SPELER = path.join(__dirname, '..', 'public', 'js', 'dia-speler.js');
 const SANDBOX = 'allow-scripts allow-popups allow-popups-to-escape-sandbox';
 
-function presentatie(html) {
+// De lettertypes die in LANcelot zelf zitten (public/fonts): een presentatie mag ze gewoon gebruiken met font-family,
+// zonder Google Fonts en zonder ze in te bakken (dat maakt het bestand groot). Ze komen over het klasnetwerk van LANcelot.
+const LETTERS = [
+  ['Barlow', 400, 'barlow-latin-400-normal'], ['Barlow', 600, 'barlow-latin-600-normal'], ['Barlow', 700, 'barlow-latin-700-normal'],
+  ['Questrial', 400, 'questrial-latin-400-normal'],
+  ['Mali', 400, 'mali-latin-400-normal'], ['Mali', 600, 'mali-latin-600-normal'], ['Mali', 700, 'mali-latin-700-normal'],
+  ['Cinzel', 700, 'cinzel-latin-700-normal'], ['Exo 2', 400, 'exo-2-latin-400-normal'], ['Exo 2', 600, 'exo-2-latin-600-normal'], ['Orbitron', 600, 'orbitron-latin-600-normal'],
+];
+const LETTERTYPES = [...new Set(LETTERS.map(l => l[0]))];
+const letterCss = basis => LETTERS.map(([f, w, b]) => `@font-face{font-family:'${f}';font-style:normal;font-weight:${w};font-display:swap;src:url('${basis}/fonts/${b}.woff2') format('woff2')}`).join('');
+
+// host = het adres waarop het bord LANcelot opende (bv. 192.168.1.109:3000): de lettertypes komen van daar.
+function presentatie(html, host) {
   const nonce = crypto.randomBytes(16).toString('base64');
+  const basis = typeof host === 'string' && /^[\w.\-]+(:\d{1,5})?$|^\[[0-9a-f:.]+\](:\d{1,5})?$/i.test(host) ? `http://${host}` : '';
   let speler = '';
   try { speler = fs.readFileSync(SPELER, 'utf8'); } catch {}
   // Een <meta http-equiv> kan de pagina doorsturen of de regels hieronder in de war sturen: weg ermee.
@@ -169,13 +182,17 @@ function presentatie(html) {
   const script = `<script nonce="${nonce}">${speler.replace(/<\/script/gi, '<\\/script')}</script>`;
   const eind = tekst.search(/<\/body\s*>(?![\s\S]*<\/body\s*>)/i);
   tekst = eind >= 0 ? tekst.slice(0, eind) + script + tekst.slice(eind) : tekst + script;
+  // Vooraan, zodat een eigen @font-face (of Google Fonts) van de presentatie zelf voorgaat.
+  const stijl = `<style>${letterCss(basis)}</style>`;
+  const kop = tekst.search(/<head\b[^>]*>/i);
+  tekst = kop >= 0 ? tekst.replace(/<head\b[^>]*>/i, m => m + stijl) : stijl + tekst;
   const csp = [
     `sandbox ${SANDBOX}`,
     "default-src 'none'",
     `script-src 'nonce-${nonce}'`,
     "style-src 'unsafe-inline' https:",
     'img-src data: blob: https:',
-    'font-src data: https:',
+    `font-src data: https: 'self'${basis ? ` ${basis}` : ''}`,
     'media-src data: blob: https:',
     'frame-src https:',
     "connect-src 'none'",
@@ -395,7 +412,7 @@ function routes(app, isLeerkracht, express, wijzig) {
     if (SOORTEN[path.extname(file).toLowerCase()] === 'html') {
       let data;
       try { data = fs.readFileSync(file, 'utf8'); } catch { return res.status(404).end(); }
-      const { tekst, csp } = presentatie(data);
+      const { tekst, csp } = presentatie(data, req.headers.host);
       res.set({ 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': csp, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-cache', 'Referrer-Policy': 'no-referrer' });
       return res.send(tekst);
     }
@@ -413,4 +430,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, SANDBOX, presentatie, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

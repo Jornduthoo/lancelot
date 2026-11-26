@@ -50,11 +50,21 @@ test('runenwoorden, weetjes, niveau, zorg, Eer, Leescheck en weekplanning via de
     out.lc = await roep('leescheck', {});
     const lezen = require('./src/lezen');
     lezen.zet({ aan: true });
+    out.lc1 = await roep('leescheck', {});
     lezen.bewaar({ naam: 'Bram', boek: 'De Gruffalo', blz: 12, antwoord: 'Een muis liep door het bos.' });
     out.lc2 = (await roep('leescheck', { dagen: 5 })).data;
     out.wp = (await roep('weekplanning', { week: '2026-W48' })).data;
     out.lp = (await roep('les_plannen', { week: '2026-W48', plek: '1-0', les: { vak: 'Rekenen', titel: 'Breuken', criteria: ['Ik vergelijk breuken.'] } })).data;
     out.lp2 = (await roep('les_plannen', { week: '2026-11-24', plek: '1-0', les: { notitie: 'Blokjes meenemen' } })).data;
+    // Bordboek-link per les (wens 26 nov, punt 4): bij de geplande les, en vast per les van een methode.
+    const kronieken = require('./src/kronieken');
+    kronieken.nieuweMap('Rekenen/Blok 4');
+    const { id } = kronieken.voegLinkToe({ map: 'Rekenen', naam: 'Bingel Rekensprong', url: 'https://bordboeken.bingel.be/rekensprong' });
+    out.bk = (await roep('bordboek_koppelen', { map: 'Rekenen/Blok 4', les: 43, boek: 'online:' + id, url: 'https://bordboeken.bingel.be/rekensprong#p64' })).data;
+    out.bkf = await roep('bordboek_koppelen', { map: 'Rekenen/Blok 4', les: 43, boek: 'online:bestaatniet' });
+    out.bb = (await roep('bordboeken', {})).data;
+    out.lp3 = (await roep('les_plannen', { week: '2026-W48', plek: '1-1', les: { vak: 'Rekenen', titel: 'Grillige figuren', map: 'Rekenen/Blok 4', nr: 43, bordboek: { url: 'https://bordboeken.bingel.be/talent#p39', naam: 'Talent blz. 39' } } })).data;
+    out.wp2 = (await roep('weekplanning', { week: '2026-W48' })).data;
     out.klas = klas.read().leerlingen.map(l => [l.naam, l.niveau || '']);
     out.gebeurd = gebeurd;
     out.log = connector.logboek(40).map(r => r.actie);
@@ -92,8 +102,13 @@ test('runenwoorden, weetjes, niveau, zorg, Eer, Leescheck en weekplanning via de
   assert.equal(res.zl.leerlingen.length, 1);
   assert.equal(res.zl.leerlingen[0].notities[0].tekst, 'Werkt beter vooraan.');
   assert.equal(res.eer.gegeven, 2);
-  assert.equal(res.lc.fout, true);
-  assert.match(res.lc.data, /geen enkele Leescheck/);
+  // Uit: een duidelijke melding, geen lege lijst (wens 26 nov, punt 2). Aan maar leeg: de fout met de uitleg.
+  assert.equal(res.lc.fout, false);
+  assert.equal(res.lc.data.aan, false);
+  assert.match(res.lc.data.melding, /^Leescheck staat uit/);
+  assert.equal(res.lc.data.leerlingen, undefined);
+  assert.equal(res.lc1.fout, true);
+  assert.match(res.lc1.data, /geen enkele Leescheck/);
   assert.equal(res.lc2.aan, true);
   assert.equal(res.lc2.leerlingen.find(l => l.naam === 'Bram').gedaan, 1);
   assert.equal(res.wp.week, '2026-W48');
@@ -105,6 +120,15 @@ test('runenwoorden, weetjes, niveau, zorg, Eer, Leescheck en weekplanning via de
   assert.equal(res.lp2.les.titel, 'Breuken');
   assert.equal(res.lp2.les.notitie, 'Blokjes meenemen');
   assert.deepEqual(res.lp2.les.criteria, ['Ik vergelijk breuken.']);
+  assert.equal(res.bk.links.length, 1);
+  assert.equal(res.bk.links[0].url, 'https://bordboeken.bingel.be/rekensprong#p64');
+  assert.equal(res.bkf.fout, true);
+  assert.ok(res.bb.boeken.some(b => b.naam === 'Bingel Rekensprong' && b.soort === 'online'));
+  assert.deepEqual(res.bb.lessen.map(l => [l.map, l.les]), [['Rekenen/Blok 4', 43]]);
+  assert.deepEqual(res.lp3.les.bordboek, { url: 'https://bordboeken.bingel.be/talent#p39', naam: 'Talent blz. 39' });
+  const uur = res.wp2.dagen[0].lesuren.find(u => u.plek === '1-1');
+  assert.deepEqual(uur.bordboek_links.map(l => l.url), ['https://bordboeken.bingel.be/talent#p39', 'https://bordboeken.bingel.be/rekensprong#p64']);
+  assert.equal(uur.bordboek_links[1].open_op_bord, 'https://bordboeken.bingel.be/rekensprong#p64');
   for (const g of ['runen', 'toegang:open', 'eer', 'klas', 'planning']) assert.ok(res.gebeurd.includes(g), g);
   for (const t of ['runenwoorden_toevoegen', 'runenwoord_wijzigen', 'weetjes_toevoegen', 'ontdek_wijzigen', 'ontdek_toegang', 'leerling_niveau', 'zorg_notitie', 'eer_geven', 'les_plannen']) assert.ok(res.log.includes(t), t);
 });

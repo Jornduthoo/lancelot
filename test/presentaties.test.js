@@ -47,3 +47,16 @@ test('de presentatie draait afgeschermd met enkel de dia-speler', () => {
   const pagina = fs.readFileSync(path.join(ROOT, 'public/kronieken.html'), 'utf8');
   assert.match(pagina, new RegExp(`<iframe id="kr-html"[^>]*sandbox="${kronieken.SANDBOX}"`));
 });
+
+test('de lettertypes van LANcelot (Barlow, Questrial, Mali) staan in elke presentatie, van het eigen adres', () => {
+  const kronieken = require('../src/kronieken');
+  const { tekst, csp } = kronieken.presentatie('<html><head><title>x</title></head><body><section class="dia" style="font-family:Mali">a</section></body></html>', '192.168.1.109:3000');
+  for (const f of ['Barlow', 'Questrial', 'Mali']) assert.ok(tekst.includes(`font-family:'${f}'`), f);
+  assert.match(tekst, /<head><style>@font-face\{[^<]*url\('http:\/\/192\.168\.1\.109:3000\/fonts\/mali-latin-400-normal\.woff2'\)/);
+  assert.match(csp, /font-src data: https: 'self' http:\/\/192\.168\.1\.109:3000;/);
+  for (const [, b] of tekst.matchAll(/\/fonts\/([\w-]+\.woff2)/g)) assert.ok(fs.existsSync(path.join(ROOT, 'public', 'fonts', b)), b);
+  // Een rare host komt nooit in de regels of de html.
+  const raar = kronieken.presentatie('<body></body>', 'x"; script-src *');
+  assert.doesNotMatch(raar.csp, /script-src \*/);
+  assert.match(raar.tekst, /url\('\/fonts\//);
+});

@@ -63,7 +63,9 @@ function data({ kolom, op = 10 } = {}) {
     rijen.push({ naam: r.naam, score, max: o || t.max, op10, feedback: feedback(op10, nogOefenen(t.afname, r.naam)) });
   }
   const totaal = ks[0].toets ? (() => { try { return proeven.list().find(x => x.file === ks[0].toets) || null; } catch { return null; } })() : null;
-  return { kolom: eerste, titel: ks[0].titel, vak: ks[0].vak || '', dag: ks[0].dag || '', op: o, telt: keuze, herkansingen: ks.length - 1, toets: totaal ? totaal.file : null, rijen };
+  const versie = ov.telt.versie || {};
+  const versies = ks.filter(c => versie[c.id]).length;
+  return { kolom: eerste, titel: ks[0].titel, vak: ks[0].vak || '', dag: ks[0].dag || '', op: o, telt: keuze, herkansingen: ks.length - 1 - versies, ...(versies ? { versies: ks.map(c => c.titel), beste_telt: true } : {}), toets: totaal ? totaal.file : null, rijen };
 }
 
 // Tekst om te plakken: punten (één per regel), feedback (één per regel) of de hele tabel (tab gescheiden).
