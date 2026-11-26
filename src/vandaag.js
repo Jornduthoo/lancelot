@@ -18,9 +18,13 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   const vandaag = dagVan(nu);
   const verschijnt = [];
   const nietAf = [];
+  // Quizzen en oefenbladen waar nu iemand aan werkt: met 📡 Live (toetsen staan al bij Toetsen).
+  const bezig = [];
   for (const t of takenLijst || []) {
     if (t.dicht) continue;
     const ll = (t.leerlingen || []).filter(telt);
+    const nBezig = ll.filter(l => l.status === 'bezig').length;
+    if (!t.vanaf && nBezig && t.soort !== 'proef') bezig.push({ id: t.id, titel: t.titel, soort: t.soort, bezig: nBezig, klaar: ll.filter(l => l.status === 'klaar').length, n: ll.length });
     if (t.vanaf) {
       // Gepland voor later vandaag: met de knop "Nu al geven".
       if (dagVan(t.vanaf) === vandaag) verschijnt.push({ id: t.id, titel: t.titel, soort: t.soort, uur: uurVan(t.vanaf), n: ll.length });
@@ -38,7 +42,7 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   const verbeteren = (afnames || [])
     .filter(a => a.bezig || (a.open && nu - Date.parse(a.datum) < TWEE_WEKEN))
     .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum, ...(a.taak ? { taak: a.taak } : {}) }));
-  return { verschijnt, verbeteren, nietAf, leeg: !verschijnt.length && !verbeteren.length && !nietAf.length };
+  return { verschijnt, bezig, verbeteren, nietAf, leeg: !verschijnt.length && !bezig.length && !verbeteren.length && !nietAf.length };
 }
 
 module.exports = { samenvatting, dagVan };
