@@ -289,6 +289,37 @@ function wisWeetje(i) {
   return eigenView();
 }
 
+// Eén weetje of woord aanpassen (de connector): enkel de velden die meekomen, de rest blijft.
+// Geeft { nieuw } of { fout: 'geen' | 'kapot' | 'dubbel' }; de connector zegt het dan aan de assistent.
+function wijzigWeetje(i, w) {
+  const e = eigen();
+  const oud = e.weetjes[i];
+  if (!Number.isInteger(i) || !oud) return { fout: 'geen', aantal: e.weetjes.length };
+  const veld = (k, kort) => (w[k] !== undefined ? w[k] : oud[kort]);
+  const nieuw = schoonWeetje({ onderwerp: veld('onderwerp', 'o'), vraag: veld('vraag', 'v'), opties: veld('opties', 'a'), juist: veld('juist', 'j'), weetje: veld('weetje', 'w'), niveau: veld('niveau', 'niveau') });
+  if (!nieuw) return { fout: 'kapot' };
+  if (e.weetjes.some((y, k) => k !== i && y.v === nieuw.v)) return { fout: 'dubbel' };
+  // Hetzelfde id, zodat het weetje in het ontdekkersboek van wie het al vond blijft staan.
+  nieuw.id = weetjeId(oud);
+  e.weetjes[i] = nieuw;
+  bewaarEigen();
+  return { nieuw };
+}
+
+function wijzigWoord(woord, w) {
+  const e = eigen();
+  const i = e.woorden.findIndex(x => x.w === woordVorm(woord));
+  if (i < 0) return { fout: 'geen' };
+  const oud = e.woorden[i];
+  const veld = (k, kort) => (w[k] !== undefined ? w[k] : oud[kort]);
+  const nieuw = schoonWoord({ woord: veld('woord', 'w'), betekenis: veld('betekenis', 'b'), zin: veld('zin', 'z'), niveau: veld('niveau', 'niveau') });
+  if (!nieuw) return { fout: 'kapot' };
+  if (e.woorden.some((y, k) => k !== i && y.w === nieuw.w)) return { fout: 'dubbel' };
+  e.woorden[i] = nieuw;
+  bewaarEigen();
+  return { nieuw };
+}
+
 function wisAlles() {
   eigen();
   eigenCache.weetjes = [];
@@ -754,5 +785,5 @@ module.exports = {
   vind,
   opdracht,
   NAAM, SPEL, get DIR() { return DIR(); }, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
-  eigenView, zetWoorden, wisWeetje, wisAlles, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
+  eigenView, zetWoorden, wisWeetje, wisAlles, voegToe, wijzigWeetje, wijzigWoord, instellingen, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
 };

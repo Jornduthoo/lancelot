@@ -64,6 +64,14 @@ met QR-code op het bord; de leerkracht leidt ze zelf in De Ronde Tafel; niet als
 (bewaart de antwoorden) en `voorkennisquiz_maken` (voorkennis peilen: een quiz "Voorkennis les <nr> · <onderwerp>" in
 `Voorkennis/<map van de lessen>`, zodat ze bij die les staat in De Kronieken en De Zonnewijzer).
 
+Klas en klaarzetten naast de toetsen (`src/connector-klas.js`, wens 26 nov): lezen met `runenwoorden` (de woorden
+van de week van Het Runenraadsel), `ontdek_inhoud` (eigen weetjes en woorden van Het rijk van Lancelot en wie erin mag),
+`zorg_notities`, `leescheck` en `weekplanning` (De Zonnewijzer). Klaarzetten met `runenwoorden_toevoegen` (wat er staat
+blijft, een bestaand woord wordt enkel aangevuld; gaat mee met Mijn lesmap), `runenwoord_wijzigen`, `weetjes_toevoegen`
+(meerkeuze-weetjes voor De Sterrenwacht en woorden voor De Woordenwachter), `ontdek_wijzigen`, `ontdek_toegang`,
+`leerling_niveau` (ook per vak), `zorg_notitie`, `eer_geven` en `les_plannen` (staat er al een les, dan veranderen enkel
+de velden die meekomen). Wissen kan niet via de connector: dat doet de leerkracht zelf op het scherm.
+
 Versies: elke wijziging via de connector bewaart eerst de vorige versie in `proeven/_versies` (quizzen:
 `quizzes/_versies`, oefenbladen: `oefenbladen/_versies`). Een toets die al gegeven werd, verandert nooit: de wijziging
 komt in een nieuwe toets met "(v2)" in de titel. Een quiz of oefenblad mag bijgewerkt worden: een taak houdt haar kopie.

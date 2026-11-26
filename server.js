@@ -1324,6 +1324,11 @@ connector.init({
       return { ingesteld: true, ...Object.fromEntries(Object.entries(lm).filter(([k]) => !['lesmap', 'soorten'].includes(k))) };
     },
     naKronieken: () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); vandaagSoon(); },
+    naRunen: () => { io.to('host').emit('rn-bord', runen.bord()); syncSoon(); },
+    naOntdekToegang: toegang => { io.emit('od-toegang', toegang); ontdekSoon(); },
+    naKlas: () => syncSoon(),
+    naEer: () => { io.emit('bu-eer'); eilandSoon(); },
+    naPlanning: () => { io.to('host').emit('zw-gewijzigd'); syncSoon(); },
     gezondheid: () => {
       const b = (() => { try { return bijwerken.view(); } catch { return {}; } })();
       const lm = (() => { try { return lesmap.view(); } catch { return {}; } })();
