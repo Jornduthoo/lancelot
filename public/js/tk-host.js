@@ -10,7 +10,9 @@ const el = (tag, cls, text) => {
   if (text !== undefined) e.textContent = text;
   return e;
 };
-const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+// Eén keer een opmaak maken (veel sneller dan toLocaleDateString per kaart, 26 nov).
+const DATUM = new Intl.DateTimeFormat('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+const datum = iso => DATUM.format(new Date(iso));
 
 const TK_TAB = 'lancelot-tk-tab';
 const tk = { soort: 'oefenblad', bronnen: null, meer: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null, vb: null };
@@ -234,14 +236,29 @@ for (const b of document.querySelectorAll('.tk-soort button')) {
 }
 
 // Kiezen gaat zoals in Mijn quizzen: mappen links, zoeken in alles. Hier alleen kiezen, niets verplaatsen.
-for (const soort of ['quiz', 'oefenblad', 'proef']) {
+// Pas klaarmaken als je de kiezer voor het eerst opent: zo laadt de pagina Taken sneller (26 nov).
+// De lijsten en mappen die de server al stuurde, onthouden we tot dan en geven we daarna mee.
+const KIEZER_EV = { quiz: ['quizzes', 'quiz-folders'], oefenblad: ['ob-sheets', 'ob-folders'], proef: ['pf-lijst', 'pf-mappen'] };
+const kiezerData = {};
+for (const ev of Object.values(KIEZER_EV).flat()) socket.on(ev, d => { kiezerData[ev] = d; });
+const gemount = new Set();
+function mountKiezer(soort) {
+  if (gemount.has(soort)) return;
+  gemount.add(soort);
+  const voor = Object.fromEntries(KIEZER_EV[soort].map(ev => [ev, [...socket.listeners(ev)]]));
   ItemList.mount($(`k-${soort}`), {
     kind: soort, kiezen: true, errorId: 'k-fout', go: 'Kies ▶',
     play: q => { $('tk-kiezer').close(); zetBron(q); },
     meer: lijst => { $('tk-kiezer').close(); zetBron(lijst); },
   });
+  // Eerst de mappen, dan de lijst (zoals de server ze stuurt).
+  for (const ev of [KIEZER_EV[soort][1], KIEZER_EV[soort][0]]) {
+    if (!(ev in kiezerData)) continue;
+    for (const fn of socket.listeners(ev)) if (!voor[ev].includes(fn)) fn(kiezerData[ev]);
+  }
 }
 $('tk-kies').addEventListener('click', () => {
+  mountKiezer(tk.soort);
   $('k-titel').textContent = tk.soort === 'quiz' ? 'Kies een quiz' : tk.soort === 'proef' ? 'Kies een toets' : 'Kies een oefenblad';
   for (const soort of ['quiz', 'oefenblad', 'proef']) $(`k-${soort}`).classList.toggle('hidden', tk.soort !== soort);
   $('tk-kiezer').showModal();
@@ -601,7 +618,8 @@ $('tk-geef').addEventListener('click', async () => {
 const STATUS = { nieuw: 'Nog niet begonnen', bezig: 'Bezig', klaar: 'Klaar' };
 // Wie niet meedoet (volgt dit vak niet bij mij, of gast) en wie afwezig was, telt niet mee bij "nog niet".
 const telt = l => !l.niet && !l.afwezig && !l.wacht;
-const uur = iso => new Date(iso).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+const UUR = new Intl.DateTimeFormat('nl-BE', { hour: '2-digit', minute: '2-digit' });
+const uur = iso => UUR.format(new Date(iso));
 // Twee taken met dezelfde naam: wat is het verschil? Niveaus, dag en uur, aantal leerlingen, na een andere taak.
 function verschil(t) {
   const zelfde = tk.taken.filter(x => x !== t && x.titel === t.titel && x.soort === t.soort);
@@ -631,6 +649,9 @@ function tekenTaken() {
   $('tk-geen').classList.toggle('hidden', lijst.length > 0);
   $('tk-geen').textContent = tk.tab === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.tab === 'proef' ? 'Nog geen toetsen gegeven.' : tk.tab === 'oefenblad' ? 'Nog geen oefenbladen gegeven.' : 'Nog geen taken gegeven.';
   box.innerHTML = '';
+  // Kaarten waar niets aan veranderde, blijven staan: de lijst komt twee keer per seconde binnen als de klas werkt.
+  const vorige = tk.kaarten || new Map();
+  tk.kaarten = new Map();
   // Bovenaan: wie nu bezig is, over alle taken heen (ook op je andere pc's). Klik: die leerling.
   const nu = [];
   for (const t of alle) for (const l of t.leerlingen) if (l.status === 'bezig') nu.push({ t, l });
@@ -678,10 +699,19 @@ function tekenTaken() {
       try { const d = JSON.parse(localStorage.getItem(TK_GROEPEN) || '{}'); d[id] = !g.open; localStorage.setItem(TK_GROEPEN, JSON.stringify(d)); } catch {}
     });
     // Afgesloten: de kaarten pas tekenen als je de groep openklikt (snel, ook met veel oude taken).
-    const vul = () => { if (!g.dataset.vol) { g.dataset.vol = '1'; for (const t of taken) g.appendChild(kaart(t)); } };
+    const vul = () => { if (!g.dataset.vol) { g.dataset.vol = '1'; for (const t of taken) g.appendChild(kaartVan(t, vorige)); } };
     if (g.open) vul(); else g.addEventListener('toggle', vul, { once: true });
     box.appendChild(g);
   }
+}
+
+// Eén kaart: dezelfde als vorige keer als er aan de taak niets veranderde (sneller, 26 nov), anders opnieuw.
+function kaartVan(t, vorige) {
+  const sig = JSON.stringify(t) + JSON.stringify(verschil(t));
+  const oud = vorige.get(t.id);
+  const k = oud && oud.sig === sig ? oud.el : kaart(t);
+  tk.kaarten.set(t.id, { sig, el: k });
+  return k;
 }
 
 const TK_GROEPEN = 'lancelot-tk-groepen';
@@ -713,7 +743,7 @@ function kaart(t) {
   klap.setAttribute('aria-label', 'De namen tonen of verbergen');
   const wissel = () => {
     const set = opengeklapt();
-    if (k.classList.toggle('ingeklapt')) set.delete(t.id); else set.add(t.id);
+    if (k.classList.toggle('ingeklapt')) set.delete(t.id); else { set.add(t.id); vulNamen(); }
     try { localStorage.setItem(TK_OPEN, JSON.stringify([...set].slice(-300))); } catch {}
   };
   klap.addEventListener('click', wissel);
@@ -780,43 +810,49 @@ function kaart(t) {
   kop.append(klap, img, titel, telling, acties);
 
   const rij = el('div', 'tk-leerlingen');
-  for (const l of t.leerlingen) {
-    const b = el('button', `tk-ll ${l.status}${l.niet ? ' niet' : ''}${l.afwezig ? ' inhalen' : ''}${l.wacht ? ' wacht' : ''}`);
-    b.type = 'button';
-    const naam = el('span', 'tk-ll-naam', l.naam);
-    if (l.afwezig) naam.append(el('span', 'tk-ll-inhalen', ' 🏠'));
-    // Geen goede voorleesstem op het toestel van deze leerling (melding van voorlees.js).
-    const stemIcoon = StemStand.el(l.naam);
-    if (stemIcoon) naam.append(stemIcoon);
-    // Werkt op een andere pc (via Mijn lesmap): op welke.
-    if (l.elders) naam.append(el('span', 'tk-ll-pc', ` 💻 ${l.elders}`));
-    if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
-    // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
-    if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
-    // Verliet de beveiligde toets: hoe vaak (de details staan bij de leerling en bij de resultaten).
-    if (l.weg) naam.append(el('span', 'tk-ll-weg', ` ⚠ ${l.weg}×`));
-    // Tijdslimiet: een eigen tijd (anders dan de taak), en wie inleverde omdat de tijd om was.
-    if (l.tijd && l.tijd !== t.tijd) naam.append(el('span', 'tk-ll-tijd', ` ⏱${l.tijd}′`));
-    if (l.tijdOp) naam.append(el('span', 'tk-ll-tijd', ' ⏱ om'));
-    if (l.poging > 1) naam.append(el('span', 'tk-ll-tijd', ` ↻${l.poging}`));
-    // Reflectie na de toets (wens 25 nov, punt 10): hoe zeker hij was.
-    if (l.reflectie && l.reflectie.zeker) naam.append(el('span', 'tk-ll-refl', ` ${reflSmiley(l.reflectie.zeker)}`));
-    const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
-    const stand = l.status === 'klaar'
-      ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
-      : l.status === 'bezig' ? `${l.gedaan} van ${l.totaal}` : l.afwezig ? 'inhalen' : l.wacht ? '⏭ wacht' : '–';
-    const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
-    const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
-    const balk = el('span', 'tk-ll-balk');
-    balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
-    b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.wacht ? 'Verschijnt als de vorige taak af is' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
-    if (l.weg) b.title += ` · verliet de toets ${l.weg}×`;
-    if (l.rest !== undefined) b.title += ` · nog ${Math.ceil(l.rest / 60000)} min`;
-    if (l.tijdOp) b.title += ' · leverde in: de tijd was om';
-    b.append(naam, s, balk);
-    b.addEventListener('click', () => toonDetail(t.id, l.naam));
-    rij.appendChild(b);
-  }
+  // De namen pas tekenen als de kaart open staat (sneller laden, 26 nov): dichtgeklapt zie je alleen de tellers.
+  const vulNamen = () => {
+    if (rij.dataset.vol) return;
+    rij.dataset.vol = '1';
+    for (const l of t.leerlingen) {
+      const b = el('button', `tk-ll ${l.status}${l.niet ? ' niet' : ''}${l.afwezig ? ' inhalen' : ''}${l.wacht ? ' wacht' : ''}`);
+      b.type = 'button';
+      const naam = el('span', 'tk-ll-naam', l.naam);
+      if (l.afwezig) naam.append(el('span', 'tk-ll-inhalen', ' 🏠'));
+      // Geen goede voorleesstem op het toestel van deze leerling (melding van voorlees.js).
+      const stemIcoon = StemStand.el(l.naam);
+      if (stemIcoon) naam.append(stemIcoon);
+      // Werkt op een andere pc (via Mijn lesmap): op welke.
+      if (l.elders) naam.append(el('span', 'tk-ll-pc', ` 💻 ${l.elders}`));
+      if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
+      // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
+      if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
+      // Verliet de beveiligde toets: hoe vaak (de details staan bij de leerling en bij de resultaten).
+      if (l.weg) naam.append(el('span', 'tk-ll-weg', ` ⚠ ${l.weg}×`));
+      // Tijdslimiet: een eigen tijd (anders dan de taak), en wie inleverde omdat de tijd om was.
+      if (l.tijd && l.tijd !== t.tijd) naam.append(el('span', 'tk-ll-tijd', ` ⏱${l.tijd}′`));
+      if (l.tijdOp) naam.append(el('span', 'tk-ll-tijd', ' ⏱ om'));
+      if (l.poging > 1) naam.append(el('span', 'tk-ll-tijd', ` ↻${l.poging}`));
+      // Reflectie na de toets (wens 25 nov, punt 10): hoe zeker hij was.
+      if (l.reflectie && l.reflectie.zeker) naam.append(el('span', 'tk-ll-refl', ` ${reflSmiley(l.reflectie.zeker)}`));
+      const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
+      const stand = l.status === 'klaar'
+        ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
+        : l.status === 'bezig' ? `${l.gedaan} van ${l.totaal}` : l.afwezig ? 'inhalen' : l.wacht ? '⏭ wacht' : '–';
+      const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
+      const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
+      const balk = el('span', 'tk-ll-balk');
+      balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
+      b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.wacht ? 'Verschijnt als de vorige taak af is' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
+      if (l.weg) b.title += ` · verliet de toets ${l.weg}×`;
+      if (l.rest !== undefined) b.title += ` · nog ${Math.ceil(l.rest / 60000)} min`;
+      if (l.tijdOp) b.title += ' · leverde in: de tijd was om';
+      b.append(naam, s, balk);
+      b.addEventListener('click', () => toonDetail(t.id, l.naam));
+      rij.appendChild(b);
+    }
+  };
+  if (!k.classList.contains('ingeklapt')) vulNamen();
   k.append(kop, rij);
   return k;
 }
@@ -857,7 +893,7 @@ $('tk-opruimen').addEventListener('click', async () => {
   });
 });
 StemStand.start(socket);
-StemStand.op(() => { if (tk.taken.length) tekenTaken(); });
+StemStand.op(() => { tk.kaarten = null; if (tk.taken.length) tekenTaken(); });
 
 socket.on('tk-lijst', lijst => {
   tk.taken = lijst;
@@ -1176,8 +1212,9 @@ $('kz-ok').addEventListener('click', () => {
 
 let openNaam = vraag.get('taak') && vraag.get('naam') ? { id: vraag.get('taak'), naam: vraag.get('naam') } : null;
 socket.on('connect', () => {
-  laadBronnen();
+  // Eerst de gegeven taken (die wil je meteen zien), daarna wat je nodig hebt om een nieuwe taak te geven.
   socket.emit('tk-lijst', null, res => {
+    laadBronnen();
     if (res.error) return;
     tk.taken = res.taken;
     // Vanuit Opvolgen (?taak=…&naam=…): de juiste soort tonen en meteen het werk van die leerling openen.
