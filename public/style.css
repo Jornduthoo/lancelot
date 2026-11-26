@@ -2664,3 +2664,9 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 /* Instellingen › Connector: het logboek */
 .cn-log { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
 #cn-nieuwe code { word-break: break-all; }
+
+/* Instellingen: alle tabs altijd zichtbaar; past het niet op één rij, dan loopt de rij door op een tweede rij (Junior verdween achter Connector). */
+#set-tabs { flex-wrap: wrap; overflow: visible; gap: 0 2px; }
+#set-tabs > button { flex: 1 1 auto; justify-content: center; padding: 10px 10px; }
+@media (max-width: 1180px) { #set-tabs { display: grid; grid-template-columns: repeat(6, 1fr); } }
+@media (max-width: 560px) { #set-tabs { grid-template-columns: repeat(3, 1fr); } #set-tabs > button { padding: 8px 4px; font-size: .9rem; } }
