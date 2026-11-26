@@ -41,3 +41,10 @@ test('startscherm: Live opent een kader, niet de pagina Taken', () => {
   const taken = fs.readFileSync(path.join(__dirname, '..', 'public', 'taken.html'), 'utf8');
   assert.ok(taken.indexOf('/js/live-raster.js') < taken.indexOf('/js/tk-host.js'), 'Taken tekent met hetzelfde live overzicht');
 });
+
+test('startscherm: een leerling aantikken in een Live-kader toont zijn werk hier, niet in Taken', () => {
+  const k = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'live-kaders.js'), 'utf8');
+  assert.ok(k.includes('opKlik: l => kijk(t, l)'));
+  assert.ok(!/opKlik:[^\n]*location\.href/.test(k));
+  assert.ok(k.includes("socket.emit('tk-detail'"));
+});
