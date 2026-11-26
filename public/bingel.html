@@ -88,7 +88,7 @@ const fb = r => { const i = document.querySelector(`input.fb[data-i="${r.i}"]`);
 function teken() {
   $('titel').textContent = `${D.titel} · voor Bingel`;
   const op = D.op ? `op ${D.op}` : 'zoals de toets';
-  $('sub').textContent = `${op}${D.vak ? ` · ${D.vak}` : ''}${D.herkansingen ? ` · met ${D.herkansingen === 1 ? '1 herkansing' : `${D.herkansingen} herkansingen`}, telt: ${D.telt}` : ''}`;
+  $('sub').textContent = `${op}${D.vak ? ` · ${D.vak}` : ''}${D.herkansingen ? ` · met ${D.herkansingen === 1 ? '1 herkansing' : `${D.herkansingen} herkansingen`}, telt: ${D.telt}` : ''}${D.beste_telt ? ' · 2 versies samen, het beste op 10 telt' : ''}`;
   $('tabel').innerHTML = `<tr><th></th><th>Leerling</th><th class="getal">${D.op ? `Op ${D.op}` : 'Punten'}</th><th>Feedback</th></tr>` + rijen().map((r, n) => `<tr>
     <td class="nr">${n + 1}</td><td>${esc(r.naam)}</td>
     <td class="getal${r.op10 !== null && r.op10 < 5 ? ' rood' : ''}">${r.score === null ? '–' : `${esc(score(r))}${D.op ? '' : ` / ${esc(komma(r.max))}`}`}</td>

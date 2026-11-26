@@ -100,11 +100,14 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
     const nieuweVersie = await roep('toets_bewaren', { toets: { ...${JSON.stringify(TOETS)}, intro: 'Versie 3' }, file: eerst.data.file });
     const pres = await roep('dagpresentatie_plaatsen', { html: '<!doctype html><body><section class="dia"><h1>Goeiemorgen</h1></section></body>', titel: 'Donderdag' });
     const pres2 = await roep('dagpresentatie_plaatsen', { html: '<!doctype html><body><section class="dia"><h1>Tweede</h1></section></body>', titel: 'Donderdag' });
+    const pres3 = await roep('dagpresentatie_plaatsen', { vervolg: pres.data.naam, html: '<section class="dia"><h1>Rekenen</h1></section><section class="dia"><h1>Taal</h1></section>' });
+    const pres4 = await roep('dagpresentatie_plaatsen', { vervolg: 'bestaat niet.html', html: '<section class="dia"></section>' });
+    const lees3 = await roep('dagpresentatie', { naam: pres.data.naam });
     const lees = await roep('dagpresentatie', {});
     const lijst = await connector.rpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, { sleutel: { naam: 'x' }, schrijven: false });
     const vandaag = connector.presentatieVan();
     const versies = require('fs').readdirSync(require('path').join(proeven.DIR, '_versies')).length;
-    return { lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, versies };
+    return { pres3: pres3.data, pres4, lees3: lees3.data.html, lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, versies };
   `);
   assert.equal(res.lezen.fout, true);
   assert.match(res.lezen.data, /alleen lezen/);
@@ -116,6 +119,11 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
   assert.match(res.nieuweVersie.melding, /al gegeven/);
   assert.match(res.pres.naam, /^\d{4}-\d{2}-\d{2} Donderdag\.html$/);
   assert.notEqual(res.pres2.naam, res.pres.naam);
+  // Groot in stukken: met "vervolg" komen de dia's achteraan bij, voor </body> (wens 26 nov, punt 1).
+  assert.equal(res.pres3.aangevuld, true);
+  assert.equal(res.pres3.dias, 3);
+  assert.match(res.lees3, /Goeiemorgen<\/h1><\/section><section class="dia"><h1>Rekenen[\s\S]*Taal<\/h1><\/section>\n<\/body>$/);
+  assert.equal(res.pres4.fout, true);
   assert.equal(res.lees.gevonden, true);
   assert.ok(res.vandaag && res.vandaag.link.startsWith('/kronieken?map=Dagpresentaties'));
   const ro = Object.fromEntries(res.tools);

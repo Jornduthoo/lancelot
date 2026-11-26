@@ -12,8 +12,9 @@ Volg deze afspraak heel precies, anders werkt de presentatie niet:
 5. Links naar een website: <a href="https://...">. Die openen in een nieuw tabblad. Een link naar een andere dia: <a href="#dia-3">.
 6. Afbeeldingen enkel als https-adres dat zeker bestaat, of laat ze weg en gebruik emoji of tekeningen met CSS. Geen bestanden naast de html.
 7. Elke dia vult het scherm van een digibord (16:9): section.dia { min-height: 100vh; box-sizing: border-box; padding: 4vh 5vw; }. Grote, goed leesbare letters (titel ongeveer clamp(32px, 5vw, 72px), tekst ongeveer clamp(20px, 2.6vw, 40px)), veel contrast, weinig tekst per dia (hooguit 5 punten).
-8. Rustige, stoere stijl die past bij kinderen van die leeftijd, niet kinderachtig. Zet een kleur of achtergrond op section.dia.
-9. Schrijf in correct Nederlands voor dat leerjaar. Eerste dia: titel en lesdoel ("Ik kan ..."). Laatste dia: korte samenvatting of een vraag om over na te denken.
+8. Lettertypes: gebruik font-family 'Barlow', 'Questrial' of 'Mali' (Mali is handschrift-achtig). Die zitten al in LANcelot: geen Google Fonts-link en geen ingebakken lettertypes nodig.
+9. Rustige, stoere stijl die past bij kinderen van die leeftijd, niet kinderachtig. Zet een kleur of achtergrond op section.dia.
+10. Schrijf in correct Nederlands voor dat leerjaar. Eerste dia: titel en lesdoel ("Ik kan ..."). Laatste dia: korte samenvatting of een vraag om over na te denken.
 
 Voorbeeld van de vorm (vul zelf de inhoud in):
 <section class="dia">

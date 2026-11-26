@@ -125,6 +125,17 @@ function schoonOefen(o) {
   return { soort: o.soort, file, titel: tekst(o.titel, 120), vorm };
 }
 
+// { url, naam }: enkel een gewoon webadres (https of http), nooit iets anders.
+function schoonBordboek(b) {
+  if (!b) return null;
+  const o = typeof b === 'string' ? { url: b } : b;
+  if (typeof o !== 'object') return null;
+  let u;
+  try { u = new URL(String(o.url || '').trim()); } catch { return null; }
+  if (!/^https?:$/.test(u.protocol) || u.href.length > 2000) return null;
+  return { url: u.href, naam: tekst(o.naam, 80) || 'Bordboek' };
+}
+
 function schoonLes(l) {
   if (!l || typeof l !== 'object') return null;
   const les = {
@@ -140,7 +151,10 @@ function schoonLes(l) {
     // Zelf gekoppelde oefeningen: een quiz in een gekozen spel, een oefenblad live, een toets... (zie public/js/lessen.js).
     oefen: (Array.isArray(l.oefen) ? l.oefen : []).slice(0, MAX_OEFEN).map(schoonOefen).filter(Boolean),
   };
-  if (!les.titel && !les.doel && !les.criteria.length && !les.notitie && !les.nr && !les.oefen.length) return null;
+  // De juiste pagina in het online bordboek voor deze les (wens 26 nov, punt 4): zo moet een dagplan die niet raden.
+  const bb = schoonBordboek(l.bordboek);
+  if (bb) les.bordboek = bb;
+  if (!les.titel && !les.doel && !les.criteria.length && !les.notitie && !les.nr && !les.oefen.length && !les.bordboek) return null;
   return les;
 }
 
@@ -404,7 +418,7 @@ function bewaarMijnLes(l) {
   // Dezelfde titel bij hetzelfde vak: die les bijwerken in plaats van een tweede te maken.
   const zelfde = x => x.titel.toLowerCase() === titel.toLowerCase() && x.vak.toLowerCase() === vak.toLowerCase();
   const oud = lijst.find(zelfde);
-  const nieuw = { id: oud ? oud.id : crypto.randomBytes(6).toString('hex'), vak, titel, doel, criteria, doelen: codes, notitie, oefen, bewaard: Date.now() };
+  const nieuw = { id: oud ? oud.id : crypto.randomBytes(6).toString('hex'), vak, titel, doel, criteria, doelen: codes, notitie, oefen, ...(les.bordboek ? { bordboek: les.bordboek } : {}), bewaard: Date.now() };
   const rest = lijst.filter(x => !zelfde(x));
   if (rest.length >= MAX_MIJN) throw new Error(`Hooguit ${MAX_MIJN} lessen in Mijn lessen. Haal er eerst een paar weg.`);
   schrijf(MIJN, { lessen: [nieuw, ...rest] });

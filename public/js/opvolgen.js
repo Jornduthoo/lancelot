@@ -220,18 +220,23 @@ function tekenPunten(vak) {
   };
   // Alleen tussen aparte toetsen (een herkansing staat al in dezelfde kolom).
   const keer = keerVan([...groepen.entries()].map(([g, ks]) => ({ ...ks[0], id: g })));
+  // Twee versies van één toets (6 en 6+) zitten in dezelfde kolom: het beste op 10 telt (wens 26 nov, punt 3).
+  const versie = (data.telt && data.telt.versie) || {};
   const kop = zicht.map(([id, ks]) => {
-    const herk = ks.length - 1;
+    const versies = ks.filter(k => versie[k.id]);
+    const herk = ks.length - 1 - versies.length;
     const laag = rijen.filter(r => { const u = uitkomst(ks, r.naam); const t = telt(u.pog, keuze(id)); return t && t.punten / t.max < grens(); }).map(r => r.naam);
     return `<th class="op-kol op-pt-kol" title="${esc(ks[0].titel + keerTekst(keer[id]))}">
       <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>${keer[id] ? `<span class="op-kol-keer">${keer[id]}e keer</span>` : ''}
       <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
+      ${versies.length ? `<span class="op-telt" title="${esc(ks.map(k => k.titel).join(' + '))}">⇄ ${esc('2 versies samen: het beste op 10 telt')}</span>` : ''}
       ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
       ${ks[0].toets ? `<button type="button" class="op-herk" data-herk1="${esc(id)}" title="${esc(laag.length ? `Een kopie van de toets voor ${laag.join(', ')} (onder ${$('op-grens').value}%)` : `Niemand zit onder ${$('op-grens').value}%`)}">↻ Herkansing${laag.length ? ` (${laag.length})` : ''}</button>` : ''}
       <a class="op-herk" href="/bingel?kolom=${encodeURIComponent(id)}" target="_blank" rel="noopener" title="Punten op 10 en een korte feedback per leerling, om over te nemen in Bingel">📋 Voor Bingel</a>
       <details class="op-meer"><summary>Meer ▾</summary>
         ${ks[0].toets ? `<a class="op-herk-zelf" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (onder ${$('op-grens').value}%)` : 'Dezelfde toets nog eens geven')}">↻ Zelf kiezen bij Taken (dezelfde toets)</a>` : ''}
-        ${ks.slice(1).map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(dagTekst(k.dag))}: dit is geen herkansing</button>`).join('')}
+        ${ks.slice(1).filter(k => !versie[k.id]).map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(dagTekst(k.dag))}: dit is geen herkansing</button>`).join('')}
+        ${versies.map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(k.titel)}: ${esc('een aparte toets, geen andere versie')}</button>`).join('')}
         <label>🔗 Herkansing van: <select data-herk="${esc(id)}"><option value="">geen (een eigen toets)</option>${andere(id).map(([g, t]) => `<option value="${esc(g)}"${herk[id] === g ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
       </details></th>`;
   }).join('');
@@ -280,7 +285,7 @@ function tekenPunten(vak) {
   const klasGem = perKol.map(l => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null));
   const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map((g, i) => `<td>${g === null ? '–' : gemTekstVan(g, perKolMax[i])}</td>`).join('')}<td></td></tr>`;
   $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">${esc(gemKop)}</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
-  const naHerk = res => { if (res && res.error) return Ui.melding(res.error); data.telt = res; teken(); };
+  const naHerk = res => { if (res && res.error) return Ui.melding(res.error); data.telt = { ...res, versie: data.telt && data.telt.versie }; teken(); laad(); };
   for (const d of $('op-wrap').querySelectorAll('.op-meer')) d.addEventListener('click', e => e.stopPropagation());
   for (const b of $('op-wrap').querySelectorAll('[data-herk1]')) b.addEventListener('click', () => herkansing(b.dataset.herk1));
   for (const b of $('op-wrap').querySelectorAll('[data-geen]')) b.addEventListener('click', () => socket.emit('pt-herk', { kolom: b.dataset.geen, van: '' }, naHerk));

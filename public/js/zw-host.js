@@ -253,6 +253,8 @@ function tekenNu(r) {
     if (venster) a.target = 'lancelot-bordboek';
     knoppen.append(a);
   };
+  // De link naar het bordboek die bij deze les bewaard werd: opent in het venster van de bordboeken.
+  if (les.bordboek) knop(`🌐 ${les.bordboek.naam || 'Bordboek'}`, les.bordboek.url, 'Het bordboek openen op de pagina van deze les', true);
   if (info) {
     for (const l of info.links || []) {
       if (l.bestand.soort === 'online') knop(`🌐 ${l.bestand.naam}`, Lessen.link.online(l.bestand, l.url), 'Het online bordboek openen', l.bestand.inbed === false);
@@ -962,6 +964,7 @@ $('zw-ed-mijn-kies').addEventListener('change', e => {
   zetCriteria(l.criteria);
   doelVeld.zet(l.doelen);
   $('zw-ed-notitie').value = l.notitie;
+  $('zw-ed-bordboek').value = l.bordboek ? l.bordboek.url : '';
   zetOefen(l.oefen || []);
   $('zw-ed-crit-info').textContent = '';
   meerTel();
@@ -1053,8 +1056,9 @@ function openEditor(slot, nieuw = null) {
   zetCriteria(les ? les.criteria : []);
   $('zw-ed-plak').value = '';
   $('zw-ed-notitie').value = les ? les.notitie : '';
+  $('zw-ed-bordboek').value = les && les.bordboek ? les.bordboek.url : '';
   zetOefen(les ? les.oefen || [] : []);
-  $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie));
+  $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie || les.bordboek));
   meerTel();
   $('zw-ed-fout').textContent = '';
   stopDenken();
@@ -1087,7 +1091,7 @@ for (const b of document.querySelectorAll('#zw-editor [data-plus], #zw-editor [d
 $('zw-ed-dicht').addEventListener('click', () => $('zw-editor').close());
 function meerTel() {
   const n = doelVeld.codes().length;
-  $('zw-ed-meer-tel').textContent = [n ? `${n} ${n === 1 ? 'doel' : 'doelen'}` : '', $('zw-ed-notitie').value.trim() ? 'notitie' : ''].filter(Boolean).join(' · ');
+  $('zw-ed-meer-tel').textContent = [n ? `${n} ${n === 1 ? 'doel' : 'doelen'}` : '', $('zw-ed-notitie').value.trim() ? 'notitie' : '', $('zw-ed-bordboek').value.trim() ? 'bordboek' : ''].filter(Boolean).join(' · ');
 }
 $('zw-ed-meer').addEventListener('toggle', meerTel);
 // Een les uit De Kronieken kiezen: titel, doelen en een voorstel van succescriteria komen mee (wat je zelf schreef, blijft).
@@ -1339,7 +1343,15 @@ function leesEditor() {
     af: zw.bewerk.oud && JSON.stringify(zw.bewerk.oud.criteria) === JSON.stringify(criteria()) ? zw.bewerk.oud.af : [],
     notitie: $('zw-ed-notitie').value.trim(),
     oefen: ed.oefen,
+    bordboek: bordboekVeld(),
   };
+}
+// Het adres van het bordboek bij deze les; de naam blijft die van vroeger (bv. van de connector), anders "Bordboek".
+function bordboekVeld() {
+  const url = $('zw-ed-bordboek').value.trim();
+  if (!url) return null;
+  const oud = zw.bewerk && zw.bewerk.oud && zw.bewerk.oud.bordboek;
+  return { url: /^https?:\/\//i.test(url) ? url : `https://${url}`, naam: oud && oud.url === url ? oud.naam : '' };
 }
 
 function stuurLes(les) {
@@ -1352,7 +1364,7 @@ function stuurLes(les) {
 }
 $('zw-ed-bewaar').addEventListener('click', () => {
   const les = leesEditor();
-  const leeg = !les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length;
+  const leeg = !les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length && !les.bordboek;
   const { nieuw, dag, index } = zw.bewerk;
   const van = $('zw-ed-van').value;
   const tot = $('zw-ed-tot').value;

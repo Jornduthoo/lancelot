@@ -81,7 +81,16 @@ function overzicht() {
     kolommen.push({ id: `afname:${a.file}`, soort: 'proef', toets: a.toetsFile || null, titel: a.title, vak: toetsVak(a.toetsFile), dag: a.datum, gepland: false, dicht: true, afname: a.file, live: true, vakjes });
   }
   kolommen.sort((a, b) => String(b.dag || '').localeCompare(String(a.dag || '')));
-  return { rijen, kolommen, gasten, telt: punten.keuzes() };
+  // Twee versies van één toets (6 en 6+): samen in één kolom, het beste resultaat op 10 telt (wens 26 nov, punt 3).
+  const telt = punten.keuzes();
+  const versie = punten.versies(kolommen, telt);
+  telt.versie = versie;
+  for (const [plus, gewoon] of Object.entries(versie)) {
+    telt.herk[plus] = gewoon;
+    const wortel = punten.eerste(gewoon, telt.herk);
+    if (!telt.telt[wortel]) telt.telt[wortel] = 'hoogste';
+  }
+  return { rijen, kolommen, gasten, telt };
 }
 
 module.exports = { overzicht, key };

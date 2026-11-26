@@ -1492,6 +1492,8 @@ app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
 // Altijd even navragen of een bestand veranderd is, zodat gsm's en Chromebooks na een update meteen de nieuwe versie hebben.
 // Dezelfde opkuis van geplakte chatbot-antwoorden in de browser (verbetersleutel bij oefenbladen en toetsen).
 app.get('/js/ai-json.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'src', 'ai-json.js')); });
+// De lettertypes mogen ook in een html-presentatie (een afgeschermd venster met een eigen herkomst): daar is CORS voor nodig.
+app.use('/fonts', (req, res, next) => { res.set({ 'Access-Control-Allow-Origin': '*' }); next(); });
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', cacheVoor(res.req)) }));
 
 // Virtuele netwerkkaarten (WSL, VirtualBox, VPN, hotspot, gsm via usb) komen achteraan, want leerlingen kunnen die meestal niet bereiken.

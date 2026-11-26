@@ -25,7 +25,9 @@ function keuzes() {
   for (const [toets, k] of Object.entries(d.telt || {})) if (KEUZES.includes(k)) uit[toets] = k;
   const herk = {};
   for (const [k, v] of Object.entries(d.herk || {})) if (kolomId(k) && kolomId(v) && k !== v) herk[k] = v;
-  return { standaard: KEUZES.includes(d.standaard) ? d.standaard : STANDAARD, telt: uit, herk };
+  // Zelf losgemaakt ("dit is geen herkansing" of "geen andere versie"): nooit automatisch koppelen.
+  const los = Object.entries(d.herk || {}).filter(([k, v]) => kolomId(k) && v === '').map(([k]) => k);
+  return { standaard: KEUZES.includes(d.standaard) ? d.standaard : STANDAARD, telt: uit, herk, ...(los.length ? { los } : {}) };
 }
 
 const kolomId = v => typeof v === 'string' && v.length > 0 && v.length <= 200;
@@ -104,4 +106,54 @@ function telt(pogingen, keuze) {
   return p.reduce((a, b) => (b.punten / b.max > a.punten / a.max ? b : a));
 }
 
-module.exports = { DIR, KEUZES, keuzes, zet, koppel, eerste, telt, geldig, samen };
+// ---------- Twee versies van dezelfde toets (wens 26 nov, punt 3) ----------
+// Een toets in twee versies, bv. "Toets De Tweede Wereldoorlog" en "6+ · WO De Tweede Wereldoorlog · Toets synthese".
+// Maakt een leerling ze allebei, dan telt zijn beste resultaat (op 10, dus in procent). We herkennen ze vanzelf:
+// - één titel heeft een plus-niveau ("6+", ook in de bestandsnaam "zes-plus"), de andere niet;
+// - gegeven binnen 7 dagen van elkaar;
+// - alle woorden van de kortste titel staan in de andere (zonder "toets", lidwoorden en het niveau zelf).
+// Zo blijven "Toets spelling" en "Dictee" van hetzelfde thema twee aparte toetsen. Wie het anders wil, maakt ze los.
+const PLUS = /(^|[^\w+])(\d{1,2})\s*\+(?!\w)/;
+const STOP = new Set(['toets', 'de', 'het', 'een', 'en', 'van', 'over', 'in', 'op', 'les', 'versie', 'niveau']);
+function isPlus(k) {
+  return PLUS.test(String(k.titel || '')) || /(^|[\/_-])zes-plus/i.test(String(k.toets || ''));
+}
+function woorden(titel) {
+  const t = String(titel || '').toLowerCase().replace(PLUS, ' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const w = t.split(/[^a-z0-9]+/).filter(x => x && !STOP.has(x));
+  // Een losse "6" vooraan (zoals "6 · Taal …") is het niveau, geen inhoud.
+  if (/^\s*\d{1,2}\s*[·:.\-–]/.test(t) && w.length && /^\d{1,2}$/.test(w[0])) w.shift();
+  return new Set(w);
+}
+const dagVan = k => String(k.dag || '').slice(0, 10);
+const dagenTussen = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 864e5;
+function zelfdeToets(a, b) {
+  const wa = woorden(a.titel), wb = woorden(b.titel);
+  const [kort, lang] = wa.size <= wb.size ? [wa, wb] : [wb, wa];
+  if (kort.size < 2) return false;
+  for (const w of kort) if (!lang.has(w)) return false;
+  return true;
+}
+// { <kolom van de plus-versie>: <kolom van de gewone versie> } voor de toetsen (soort proef) in Opvolgen.
+function versies(kolommen, k = keuzes()) {
+  const los = new Set(k.los || []);
+  const vast = new Set(Object.keys(k.herk || {}));
+  const proef = kolommen.filter(c => c.soort === 'proef' && dagVan(c));
+  const gewoon = proef.filter(c => !isPlus(c));
+  const uit = {};
+  const bezet = new Set();
+  for (const p of proef.filter(isPlus)) {
+    if (los.has(p.id) || vast.has(p.id)) continue;
+    let best = null;
+    for (const g of gewoon) {
+      if (bezet.has(g.id)) continue;
+      const d = dagenTussen(dagVan(p), dagVan(g));
+      if (!(d <= 7) || !zelfdeToets(p, g)) continue;
+      if (!best || d < best.d) best = { g, d };
+    }
+    if (best) { uit[p.id] = best.g.id; bezet.add(best.g.id); }
+  }
+  return uit;
+}
+
+module.exports = { DIR, KEUZES, keuzes, zet, koppel, eerste, telt, geldig, samen, versies, zelfdeToets };
