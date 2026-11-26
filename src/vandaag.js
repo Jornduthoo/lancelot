@@ -11,6 +11,10 @@ function dagVan(iso) {
 }
 const uurVan = iso => { const d = new Date(iso); return isNaN(d) ? '' : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 
+// Nu echt bezig: de leerling deed iets in de laatste tien minuten (een antwoord, een andere vraag).
+const ACTIEF_MIN = 10;
+const nuBezig = (l, nu) => l.status === 'bezig' && !!l.actief && nu - Date.parse(l.actief) < ACTIEF_MIN * 60000;
+
 // Wie telt bij een taak: niet wie het vak niet volgt (of een gast is) en niet wie nog op een eerste deel wacht.
 const telt = l => !l.niet && !l.wacht;
 
@@ -20,11 +24,17 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   const nietAf = [];
   // Quizzen en oefenbladen waar nu iemand aan werkt: met 📡 Live (toetsen staan al bij Toetsen).
   const bezig = [];
+  const nuActief = new Map(); // toets-taak → hoeveel leerlingen er nu aan werken
   for (const t of takenLijst || []) {
     if (t.dicht) continue;
     const ll = (t.leerlingen || []).filter(telt);
-    const nBezig = ll.filter(l => l.status === 'bezig').length;
-    if (!t.vanaf && nBezig && t.soort !== 'proef') bezig.push({ id: t.id, titel: t.titel, soort: t.soort, bezig: nBezig, klaar: ll.filter(l => l.status === 'klaar').length, n: ll.length });
+    // Alleen wie nu echt aan het werk is (iets deed in de laatste minuten), niet wie vroeger begon en het liet liggen
+    // (Jorn 26 nov: "Live mag enkel verschijnen als iemand daadwerkelijk bezig is").
+    const nBezig = ll.filter(l => nuBezig(l, nu)).length;
+    if (!t.vanaf && nBezig) {
+      if (t.soort === 'proef') nuActief.set(t.id, nBezig);
+      else bezig.push({ id: t.id, titel: t.titel, soort: t.soort, bezig: nBezig, klaar: ll.filter(l => l.status === 'klaar').length, n: ll.length });
+    }
     if (t.vanaf) {
       // Gepland voor later vandaag: met de knop "Nu al geven".
       if (dagVan(t.vanaf) === vandaag) verschijnt.push({ id: t.id, titel: t.titel, soort: t.soort, uur: uurVan(t.vanaf), n: ll.length });
@@ -41,8 +51,8 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   // Toetsen: wie nu bezig is en wat nog te verbeteren is (vroeger de gouden balk), in één regel per toets.
   const verbeteren = (afnames || [])
     .filter(a => a.bezig || (a.open && nu - Date.parse(a.datum) < TWEE_WEKEN))
-    .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum, ...(a.taak ? { taak: a.taak } : {}) }));
+    .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum, ...(a.taak ? { taak: a.taak } : {}), ...(a.taak && nuActief.has(a.taak) ? { nu: nuActief.get(a.taak) } : {}) }));
   return { verschijnt, bezig, verbeteren, nietAf, leeg: !verschijnt.length && !bezig.length && !verbeteren.length && !nietAf.length };
 }
 
-module.exports = { samenvatting, dagVan };
+module.exports = { samenvatting, dagVan, nuBezig, ACTIEF_MIN };

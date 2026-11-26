@@ -456,7 +456,9 @@ function afnameLijst() {
   let per = null;
   return proeven.afnames().map(a => {
     const ll = a.taak && taken.toetsLeerlingen(a.taak, per || (per = taken.standen()));
-    return ll ? { ...a, bezig: ll.filter(l => l.status === 'bezig').length, nog: ll.filter(l => l.status === 'nieuw').length } : a;
+    // nu: wie de laatste minuten echt iets deed (voor 📡 Live op het startscherm).
+    const nu = ll ? ll.filter(l => vandaag.nuBezig(l, Date.now())).length : 0;
+    return ll ? { ...a, bezig: ll.filter(l => l.status === 'bezig').length, nog: ll.filter(l => l.status === 'nieuw').length, ...(nu ? { nu } : {}) } : a;
   });
 }
 
