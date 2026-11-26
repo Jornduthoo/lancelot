@@ -63,3 +63,10 @@ test('live bij oefenbladen en quizzen: wanneer de leerling iets deed', () => {
   assert.ok(r.lotte.actief);
   assert.strictEqual(r.mats.actief, undefined);
 });
+
+test('startscherm: een lopende toets heeft de taak erbij (voor 📡 Live)', () => {
+  const vandaag = require('../src/vandaag');
+  const s = vandaag.samenvatting([], [{ file: 'a.json', title: 'Toets', bezig: 2, open: 0, datum: new Date().toISOString(), taak: 't1' }, { file: 'b.json', title: 'Bord', bezig: 0, open: 3, datum: new Date().toISOString() }]);
+  assert.strictEqual(s.verbeteren[0].taak, 't1');
+  assert.strictEqual(s.verbeteren[1].taak, undefined);
+});

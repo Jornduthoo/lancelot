@@ -37,7 +37,7 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   // Toetsen: wie nu bezig is en wat nog te verbeteren is (vroeger de gouden balk), in één regel per toets.
   const verbeteren = (afnames || [])
     .filter(a => a.bezig || (a.open && nu - Date.parse(a.datum) < TWEE_WEKEN))
-    .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum }));
+    .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum, ...(a.taak ? { taak: a.taak } : {}) }));
   return { verschijnt, verbeteren, nietAf, leeg: !verschijnt.length && !verbeteren.length && !nietAf.length };
 }
 
