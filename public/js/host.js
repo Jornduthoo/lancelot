@@ -556,7 +556,8 @@ socket.on('pf-afnames', lijst => {
   if (open) delen.push(`${open} ${open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`);
   $('toets-banier-tekst').textContent = `📝 ${nu.length === 1 ? nu[0].title : `${nu.length} toetsen`}: ${delen.join(' · ')}`;
   // Eén toets die nu loopt (als taak): meteen live meevolgen. Anders naar het verbeteren.
-  const live = nu.length === 1 && nu[0].bezig && nu[0].taak;
+  // Alleen als er nu echt iemand aan werkt (iets deed in de laatste minuten), niet bij een oude, half gemaakte toets.
+  const live = nu.length === 1 && nu[0].nu && nu[0].taak;
   b.href = live ? `/taken?live=${encodeURIComponent(nu[0].taak)}` : nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
   // 📡 Live opent hier een kader (live-kaders.js), niet de pagina Taken.
   b.dataset.live = live ? nu[0].taak : '';
@@ -670,7 +671,7 @@ if (window.LiveKaders && $('toets-banier')) {
       if (a.open) s.append(' · ', maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`));
       li.append(s);
       // Loopt de toets nog (iemand is bezig): meteen live meevolgen, wie op welke vraag zit en wie vastzit.
-      if (a.bezig && a.taak) li.append(liveKnop(a.taak, a.titel));
+      if (a.nu && a.taak) li.append(liveKnop(a.taak, a.titel));
       const k = maak('a', 'button secondary', a.open ? 'Verbeteren ▶' : 'Bekijk ▶');
       k.href = `/proef?verbeter=${encodeURIComponent(a.file)}`;
       li.append(k);
