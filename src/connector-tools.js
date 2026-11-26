@@ -688,6 +688,8 @@ const TOOLS = [
 TOOLS.push(...require('./connector-bouw').maak({ fout, toetsBestaat, isGegeven, mapMaken, toetsBewaren, dag, vandaag, hooks: () => hooks }));
 // Deel 3: Peilen, peilingen en voorkennis (src/connector-peilen.js).
 TOOLS.push(...require('./connector-peilen').maak({ fout, mapMaken, hooks: () => hooks, tool: n => TOOLS.find(x => x.name === n) }));
+// Deel 4: Runenraadsel, Het rijk van Lancelot, Mijn klas en de Zonnewijzer (src/connector-klas.js).
+TOOLS.push(...require('./connector-klas').maak({ fout, hooks: () => hooks }));
 
 // De antwoorden van de connector zelf (src/connector.js), voor de assistent.
 const TEKST = {
