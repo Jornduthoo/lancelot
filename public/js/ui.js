@@ -609,7 +609,7 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><i class="ic ic-${KOP_IC[id]}" aria-hidden="true"></i><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
+      RIJKEN.map(([id, naam]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><i class="ic ic-${KOP_IC[id]}" aria-hidden="true"></i><span>${naam}</span></a>`).join('')}<a href="/taken" class="snel-taken" data-taken="1" title="Taken geven en zien wie bezig of klaar is"><i class="ic ic-taak" aria-hidden="true"></i><span>Taken</span></a><a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
     brand.after(nav);
     // Meteen ook de vaste knoppen ernaast (Pauze · Namen · QR-code · Geluid), zodat de kopbalk vanaf de eerste
     // tekening klaar staat. namen-host.js maakt Namen en QR-code daarna werkend zodra de verbinding er is.
@@ -649,6 +649,8 @@
       const r = rijkHier();
       for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r);
       nav.querySelector('[data-inst]').classList.toggle('on', !!document.querySelector('#settings:not(.hidden)'));
+      // Taken: één klik vanaf elk scherm (sneller bereikbaar, 26 nov).
+      nav.querySelector('[data-taken]').classList.toggle('on', location.pathname === '/taken');
     };
     snelMarkeer();
     addEventListener('hashchange', () => snelMarkeer());

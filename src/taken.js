@@ -1175,11 +1175,15 @@ function lijst() {
     beveiligd: t.soort === 'proef' ? !!t.beveiligd : undefined,
     reflectie: t.soort === 'proef' ? !t.geenReflectie : undefined,
     tot: t.tot || null, tijd: t.tijd || null, vanzelfDicht: !!t.vanzelfDicht, pogingen: pogingenVan(t),
-    leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...(w.poging ? { poging: w.poging + 1 } : {}), elders: w.elders ? w.elders.pc : undefined,
-      // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
-      ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
-      ...(w.status === 'nieuw' && wacht(t, key(w.naam)) ? { wacht: true } : {}),
-      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : w.status === 'bezig' ? { actief: w.actief || w.begin || null } : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...(t.soort === 'proef' && t.werk[key(w.naam)] && t.werk[key(w.naam)].reflectie ? { reflectie: t.werk[key(w.naam)].reflectie } : {}), ...tijdLeerling(t, w) }))
+    leerlingen: werkOveral(t, per).map(w => {
+      // De sleutel en het werk hier één keer opzoeken (sneller laden, 26 nov).
+      const k = key(w.naam), hier = t.werk[k];
+      return { naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...(w.poging ? { poging: w.poging + 1 } : {}), elders: w.elders ? w.elders.pc : undefined,
+        // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
+        ...(w.status === 'nieuw' && klas.doetNiet(ll.get(k), t.vak) ? { niet: true } : {}),
+        ...(w.status === 'nieuw' && wacht(t, k) ? { wacht: true } : {}),
+        ...(hier && hier.afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : w.status === 'bezig' ? { actief: w.actief || w.begin || null } : {}), ...((w.weg || []).length ? { weg: w.weg.length } : {}), ...(t.soort === 'proef' && hier && hier.reflectie ? { reflectie: hier.reflectie } : {}), ...tijdLeerling(t, w) };
+    })
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }

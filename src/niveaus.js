@@ -46,8 +46,13 @@ function schoon(d) {
   return uit;
 }
 
-let memo = { file: '', mtime: -1, lijst: STANDAARD };
+// Hooguit eens per seconde naar het bestand kijken: de lijst van taken vraagt dit per leerling en per taak op
+// (sneller laden, 26 nov). Een wijziging (hier of via Mijn lesmap) is er dus binnen de seconde.
+let memo = { file: '', mtime: -1, lijst: STANDAARD, gekeken: 0 };
+const KIJK_MS = 1000;
 function alle() {
+  const nu = Date.now();
+  if (memo.file && nu - memo.gekeken < KIJK_MS && nu >= memo.gekeken) return memo.lijst;
   let mtime = 0;
   try { mtime = fs.statSync(FILE()).mtimeMs; } catch {}
   if (mtime !== memo.mtime || memo.file !== FILE()) {
@@ -55,6 +60,7 @@ function alle() {
     try { d = JSON.parse(fs.readFileSync(FILE(), 'utf8')); } catch {}
     memo = { file: FILE(), mtime, lijst: d ? schoon(d) : STANDAARD.map(g => ({ ...g, vakken: [...g.vakken] })) };
   }
+  memo.gekeken = nu;
   return memo.lijst;
 }
 const zichtbaar = () => alle().filter(g => !g.uit);
@@ -68,6 +74,7 @@ function bewaar(groepen) {
   fs.mkdirSync(DIR(), { recursive: true });
   fs.writeFileSync(FILE(), JSON.stringify({ groepen: lijst, gewijzigd: new Date().toISOString() }, null, 2) + '\n');
   memo.mtime = -1;
+  memo.gekeken = 0;
   return alle();
 }
 
