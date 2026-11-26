@@ -558,8 +558,22 @@ socket.on('pf-afnames', lijst => {
   // Eén toets die nu loopt (als taak): meteen live meevolgen. Anders naar het verbeteren.
   const live = nu.length === 1 && nu[0].bezig && nu[0].taak;
   b.href = live ? `/taken?live=${encodeURIComponent(nu[0].taak)}` : nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
+  // 📡 Live opent hier een kader (live-kaders.js), niet de pagina Taken.
+  b.dataset.live = live ? nu[0].taak : '';
+  b.dataset.titel = live ? nu[0].title : '';
   b.querySelector('b').textContent = live ? '📡 Live ▶' : 'Bekijk ▶';
 });
+
+// 📡 Live in zwevende kaders op het startscherm (Jorn 26 nov): de gouden balk en Vandaag openen ze hier.
+if (window.LiveKaders && $('toets-banier')) {
+  LiveKaders.init(socket);
+  $('toets-banier').addEventListener('click', e => {
+    const b = e.currentTarget;
+    if (!b.dataset.live) return;
+    e.preventDefault();
+    LiveKaders.open(b.dataset.live, b.dataset.titel);
+  });
+}
 
 // ---------- Vandaag (wensenlijst 20 nov, punt 9) ----------
 // Wat er vandaag verschijnt (met "Nu al geven"), welke toetsen nog te verbeteren zijn en wie iets van de
@@ -578,6 +592,14 @@ socket.on('pf-afnames', lijst => {
   function zetDicht(dicht) {
     $('vandaag').classList.toggle('dicht', dicht);
     $('vandaag-klap').setAttribute('aria-expanded', String(!dicht));
+  }
+  // 📡 Live: opent hier op het startscherm een zwevend kader (live-kaders.js), meteen, zonder naar Taken te gaan.
+  function liveKnop(id, titel) {
+    const l = maak('button', 'gold', '📡 Live');
+    l.type = 'button';
+    l.title = 'Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is';
+    l.addEventListener('click', () => LiveKaders.open(id, titel));
+    return l;
   }
   function blok(id, items, rij) {
     const b = $(id);
@@ -602,6 +624,7 @@ socket.on('pf-afnames', lijst => {
     zetDicht(!d.leeg && isDicht());
     const tel = [];
     if (d.verschijnt.length) tel.push(`${d.verschijnt.length} gepland`);
+    if ((d.bezig || []).length) tel.push(`${d.bezig.length} bezig`);
     if (d.verbeteren.length) tel.push(`${d.verbeteren.length} ${d.verbeteren.length === 1 ? 'toets' : 'toetsen'}`);
     if (d.nietAf.length) tel.push(`${d.nietAf.length} niet af`);
     $('vandaag-telling').textContent = tel.length ? `· ${tel.join(' · ')}` : '';
@@ -632,6 +655,13 @@ socket.on('pf-afnames', lijst => {
       li.append(k);
       return li;
     });
+    blok('vandaag-bezig', d.bezig || [], t => {
+      const li = maak('li');
+      const s = maak('span');
+      s.append(`${SOORT[t.soort] || '📄'} ${t.titel} · `, maak('em', '', `${t.bezig} bezig`), ` · ${t.klaar} van ${t.n} klaar`);
+      li.append(s, liveKnop(t.id, t.titel));
+      return li;
+    });
     blok('vandaag-verbeteren', d.verbeteren, a => {
       const li = maak('li');
       const s = maak('span');
@@ -640,12 +670,7 @@ socket.on('pf-afnames', lijst => {
       if (a.open) s.append(' · ', maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`));
       li.append(s);
       // Loopt de toets nog (iemand is bezig): meteen live meevolgen, wie op welke vraag zit en wie vastzit.
-      if (a.bezig && a.taak) {
-        const l = maak('a', 'button gold', '📡 Live');
-        l.href = `/taken?live=${encodeURIComponent(a.taak)}`;
-        l.title = 'Live meevolgen: wie op welke vraag zit, wie vastzit en wie klaar is';
-        li.append(l);
-      }
+      if (a.bezig && a.taak) li.append(liveKnop(a.taak, a.titel));
       const k = maak('a', 'button secondary', a.open ? 'Verbeteren ▶' : 'Bekijk ▶');
       k.href = `/proef?verbeter=${encodeURIComponent(a.file)}`;
       li.append(k);

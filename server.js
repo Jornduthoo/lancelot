@@ -869,10 +869,27 @@ function stemSoon(ms = 3000) {
 setTimeout(() => stemSoon(0), 20000).unref();
 setInterval(() => stemSoon(0), 15 * 60 * 1000).unref();
 
+// De Live-kaders op het startscherm (26 nov): elk scherm krijgt alleen de taken die het open heeft (hooguit drie),
+// niet de hele lijst. Zo blijft het startscherm snel, ook met veel taken.
+const LIVE_KIJKERS = 'live-kijkers';
 function takenNaarBord() {
   const r = io.sockets.adapter.rooms.get(TAKEN_KIJKERS);
-  if (r && r.size) io.to(TAKEN_KIJKERS).emit('tk-lijst', taken.lijst());
+  const lv = io.sockets.adapter.rooms.get(LIVE_KIJKERS);
+  if ((r && r.size) || (lv && lv.size)) {
+    const lijst = taken.lijst();
+    if (r && r.size) io.to(TAKEN_KIJKERS).emit('tk-lijst', lijst);
+    if (lv && lv.size) {
+      for (const id of lv) {
+        const s = io.sockets.sockets.get(id);
+        if (s) s.emit('tk-live', { taken: liveVan(lijst, s.data.live) });
+      }
+    }
+  }
   vandaagSoon();
+}
+function liveVan(lijst, ids) {
+  const wil = new Set(ids || []);
+  return lijst.filter(t => wil.has(t.id));
 }
 
 // Het blok "Vandaag" op het startscherm (wensenlijst 20 nov, punt 9): alleen naar wie het startscherm open heeft,
@@ -2312,6 +2329,14 @@ io.on('connection', socket => {
     });
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
     socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
+    // Startscherm › 📡 Live: welke taken dit scherm in een kader toont (hooguit drie). Leeg = geen kaders meer open.
+    socket.on('tk-live', handle(ids => {
+      const lijst = (Array.isArray(ids) ? ids : []).filter(x => typeof x === 'string').slice(0, 3);
+      socket.data.live = lijst;
+      if (!lijst.length) { socket.leave(LIVE_KIJKERS); return { taken: [] }; }
+      socket.join(LIVE_KIJKERS);
+      return { taken: liveVan(taken.lijst(), lijst) };
+    }));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
     socket.on('pt-telt', handle(arg => { const r = punten.zet(arg || {}); takenNaarBord(); syncSoon(); return r; }));
     // Herkansing alleen als de leerkracht het zegt: koppelen of ontkoppelen ("Dit is geen herkansing").

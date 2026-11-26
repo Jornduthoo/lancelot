@@ -1896,6 +1896,39 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .vandaag.leeg .ic-klap { display: none; }
 .vandaag.leeg .vandaag-klap { cursor: default; flex: 0 1 auto; }
 .vandaag h3 > .vandaag-leeg { flex: 1 1 auto; margin-left: 6px; }
+/* 📡 Live in zwevende kaders op het startscherm (live-kaders.js, Jorn 26 nov): hooguit drie, verslepen aan de kop,
+   groter of kleiner via de hoek. Onder de hulpkaarten (z-index 60), zodat een hulpvraag altijd zichtbaar blijft. */
+.lv-kaders { position: fixed; inset: 0; z-index: 50; pointer-events: none; }
+.lv-kader { position: absolute; pointer-events: auto; display: flex; flex-direction: column; min-width: 260px; min-height: 180px; padding: 0 10px 10px; overflow: hidden; resize: both; border-radius: 14px; background: rgb(var(--k-panel) / .97); border: 2px solid rgb(var(--k-goud) / .7); box-shadow: 0 0 0 4px rgb(var(--k-goud) / .12), 0 12px 32px rgb(var(--k-zwart) / .55); color: rgb(var(--k-tekst)); }
+.lv-kader.sleept { opacity: .92; box-shadow: 0 0 0 4px rgb(var(--k-goud) / .3), 0 18px 40px rgb(var(--k-zwart) / .6); }
+.lv-kader.flits { animation: lv-flits .6s ease-out; }
+@keyframes lv-flits { 30% { box-shadow: 0 0 0 10px rgb(var(--k-goud) / .35), 0 12px 32px rgb(var(--k-zwart) / .55); } }
+.lv-kader-kop { display: flex; align-items: center; gap: 6px; margin: 0 -10px 6px; padding: 8px 8px 8px 12px; cursor: move; touch-action: none; user-select: none; background: rgb(var(--k-goud) / .14); border-bottom: 1px solid rgb(var(--k-goud) / .35); }
+.lv-kader-titel { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgb(var(--k-goud-l)); font-size: 1.02rem; }
+.lv-kader-knop { flex: none; display: inline-grid; place-items: center; width: 36px; height: 36px; min-height: 0; padding: 0; border: 0; border-radius: 10px; clip-path: none; background: rgb(var(--k-wit) / .08); box-shadow: none; color: inherit; font-size: 1.1rem; line-height: 1; text-decoration: none; cursor: pointer; }
+.lv-kader-knop:hover { background: rgb(var(--k-goud) / .3); }
+.lv-kader-samen { margin: 0 0 4px; font-weight: 700; font-size: .92rem; }
+.lv-kader-vast { margin: 0 0 6px; padding: 6px 10px; color: var(--bad); font-weight: 700; font-size: .88rem; box-shadow: inset 4px 0 0 var(--bad), inset 0 0 0 1px var(--line); }
+.lv-kader-vast.hidden { display: none; }
+.lv-kader .tk-live-raster { flex: 1; min-height: 0; max-height: none; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+/* De kaartjes per leerling (ook in taken.css voor Mijn klas › Taken). */
+.lv-kader .tk-live-raster { display: grid; grid-auto-rows: max-content; overflow: auto; padding: 2px; align-content: start; }
+.lv-kader .tk-live-ll { --k: var(--muted); position: relative; display: flex; flex-direction: column; gap: 1px; padding: 8px 10px 12px; min-height: 0; text-align: left; color: var(--text); background: rgb(var(--k-bg) / .5); border: 0; border-radius: 0; clip-path: none; box-shadow: inset 4px 0 0 var(--k), inset 0 0 0 1px var(--line); font: inherit; text-transform: none; letter-spacing: 0; cursor: pointer; overflow: hidden; }
+.lv-kader .tk-live-ll { height: auto; align-items: stretch; justify-content: flex-start; white-space: normal; line-height: 1.25; }
+.lv-kader .tk-live-ll > * { flex-shrink: 0; }
+.lv-kader .tk-live-ll strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.02rem; }
+.lv-kader .tk-live-ll.bezig { --k: var(--gold); }
+.lv-kader .tk-live-ll.klaar { --k: var(--good); background: rgb(var(--k-groen) / .08); }
+.lv-kader .tk-live-ll.vast { --k: var(--bad); background: rgb(var(--k-rood, 220 60 60) / .12); }
+.lv-kader .tk-live-ll.bezig .tk-live-wat { color: var(--gold); }
+.lv-kader .tk-live-ll.vast .tk-live-wat { color: var(--bad); }
+.lv-kader .tk-live-ll.inhalen { --k: var(--cyan); }
+.lv-kader .tk-live-wat { font-weight: 700; font-size: .88rem; }
+.lv-kader .tk-live-klein { font-size: .75rem; color: var(--muted); min-height: 1em; }
+.lv-kader .tk-ll-pc { font-size: .75em; font-weight: 600; color: var(--cyan); }
+.lv-kader .tk-ll-balk { position: absolute; left: 4px; right: 0; bottom: 0; height: 4px; background: rgb(var(--k-wit) / .08); }
+.lv-kader .tk-ll-balk i { display: block; height: 100%; background: var(--k); transition: width .3s; }
+@media (prefers-reduced-motion: reduce) { .lv-kader.flits { animation: none; } }
 .ic-klap { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 .realms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 16px; width: 100%; margin: 6px 0 16px; }
 .realm { position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 22px 18px 18px; color: var(--text);
