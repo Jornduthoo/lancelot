@@ -2,6 +2,7 @@
 // tegelijk die ik kan verplaatsen of sluiten"). Elke lopende toets, quiz of oefenblad in een eigen zwevend kader
 // met het live overzicht (live-raster.js). Hooguit drie tegelijk; verslepen aan de kop, groter of kleiner via de
 // hoek rechtsonder, ✕ sluit. De server stuurt alleen de taken die open staan (tk-live), niet de hele lijst.
+// Tik op een leerling = zijn werk in een venster hier (alleen bekijken).
 // Deze pc onthoudt vandaag welke kaders open stonden en waar, zodat ze terugkomen als je terug naar Start gaat.
 'use strict';
 (function () {
@@ -53,7 +54,7 @@
     if (t.titel !== k.titel) { k.titel = t.titel; k.el.querySelector('.lv-kader-titel').textContent = `📡 ${t.titel}`; bewaar(); }
     const uit = LiveRaster.teken(t, {
       grens: grens(),
-      opKlik: l => { location.href = `/taken?taak=${encodeURIComponent(t.id)}&naam=${encodeURIComponent(l.naam)}`; },
+      opKlik: l => kijk(t, l),
     });
     r.replaceChildren(...uit.kaarten);
     k.el.querySelector('.lv-kader-samen').textContent = t.dicht ? `🔒 Afgesloten · ${uit.samen}` : uit.samen;
@@ -143,6 +144,92 @@
     nieuwKader(id, titel);
     bewaar();
     vraag();
+  }
+
+  // ---------- Even kijken naar het werk van één leerling (Jorn 26 nov: niet naar Taken gaan) ----------
+  // Een venster hier op het startscherm, alleen bekijken. Wat je erbij nodig hebt (de toets of het oefenblad tekenen)
+  // laadt pas bij de eerste klik, zodat het startscherm zelf licht blijft.
+  let hulpStukken = null;
+  function laadStukken() {
+    if (hulpStukken) return hulpStukken;
+    const css = href => { if (document.querySelector(`link[href="${href}"]`)) return; const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.append(l); };
+    const js = src => new Promise((ok, mis) => {
+      if (document.querySelector(`script[src="${src}"]`)) return ok();
+      const e = document.createElement('script');
+      e.src = src;
+      e.onload = ok;
+      e.onerror = mis;
+      document.body.append(e);
+    });
+    css('/proef.css');
+    hulpStukken = js('/js/ob-sheet.js').then(() => js('/js/pf-media.js')).then(() => js('/js/pf-paper.js')).catch(err => { hulpStukken = null; throw err; });
+    return hulpStukken;
+  }
+  let werk = null;
+  function werkVenster() {
+    if (werk) return werk;
+    const d = maak('dialog', 'ui-venster lv-werk');
+    const bar = maak('div', 'lv-werk-bar');
+    const h = maak('h2', 'lv-werk-titel');
+    const naarTaken = maak('a', 'button secondary', 'Meer in Taken');
+    naarTaken.title = 'Opnieuw openzetten, afwezig, tijd of niveau: in Mijn klas › Taken';
+    const sluit = maak('button', '', 'Sluiten');
+    sluit.type = 'button';
+    sluit.addEventListener('click', () => d.close());
+    const acties = maak('div', 'lv-werk-acties');
+    acties.append(naarTaken, sluit);
+    bar.append(h, acties);
+    const info = maak('p', 'muted small lv-werk-info');
+    const inhoud = maak('div', 'lv-werk-inhoud');
+    d.append(bar, info, inhoud);
+    // Klik naast het venster = sluiten.
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+    document.body.append(d);
+    werk = { d, h, info, inhoud, naarTaken };
+    return werk;
+  }
+  function kijk(t, l) {
+    const w = werkVenster();
+    w.h.textContent = `${l.naam} · ${t.titel}`;
+    w.info.textContent = '…';
+    w.inhoud.replaceChildren();
+    w.naarTaken.href = `/taken?taak=${encodeURIComponent(t.id)}&naam=${encodeURIComponent(l.naam)}`;
+    if (!w.d.open) w.d.showModal();
+    Promise.all([laadStukken(), new Promise(ok => socket.emit('tk-detail', { id: t.id, naam: l.naam }, ok))]).then(([, res]) => {
+      if (!res || res.error) { w.info.textContent = (res && res.error) || 'Dat lukte niet.'; return; }
+      const STATUS = { nieuw: 'Nog niet begonnen', bezig: 'Bezig', klaar: 'Klaar' };
+      const info = [STATUS[res.status] || res.status];
+      if (res.status !== 'nieuw') {
+        info.push(`${res.gedaan} van ${res.totaal} gedaan`);
+        if (res.soort === 'proef' && l.autoMax) info.push(`${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten van de computer${l.hand ? `, ${PfPaper.ptn(l.hand)} verbeter jij` : ''}`);
+        if (res.soort === 'quiz') info.push(`${res.juist} van ${res.score} juist`);
+      }
+      if (res.elders) info.push(`werkt op ${res.elders.pc}`);
+      if (res.afwezig) info.push('afwezig, haalt in');
+      w.info.textContent = info.join(' · ');
+      if (res.soort === 'proef') {
+        const a = maak('article', 'ob-paper pf-paper pf-print');
+        w.inhoud.append(a);
+        PfPaper.render(a, res.view.pages, { mode: 'view', nummer: true, answers: res.answers, sleutel: res.sleutel, zones: res.zones, punten: res.status === 'nieuw' ? null : res.punten });
+        if (res.afname) {
+          const v = maak('a', 'button secondary', '✔ Verbeteren bij De Proef');
+          v.href = `/proef?verbeter=${encodeURIComponent(res.afname)}`;
+          w.inhoud.append(v);
+        }
+      } else if (res.soort === 'oefenblad') {
+        const a = maak('article', 'ob-paper');
+        w.inhoud.append(a);
+        ObSheet.render(a, res.view, { mode: 'view', answers: res.answers, results: res.results, solutions: res.solutions });
+      } else if (!(res.vragen || []).length) {
+        w.inhoud.append(maak('p', 'muted', 'Nog geen vragen beantwoord.'));
+      } else {
+        for (const v of res.vragen) {
+          const r = maak('div', `lv-werk-vraag ${v.juist ? 'goed' : 'fout'}`);
+          r.append(maak('p', '', v.vraag), maak('p', 'small', v.juist ? `✔ ${v.goed}` : `✘ ${v.gekozen} · juist: ${v.goed}`));
+          w.inhoud.append(r);
+        }
+      }
+    }).catch(() => { w.info.textContent = 'Dat lukte niet. Probeer het nog eens.'; });
   }
 
   function init(s) {

@@ -6,5 +6,12 @@
  "Live: {0}": "Live: {0}",
  "Versleep het kader aan deze balk": "Drag the panel by this bar",
  "Live": "Live",
- "Groot openen in Taken": "Open large in Tasks"
+ "Groot openen in Taken": "Open large in Tasks",
+ "Meer in Taken": "More in Tasks",
+ "Opnieuw openzetten, afwezig, tijd of niveau: in Mijn klas › Taken": "Reopen, absent, time or level: in My class › Tasks",
+ "werkt op {0}": "working on {0}",
+ "afwezig, haalt in": "absent, catching up",
+ "Nog geen vragen beantwoord.": "No questions answered yet.",
+ "✘ {0} · juist: {1}": "✘ {0} · correct: {1}",
+ "Dat lukte niet. Probeer het nog eens.": "That didn't work. Please try again."
 }
