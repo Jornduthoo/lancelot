@@ -1627,13 +1627,14 @@ $('e-controle-knop').addEventListener('click', () => {
 
 // ---------- Reflectie na een toets (wens 25 nov, punt 10) ----------
 function reflSmiley(z) { return { 1: '😟', 2: '🙂', 3: '😃' }[z] || ''; }
-// Kort voor één leerling: 😃 · moeilijk: 3, 5 · "tekstje".
+// Kort voor één leerling: 😃 · moeilijk: "…" · goed: "…". Oude reflecties hebben nog vraagnummers (moeilijk: 3, 5).
 function reflKort(r) {
   const d = [];
   if (r.zeker) d.push(reflSmiley(r.zeker));
   if (r.niets) d.push('niets moeilijk');
   else if ((r.moeilijk || []).length) d.push(`moeilijk: ${r.moeilijk.join(', ')}`);
-  if (r.tekst) d.push(`"${r.tekst}"`);
+  if (r.tekst) d.push(`moeilijk: "${r.tekst}"`);
+  if (r.goed) d.push(`goed: "${r.goed}"`);
   return d.join(' · ');
 }
 // Per toets: hoeveel leerlingen hoe zeker waren, welke vragen het vaakst moeilijk waren, en wat ze schreven.
@@ -1644,6 +1645,6 @@ function reflOverzicht(a) {
   const vaak = new Map();
   for (const x of r) for (const n of x.moeilijk || []) vaak.set(n, (vaak.get(n) || 0) + 1);
   const top = [...vaak].sort((p, q) => q[1] - p[1] || p[0] - q[0]).slice(0, 5);
-  const teksten = r.filter(x => x.tekst);
-  return `<div class="pf-refl-overzicht"><strong>Reflectie</strong> <span class="muted">(${r.length} van ${a.spelers.length})</span>: 😃 ${tel(3)} · 🙂 ${tel(2)} · 😟 ${tel(1)}${top.length ? `<br>Vaakst moeilijk: ${top.map(([n, k]) => `vraag ${n} (${k}×)`).join(', ')}` : ''}${r.some(x => x.niets) ? `<br>Niets moeilijk: ${r.filter(x => x.niets).length}` : ''}${teksten.length ? `<details><summary>Wat ze schreven (${teksten.length})</summary><ul>${teksten.map(x => `<li><b>${esc(x.naam)}</b>: ${esc(x.tekst)}</li>`).join('')}</ul></details>` : ''}</div>`;
+  const teksten = r.filter(x => x.tekst || x.goed);
+  return `<div class="pf-refl-overzicht"><strong>Reflectie</strong> <span class="muted">(${r.length} van ${a.spelers.length})</span>: 😃 ${tel(3)} · 🙂 ${tel(2)} · 😟 ${tel(1)}${top.length ? `<br>Vaakst moeilijk: ${top.map(([n, k]) => `vraag ${n} (${k}×)`).join(', ')}` : ''}${r.some(x => x.niets) ? `<br>Niets moeilijk: ${r.filter(x => x.niets).length}` : ''}${teksten.length ? `<details><summary>Wat ze schreven (${teksten.length})</summary><ul>${teksten.map(x => `<li><b>${esc(x.naam)}</b>: ${x.tekst ? `moeilijk: ${esc(x.tekst)}` : ''}${x.tekst && x.goed ? ' · ' : ''}${x.goed ? `goed: ${esc(x.goed)}` : ''}</li>`).join('')}</ul></details>` : ''}</div>`;
 }

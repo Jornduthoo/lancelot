@@ -701,37 +701,22 @@ socket.on('hulp-stand', r => {
 });
 
 // ---------- Reflectie na een toets (wens 25 nov, punt 10) ----------
-// Hoe zeker was je (3 smileys) en wat vond je moeilijk (vraagnummers, "Niets" of een kort tekstje). Mag leeg blijven.
-const refl = { zeker: null, moeilijk: new Set(), niets: false };
+// Algemeen (Jorn 26 nov): hoe zeker was je (3 smileys), wat was moeilijk, wat ging goed. Mag leeg blijven.
+const refl = { zeker: null };
 function tkReflectie(t) {
   const r = t.reflectie;
   $('tk-reflectie').classList.toggle('hidden', !r);
   if (!r) return;
   const g = r.gedaan || {};
   refl.zeker = g.zeker || null;
-  refl.moeilijk = new Set(g.gezien || g.moeilijk || []);
-  refl.niets = !!g.niets;
   $('tk-refl-tekst').value = g.tekst || '';
+  $('tk-refl-goed').value = g.goed || '';
   $('tk-refl-ok').classList.toggle('hidden', !r.gedaan);
   $('tk-refl-stuur').textContent = r.gedaan ? 'Aanpassen' : 'Doorsturen';
-  const box = $('tk-refl-vragen');
-  box.innerHTML = '';
-  const chip = (tekst, aan, fn) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = tekst;
-    b.classList.toggle('on', aan);
-    b.addEventListener('click', () => { fn(); tkReflTeken(); });
-    box.append(b);
-    return b;
-  };
-  chip('Niets', refl.niets, () => { refl.niets = !refl.niets; if (refl.niets) refl.moeilijk.clear(); }).dataset.niets = '1';
-  for (let i = 1; i <= r.vragen; i++) chip(`Vraag ${i}`, refl.moeilijk.has(i), () => { if (refl.moeilijk.has(i)) refl.moeilijk.delete(i); else refl.moeilijk.add(i); refl.niets = false; }).dataset.nr = String(i);
   tkReflTeken();
 }
 function tkReflTeken() {
   for (const b of $('tk-refl-smileys').children) b.classList.toggle('on', Number(b.dataset.zeker) === refl.zeker);
-  for (const b of $('tk-refl-vragen').children) b.classList.toggle('on', b.dataset.niets ? refl.niets : refl.moeilijk.has(Number(b.dataset.nr)));
 }
 $('tk-refl-smileys').addEventListener('click', e => {
   const b = e.target.closest('[data-zeker]');
@@ -742,7 +727,7 @@ $('tk-refl-smileys').addEventListener('click', e => {
 $('tk-refl-stuur').addEventListener('click', () => {
   const t = tk.taak;
   if (!t) return;
-  socket.emit('tk-reflectie', { id: t.id, naam: tk.naam, zeker: refl.zeker, moeilijk: [...refl.moeilijk], niets: refl.niets, tekst: $('tk-refl-tekst').value }, res => {
+  socket.emit('tk-reflectie', { id: t.id, naam: tk.naam, zeker: refl.zeker, tekst: $('tk-refl-tekst').value, goed: $('tk-refl-goed').value }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
     if (t.reflectie) t.reflectie.gedaan = res.reflectie;
     $('tk-refl-ok').classList.remove('hidden');

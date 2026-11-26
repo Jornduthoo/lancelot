@@ -1300,6 +1300,7 @@ function reflTekst(r) {
   if (r.zeker) delen.push(`${reflSmiley(r.zeker)} ${reflWoord(r.zeker)}`);
   if (r.niets) delen.push('niets moeilijk');
   else if ((r.moeilijk || []).length) delen.push(`moeilijk: vraag ${r.moeilijk.join(', ')}`);
-  if (r.tekst) delen.push(`"${r.tekst}"`);
+  if (r.tekst) delen.push(`moeilijk: "${r.tekst}"`);
+  if (r.goed) delen.push(`goed: "${r.goed}"`);
   return delen.join(' · ');
 }

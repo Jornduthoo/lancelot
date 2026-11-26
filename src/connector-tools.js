@@ -257,8 +257,9 @@ function resultatenToets(arg = {}) {
   };
 }
 
-// Reflectie na een toets (wens 25 nov, punt 10): zeker = 1 niet zeker, 2 een beetje, 3 heel zeker; moeilijk = vraagnummers in de toets.
-const reflectieUit = r => ({ zeker: r.zeker || null, zeker_tekst: ({ 1: 'niet zeker', 2: 'een beetje zeker', 3: 'heel zeker' })[r.zeker] || null, moeilijk: r.niets ? [] : r.moeilijk || [], niets_moeilijk: !!r.niets, tekst: r.tekst || '' });
+// Reflectie na een toets (wens 25 nov, punt 10): zeker = 1 niet zeker, 2 een beetje, 3 heel zeker; wat moeilijk en wat goed ging.
+// Oude reflecties (tot 26 nov) hadden vraagnummers: moeilijke_vragen.
+const reflectieUit = r => ({ zeker: r.zeker || null, zeker_tekst: ({ 1: 'niet zeker', 2: 'een beetje zeker', 3: 'heel zeker' })[r.zeker] || null, wat_moeilijk: r.tekst || '', wat_goed: r.goed || '', ...((r.moeilijk || []).length || r.niets ? { moeilijke_vragen: r.niets ? [] : r.moeilijk, niets_moeilijk: !!r.niets } : {}) });
 
 // De punten van een toets als taak, uit de afname in De Proef (ook als ze automatisch verbeterd werd).
 function toetsPunten(taakId, k) {

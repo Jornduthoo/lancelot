@@ -205,5 +205,9 @@
  "Leerlingen vragen hulp: tik om te zien wie": "Pupils ask for help: tap to see who",
  "Wie eerst vroeg, staat bovenaan.": "Whoever asked first is at the top.",
  "+ nog 1 leerling": "+ 1 more pupil",
- "+ nog {0} leerlingen": "+ {0} more pupils"
+ "+ nog {0} leerlingen": "+ {0} more pupils",
+ "goed: {0}": "went well: {0}",
+ "Schrijf het kort (mag ook leeg)": "Write it briefly (may be left empty)",
+ "Wat was moeilijk?": "What was difficult?",
+ "Wat ging goed?": "What went well?"
 }
