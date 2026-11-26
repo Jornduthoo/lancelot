@@ -34,7 +34,7 @@ test('automatisch verbeterde toets als taak, dagen na het geven ingeleverd: punt
   fs.writeFileSync(path.join(A, 'proeven', 'lezen.json'), JSON.stringify({ title: 'Begrijpend lezen', vragen: [{ type: 'kort', vraag: 'Wie?', antwoord: 'ridder', punten: 2 }, { type: 'meerkeuze', vraag: 'Waar?', opties: ['burcht', 'bos'], juist: 0, punten: 1 }] }));
   const r = run(A, `
     klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
-    const t = taken.maak({ soort: 'proef', file: 'lezen.json', namen: ['Lotte'] });
+    const t = taken.maak({ soort: 'proef', file: 'lezen.json', namen: ['Lotte'], keuzesVast: true });
     taken.open({ id: t.id, naam: 'Lotte' });
     taken.toetsAntwoord({ id: t.id, naam: 'Lotte', vraag: '0', waarde: 'ridder' });
     taken.toetsAntwoord({ id: t.id, naam: 'Lotte', vraag: '1', waarde: 0 });
