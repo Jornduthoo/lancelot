@@ -66,7 +66,7 @@ met QR-code op het bord; de leerkracht leidt ze zelf in De Ronde Tafel; niet als
 
 Klas en klaarzetten naast de toetsen (`src/connector-klas.js`, wens 26 nov): lezen met `runenwoorden` (de woorden
 van de week van Het Runenraadsel), `ontdek_inhoud` (eigen weetjes en woorden van Het rijk van Lancelot en wie erin mag),
-`zorg_notities`, `leescheck` en `weekplanning` (De Zonnewijzer). Klaarzetten met `runenwoorden_toevoegen` (wat er staat
+`zorg_notities`, `leescheck` en `weekplanning` (De Zonnewijzer). `leescheck` leest wat Mijn klas › Lezen op deze pc toont; de Leescheck gaat mee met Mijn lesmap (map `leescheck`), dus wat op het digibord ingevuld werd komt ook op de klas-pc. Niets gevonden = een fout met uitleg, geen lege cellen. Klaarzetten met `runenwoorden_toevoegen` (wat er staat
 blijft, een bestaand woord wordt enkel aangevuld; gaat mee met Mijn lesmap), `runenwoord_wijzigen`, `weetjes_toevoegen`
 (meerkeuze-weetjes voor De Sterrenwacht en woorden voor De Woordenwachter), `ontdek_wijzigen`, `ontdek_toegang`,
 `leerling_niveau` (ook per vak), `zorg_notitie`, `eer_geven` en `les_plannen` (staat er al een les, dan veranderen enkel

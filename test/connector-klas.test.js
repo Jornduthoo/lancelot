@@ -48,6 +48,10 @@ test('runenwoorden, weetjes, niveau, zorg, Eer, Leescheck en weekplanning via de
     out.zl = (await roep('zorg_notities', {})).data;
     out.eer = (await roep('eer_geven', { namen: ['Lotte', 'Bram'], aantal: 3, reden: 'Goed samengewerkt' })).data;
     out.lc = await roep('leescheck', {});
+    const lezen = require('./src/lezen');
+    lezen.zet({ aan: true });
+    lezen.bewaar({ naam: 'Bram', boek: 'De Gruffalo', blz: 12, antwoord: 'Een muis liep door het bos.' });
+    out.lc2 = (await roep('leescheck', { dagen: 5 })).data;
     out.wp = (await roep('weekplanning', { week: '2026-W48' })).data;
     out.lp = (await roep('les_plannen', { week: '2026-W48', plek: '1-0', les: { vak: 'Rekenen', titel: 'Breuken', criteria: ['Ik vergelijk breuken.'] } })).data;
     out.lp2 = (await roep('les_plannen', { week: '2026-11-24', plek: '1-0', les: { notitie: 'Blokjes meenemen' } })).data;
@@ -88,7 +92,10 @@ test('runenwoorden, weetjes, niveau, zorg, Eer, Leescheck en weekplanning via de
   assert.equal(res.zl.leerlingen.length, 1);
   assert.equal(res.zl.leerlingen[0].notities[0].tekst, 'Werkt beter vooraan.');
   assert.equal(res.eer.gegeven, 2);
-  assert.equal(res.lc.fout, false);
+  assert.equal(res.lc.fout, true);
+  assert.match(res.lc.data, /geen enkele Leescheck/);
+  assert.equal(res.lc2.aan, true);
+  assert.equal(res.lc2.leerlingen.find(l => l.naam === 'Bram').gedaan, 1);
   assert.equal(res.wp.week, '2026-W48');
   assert.equal(res.wp.dagen.length, 5);
   assert.equal(res.wp.dagen[0].lesuren[0].plek, '1-0');
