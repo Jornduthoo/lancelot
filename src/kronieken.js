@@ -468,4 +468,8 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
+<<<<<<< HEAD
 module.exports = { actieveVan, zetActief, prullenbak, terugUitPrullenbak, DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+=======
+module.exports = { actieveVan, zetActief, DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+>>>>>>> 1c4fb78108b17353f2c430179e9d195d54c21f3d
