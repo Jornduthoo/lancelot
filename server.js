@@ -2476,6 +2476,16 @@ io.on('connection', socket => {
       return { count: l.trash(files) };
     }));
     socket.on('lib-import', lib((l, { text, folder }) => l.importBundle(text, folder || '')));
+    // Plots veel items zonder map (bv. een lege indeling uit een sync)? Dan zegt de lijst het, met terugzetten uit de dagkopie.
+    socket.on('lib-verlies', handle(({ kind } = {}) => {
+      if (!LIBS[kind] || kind === 'resultaat') return { verlies: null };
+      return { verlies: LIBS[kind].mod.lib.verlies() };
+    }));
+    socket.on('lib-herstel', lib((l, { dag }) => l.herstel(dag)));
+    socket.on('lib-klopt', handle(({ kind } = {}) => {
+      if (!LIBS[kind]) throw new Error('Onbekende soort.');
+      return LIBS[kind].mod.lib.kloptZo();
+    }));
     socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
     socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
     socket.on('save', handle(({ quiz, file, folder } = {}) => {

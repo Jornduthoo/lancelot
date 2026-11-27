@@ -1,0 +1,13 @@
+{
+ "{0} Terugzetten": "{0} Restaurar",
+ "Klopt zo": "Está bien así",
+ "1 {0} staat plots niet meer in een map.": "1 {0} de repente ya no está en una carpeta.",
+ "{0} {1} staan plots niet meer in hun map.": "{0} {1} de repente ya no están en su carpeta.",
+ "Zet ze terug in hun map zoals op {0}. Er wordt niets verwijderd.": "Los vuelve a poner en su carpeta como el {0}. No se borra nada.",
+ "{0} {1} terug in hun map.": "{0} {1} de nuevo en su carpeta.",
+ "Geen mappenlijst.": "No es una lista de carpetas.",
+ "De mappen zijn even niet te lezen. Probeer het zo opnieuw.": "Las carpetas no se pueden leer ahora. Inténtalo de nuevo en un momento.",
+ "Die kopie is er niet meer.": "Esa copia ya no existe.",
+ "Die kopie is niet te lezen.": "Esa copia no se puede leer.",
+ "Mijn lesmap ({0}): een bijna lege mappenindeling ({1} van {2} items zonder map) is niet overgenomen.": "Mi carpeta de clase ({0}): no se adoptó una organización de carpetas casi vacía ({1} de {2} elementos sin carpeta)."
+}

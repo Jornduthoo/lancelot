@@ -1,0 +1,13 @@
+{
+ "{0} Terugzetten": "{0} Restaurer",
+ "Klopt zo": "C'est correct",
+ "1 {0} staat plots niet meer in een map.": "1 {0} n'est soudain plus dans un dossier.",
+ "{0} {1} staan plots niet meer in hun map.": "{0} {1} ne sont soudain plus dans leur dossier.",
+ "Zet ze terug in hun map zoals op {0}. Er wordt niets verwijderd.": "Les remet dans leur dossier comme le {0}. Rien n'est supprimé.",
+ "{0} {1} terug in hun map.": "{0} {1} de retour dans leur dossier.",
+ "Geen mappenlijst.": "Pas une liste de dossiers.",
+ "De mappen zijn even niet te lezen. Probeer het zo opnieuw.": "Les dossiers sont momentanément illisibles. Réessaie dans un instant.",
+ "Die kopie is er niet meer.": "Cette copie n'existe plus.",
+ "Die kopie is niet te lezen.": "Cette copie est illisible.",
+ "Mijn lesmap ({0}): een bijna lege mappenindeling ({1} van {2} items zonder map) is niet overgenomen.": "Mon dossier de cours ({0}) : une répartition presque vide des dossiers ({1} sur {2} éléments sans dossier) n'a pas été reprise."
+}

@@ -2685,6 +2685,9 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .quiz-row .play .go { flex: none; }
 .lib-info.dubbel { color: var(--gold); }
 .lib-voorstel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px 10px; border-radius: 8px; background: rgb(var(--k-cyan) / .1); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
+.lib-verlies { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 10px 12px; border-radius: 8px; background: rgb(var(--k-goud, 240 180 60) / .14); box-shadow: inset 0 0 0 1px rgb(var(--k-goud, 240 180 60) / .55); font-weight: 600; }
+.lib-verlies-ic { font-size: 1.3rem; }
+.lib-verlies-tekst { flex: 1 1 220px; }
 .pf-puntenlijst { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; } .pf-puntenlijst select { padding: 3px 6px; }
 /* Niveaus: hele kolom, niet bij mij, eigen vakken (verbeterpunten 20 nov, 8). */
 .niveau-raster .k-kol { display: inline-block; position: relative; }

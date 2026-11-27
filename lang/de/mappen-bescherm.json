@@ -1,0 +1,13 @@
+{
+ "{0} Terugzetten": "{0} Wiederherstellen",
+ "Klopt zo": "Stimmt so",
+ "1 {0} staat plots niet meer in een map.": "1 {0} ist plötzlich in keinem Ordner mehr.",
+ "{0} {1} staan plots niet meer in hun map.": "{0} {1} sind plötzlich nicht mehr in ihrem Ordner.",
+ "Zet ze terug in hun map zoals op {0}. Er wordt niets verwijderd.": "Legt sie zurück in ihren Ordner wie am {0}. Nichts wird gelöscht.",
+ "{0} {1} terug in hun map.": "{0} {1} wieder in ihrem Ordner.",
+ "Geen mappenlijst.": "Keine Ordnerliste.",
+ "De mappen zijn even niet te lezen. Probeer het zo opnieuw.": "Die Ordner sind gerade nicht lesbar. Versuch es gleich noch einmal.",
+ "Die kopie is er niet meer.": "Diese Kopie gibt es nicht mehr.",
+ "Die kopie is niet te lezen.": "Diese Kopie ist nicht lesbar.",
+ "Mijn lesmap ({0}): een bijna lege mappenindeling ({1} van {2} items zonder map) is niet overgenomen.": "Mein Unterrichtsordner ({0}): eine fast leere Ordnereinteilung ({1} von {2} Elementen ohne Ordner) wurde nicht übernommen."
+}
