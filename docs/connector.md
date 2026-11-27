@@ -53,7 +53,7 @@ Klaarzetten: `toets_bewaren`, `toetsen_bewaren` (tot 50, verslag per toets), `to
 `vraag_toevoegen`, `vraag_wijzigen`, `vraag_verplaatsen`, `vraag_weghalen`, `toets_instellen`, `niveau_maken`,
 `beeld_toevoegen` (data-adres of https), `toets_terugzetten`, `quiz_maken`, `quiz_bijwerken`, `oefenblad_bewaren`,
 `map_maken`, `map_hernoemen`, `naar_map`, `taak_geven` (ook een quiz in een spel, gepland met `vanaf`, met `einddatum` en `tijdslimiet`),
-`taak_leerlingen_toevoegen`, `taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`,
+`taak_leerlingen_toevoegen`, `taak_verplaatsen`, `taak_keuzes`, `taak_intrekken`, `taak_heropenen`, `toets_openen` (op slot bij verlaten: de toets weer openen),
 `dagpresentatie_plaatsen`.
 
 Peilen (`src/connector-peilen.js`): lezen met `peilingen`, `peiling`, `peiling_resultaten` (gespeelde peilingen per

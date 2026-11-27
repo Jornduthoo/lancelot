@@ -86,3 +86,31 @@ test('op slot: standaard uit, keuze in Instellingen › Taken en in de connector
   assert.match(html, /id="tk-slotkeuze"/);
   assert.match(html, /id="kz-slot"/);
 });
+
+test('op slot via de connector: zien wie op slot staat en de toets weer openen', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-slot-c-'));
+  fs.mkdirSync(path.join(tmp, 'proeven'));
+  fs.writeFileSync(path.join(tmp, 'proeven', 'toets.json'), JSON.stringify(TOETS));
+  const r = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    const ct = require('./src/connector-tools');
+    const roep = (n, a) => ct.TOOLS.find(x => x.name === n).fn(a);
+    const g = roep('taak_geven', { file: 'toets.json', soort: 'proef', namen: ['Lotte', 'Mats'], beveiligd: false, op_slot: true });
+    for (const naam of ['Lotte', 'Mats']) { taken.open({ id: g.taak_id, naam }); taken.toetsAntwoord({ id: g.taak_id, naam, pos: 0 }); taken.verlaat({ id: g.taak_id, naam, soort: 'tab' }); }
+    const lijst = roep('taken', {}).taken[0];
+    const een = roep('toets_openen', { taak_id: g.taak_id, naam: 'Lotte' });
+    let fout = '';
+    try { roep('toets_openen', { taak_id: g.taak_id, naam: 'Lotte' }); } catch (e) { fout = e.message; }
+    const rest = roep('toets_openen', { taak_id: g.taak_id });
+    roep('taak_keuzes', { taak_id: g.taak_id, op_slot: false });
+    return { kz: g.keuzes.slot, bv: g.keuzes.beveiligd, opSlot: lijst.op_slot, ll: lijst.leerlingen.map(l => [l.op_slot, l.toets_verlaten]), een: een.geopend, fout, rest: rest.geopend, na: roep('taken', {}).taken[0].keuzes.slot };
+  `);
+  assert.equal(r.kz, true);
+  assert.equal(r.bv, true, 'op slot zet volledig scherm mee aan');
+  assert.deepEqual(r.opSlot, ['Lotte', 'Mats']);
+  assert.deepEqual(r.ll, [[true, 1], [true, 1]]);
+  assert.deepEqual(r.een, ['Lotte']);
+  assert.match(r.fout, /niet op slot/);
+  assert.deepEqual(r.rest, ['Mats']);
+  assert.equal(r.na, false);
+});
