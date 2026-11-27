@@ -9,6 +9,23 @@
     <p data-t="lkUitleg">Jij bent de leerkracht: hier bedien je de Chromebooks van je klas.</p>
     <button class="groot" id="paneel" data-t="lkKnop">Bedieningspaneel openen</button>
   </div>
+  <div id="koppel" class="hidden">
+    <p data-t="afstandVraag">Ook van thuis bedienen? Typ de code uit LANcelot (Namen › Chromebooks › Installeren).</p>
+    <input id="code" data-t-ph="codeVoorbeeld" placeholder="ABC 123" autocomplete="off" maxlength="8">
+    <button class="groot" id="koppelKnop" data-t="koppelKnop">Koppelen</button>
+  </div>
+  <div id="afstand" class="hidden">
+    <div class="schakels">
+      <button class="schakel" id="sTonen"><span class="sym">📋</span><span data-t="sTonen">Op het bord</span></button>
+      <button class="schakel" id="sVast"><span class="sym">🔒</span><span data-t="sVast">Vastzetten</span></button>
+      <button class="schakel" id="sBord"><span class="sym">👀</span><span data-t="sBord">Kijk naar het bord</span></button>
+    </div>
+    <button class="groot" id="terug" data-t="terugKnop">Iedereen terug naar LANcelot</button>
+    <form class="rij" id="linkForm"><input id="link" data-t-ph="linkVoorbeeld" placeholder="bingel.be" autocomplete="off"><button class="klein" data-t="openKnop">Openen</button></form>
+    <ul class="lijst" id="lijst"></ul>
+    <p class="melding" id="melding"></p>
+    <button class="link" id="los" data-t="losKnop">Deze Chrome loskoppelen</button>
+  </div>
   <p id="uitleg" data-t="uitleg">Je leerkracht ziet in LANcelot welke sites openstaan op deze Chromebook, alleen op school.</p>
   <div id="eigen" class="hidden">
     <p data-t="adresVraag">Adres van LANcelot:</p>

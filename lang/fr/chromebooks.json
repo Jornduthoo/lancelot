@@ -62,5 +62,17 @@
  "Content-Disposition": null,
  "attachment; filename=\"lancelot-chromebook-extensie.zip\"": null,
  "Chromebooks (alleen met de LANcelot-extensie):": "Chromebooks (uniquement avec l'extension LANcelot) :",
- "per schoolaccount welke sites openstonden (site en titel, nooit het volledige adres) en de surfgeschiedenis per dag, alleen op deze pc en standaard 30 dagen. Wissen kan in Namen › Chromebooks.": "par compte scolaire, les sites ouverts (site et titre, jamais l'adresse complète) et l'historique par jour, uniquement sur ce PC et 30 jours par défaut. Tu peux l'effacer dans Noms › Chromebooks."
+ "per schoolaccount welke sites openstonden (site en titel, nooit het volledige adres) en de surfgeschiedenis per dag, alleen op deze pc en standaard 30 dagen. Wissen kan in Namen › Chromebooks.": "par compte scolaire, les sites ouverts (site et titre, jamais l'adresse complète) et l'historique par jour, uniquement sur ce PC et 30 jours par défaut. Tu peux l'effacer dans Noms › Chromebooks.",
+ "Van overal bedienen": "Piloter de partout",
+ "Met de extensie in jouw Chrome bedien je de Chromebooks ook van thuis of een andere school: terugsturen, vastzetten, kijk naar het bord. De Chromebooks melden alleen op school.": "Avec l’extension dans ton Chrome, tu pilotes aussi les Chromebooks depuis la maison ou une autre école : renvoyer, verrouiller, regardez le tableau. Les Chromebooks ne signalent qu’à l’école.",
+ "🔑 Code om je Chrome te koppelen": "🔑 Code pour associer ton Chrome",
+ "Alle Chromes loskoppelen": "Dissocier tous les Chrome",
+ "Klik in jouw Chrome op het LANcelot-icoon en typ de code, op school. Thuis werkt het via het internetadres van de connector (Instellingen › Connector › Tunnel).": "Dans ton Chrome, clique sur l’icône LANcelot et tape le code, à l’école. À la maison, cela passe par l’adresse internet du connecteur (Paramètres › Connecteur › Tunnel).",
+ "1 Chrome gekoppeld.": "1 Chrome associé.",
+ "{0} Chromes gekoppeld.": "{0} Chrome associés.",
+ "Van buitenaf via {0}": "De l’extérieur via {0}",
+ "De tunnel staat uit: van buitenaf werkt het nu niet.": "Le tunnel est coupé : de l’extérieur, cela ne fonctionne pas pour l’instant.",
+ "Alle Chromes loskoppelen? Ze kunnen de Chromebooks dan niet meer van overal bedienen tot je opnieuw koppelt.": "Dissocier tous les Chrome ? Ils ne pourront plus piloter les Chromebooks de partout jusqu’à une nouvelle association.",
+ "Die code klopt niet. Maak een nieuwe code in LANcelot: Namen › Chromebooks › Installeren.": "Ce code n’est pas correct. Crée un nouveau code dans LANcelot : Noms › Chromebooks › Installer.",
+ "Deze Chrome is niet (meer) gekoppeld. Koppel opnieuw met een code van LANcelot.": "Ce Chrome n’est pas (ou plus) associé. Associe-le à nouveau avec un code de LANcelot."
 }

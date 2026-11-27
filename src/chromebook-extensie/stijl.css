@@ -59,3 +59,26 @@ body.venster { width: 340px; min-height: 0; padding: 0; background: radial-gradi
 .venster input { width: 100%; margin-top: 6px; padding: 9px 10px; border-radius: 10px; border: 1px solid rgb(var(--cyan) / .5); background: rgb(0 0 0 / .35); color: inherit; font: inherit; font-size: 14px; }
 .venster button.groot { width: 100%; margin-top: 12px; font-size: 15px; padding: 11px 20px; }
 .hidden { display: none !important; }
+
+/* Van overal bedienen: drie schakelaars, terug, een link en wie waar zit. */
+.schakels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+.schakel { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 12px; cursor: pointer; font: 600 12px 'Exo 2', system-ui, sans-serif; line-height: 1.15;
+  color: inherit; background: rgb(0 0 0 / .3); border: 1px solid rgb(var(--cyan) / .35); transition: background .15s, box-shadow .15s; }
+.schakel .sym { font-size: 20px; filter: grayscale(1) opacity(.7); }
+.schakel.aan { background: rgb(var(--goud) / .2); border-color: rgb(var(--goud)); box-shadow: 0 0 14px rgb(var(--goud) / .45); }
+.schakel.aan .sym { filter: none; }
+.rij { display: flex; gap: 6px; margin-top: 10px; }
+.rij input { margin-top: 0; }
+button.klein { flex: none; padding: 6px 12px; border-radius: 10px; border: 1px solid rgb(var(--goud) / .7); background: rgb(var(--goud) / .15); color: inherit; font: 600 14px 'Exo 2', system-ui, sans-serif; cursor: pointer; }
+.lijst { list-style: none; margin: 12px 0 0; padding: 0; max-height: 230px; overflow: auto; }
+.lijst li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; font-size: 14px; }
+.lijst li + li { margin-top: 3px; }
+.lijst li b { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lijst li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .65; }
+.lijst li.elders { background: rgb(var(--rood) / .14); border: 1px solid rgb(var(--rood) / .45); }
+.lijst li.elders span { opacity: 1; color: rgb(255 190 120); }
+.lijst li.leeg { opacity: .7; justify-content: center; }
+.lijst button.klein { padding: 3px 9px; }
+.melding:empty { display: none; }
+.melding { color: rgb(255 150 150); }
+button.link { display: block; margin: 12px auto 0; background: none; border: 0; color: inherit; opacity: .55; font: 600 12px 'Exo 2', system-ui, sans-serif; text-decoration: underline; cursor: pointer; }

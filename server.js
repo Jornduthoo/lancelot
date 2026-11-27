@@ -1669,7 +1669,9 @@ function naamOpIp(ip) {
   return '';
 }
 const cbServer = chromebooks.start({
-  io, pauze, naamOpIp,
+  io, pauze, naamOpIp, app, express, tunnel: connector.extraTunnel,
+  // Van overal bedienen gaat via de tunnel van de connector (Instellingen › Connector).
+  afstandAdres: () => { const t = connector.tunnelView(); return t.adres || (t.vast && t.vastAdres ? `https://${t.vastAdres}` : ''); },
   adres: () => {
     const voorkeur = settings.read().preferredAddress;
     const ip = voorkeur && lanAddresses().includes(voorkeur) ? voorkeur : ((echteKaart() || {}).address || lanAddresses()[0] || '127.0.0.1');

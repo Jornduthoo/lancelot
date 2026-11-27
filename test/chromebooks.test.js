@@ -106,3 +106,80 @@ test('de extensie: geldige manifest, alle talen hebben dezelfde teksten, de serv
   assert.match(server, /\/chromebooks\/extensie\.zip/);
   assert.match(server, /socket\.io\.min\.js/);
 });
+
+test('van overal bedienen: een code van het bord geeft één sleutel, foute codes en loskoppelen sluiten af', () => {
+  const A = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  const r = run(A, `
+    const fout = f => { try { f(); return null; } catch (e) { return e.message; } };
+    const geen = fout(() => cb.afstandKoppel('ABC123'));
+    const { code } = cb.nieuweAfstandCode();
+    const mis = fout(() => cb.afstandKoppel('ZZZZZZ'));
+    const sleutel = cb.afstandKoppel(code.slice(0, 3).toLowerCase() + ' ' + code.slice(3), 'jorn@school.be');
+    const tweeKeer = fout(() => cb.afstandKoppel(code));
+    const geldig = [cb.afstandGeldig(sleutel), cb.afstandGeldig('x'.repeat(43)), cb.afstandGeldig('')];
+    const view = cb.afstandView();
+    // Vijf foute pogingen: de code vervalt.
+    const c2 = cb.nieuweAfstandCode().code;
+    for (let i = 0; i < 5; i++) fout(() => cb.afstandKoppel('ZZZZZZ'));
+    const na5 = fout(() => cb.afstandKoppel(c2));
+    const bestand = require('fs').readFileSync(require('path').join(process.env.LANCELOT_DATA, 'chromebooks', 'afstand.json'), 'utf8');
+    cb.afstandIntrekken();
+    return { geen, mis, tweeKeer, geldig, view, na5, sleutelInBestand: bestand.includes(sleutel), lang: sleutel.length, daarna: cb.afstandGeldig(sleutel) };
+  `);
+  assert.match(r.geen, /klopt niet/);
+  assert.match(r.mis, /klopt niet/);
+  assert.match(r.tweeKeer, /klopt niet/);
+  assert.deepStrictEqual(r.geldig, [true, false, false]);
+  assert.deepStrictEqual(r.view, { gekoppeld: 1, code: null });
+  assert.match(r.na5, /klopt niet/);
+  assert.strictEqual(r.sleutelInBestand, false, 'alleen een hash op schijf');
+  assert.ok(r.lang >= 40);
+  assert.strictEqual(r.daarna, false);
+});
+
+test('van overal bedienen: de routes vragen een sleutel en geven geen e-mailadressen', async () => {
+  const A = fs.mkdtempSync(path.join(os.tmpdir(), 'cb-'));
+  process.env.LANCELOT_DATA = A;
+  for (const k of Object.keys(require.cache)) if (k.includes(`${path.sep}src${path.sep}`)) delete require.cache[k];
+  const express = require('express');
+  const http = require('http');
+  const klas = require('../src/klas');
+  const cb = require('../src/chromebooks');
+  klas.write({ naam: '6A', leerjaar: 6, namen: ['Noor'] });
+  const app = express();
+  const verstuurd = [];
+  const kanaal = { emit: (...a) => verstuurd.push(a), except: () => kanaal, to: () => kanaal, on: () => {} };
+  const io = { of: () => kanaal, to: () => kanaal };
+  let p = { aan: false, tekst: '' };
+  const pauze = { stand: () => p, zet: (aan, tekst) => (p = { aan, tekst }), opWijziging: () => {} };
+  cb.start({ io, pauze, naamOpIp: () => '', adres: () => 'http://10.0.0.1:3000', afstandAdres: () => 'https://klas.voorbeeld.be', app, express });
+  cb.koppel('noor@school.be', 'Noor');
+  cb.meld('s1', { email: 'noor@school.be', tabs: [{ id: 1, soort: 'web', host: 'spel.io', titel: 'Spel', actief: true }] });
+  const server = http.createServer(app).listen(0);
+  const basis = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const haal = (pad, { sleutel, body } = {}) => fetch(basis + pad, { method: body ? 'POST' : 'GET', headers: { ...(sleutel ? { Authorization: `Bearer ${sleutel}` } : {}), 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) })
+      .then(async r => ({ status: r.status, j: await r.json() }));
+    assert.strictEqual((await haal('/cb-afstand/stand')).status, 401);
+    const { code } = cb.nieuweAfstandCode();
+    const k = await haal('/cb-afstand/koppel', { body: { code } });
+    assert.strictEqual(k.j.adres, 'https://klas.voorbeeld.be');
+    const s = await haal('/cb-afstand/stand', { sleutel: k.j.sleutel });
+    assert.strictEqual(s.status, 200);
+    assert.deepStrictEqual(s.j.toestellen.map(t => [t.naam, t.host, t.elders]), [['Noor', 'spel.io', true]]);
+    assert.ok(!JSON.stringify(s.j).includes('@'), 'geen e-mailadressen');
+    const v = await haal('/cb-afstand/doe', { sleutel: k.j.sleutel, body: { actie: 'zet', vast: true, leerkrachten: 'x@y.be' } });
+    assert.strictEqual(v.j.instellingen.vast, true);
+    assert.deepStrictEqual(cb.instellingen().leerkrachten, [], 'alleen tonen en vast');
+    await haal('/cb-afstand/doe', { sleutel: k.j.sleutel, body: { actie: 'pauze', aan: true } });
+    assert.strictEqual(p.aan, true);
+    await haal('/cb-afstand/doe', { sleutel: k.j.sleutel, body: { actie: 'terug' } });
+    assert.ok(verstuurd.some(a => a[0] === 'terug'));
+    assert.strictEqual((await haal('/cb-afstand/doe', { sleutel: k.j.sleutel, body: { actie: 'wis' } })).status, 400);
+    cb.afstandIntrekken();
+    assert.strictEqual((await haal('/cb-afstand/stand', { sleutel: k.j.sleutel })).status, 401);
+  } finally {
+    server.close();
+    cb.schrijfNu();
+  }
+});

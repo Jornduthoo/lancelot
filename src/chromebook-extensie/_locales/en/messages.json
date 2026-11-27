@@ -49,5 +49,53 @@
  },
  "lkKnop": {
   "message": "Open control panel"
+ },
+ "afstandVraag": {
+  "message": "Control from home too? At school, type the code from LANcelot here (Names › Chromebooks › Install)."
+ },
+ "codeVoorbeeld": {
+  "message": "ABC 123"
+ },
+ "koppelKnop": {
+  "message": "Link"
+ },
+ "sTonen": {
+  "message": "On the board"
+ },
+ "sVast": {
+  "message": "Lock"
+ },
+ "sBord": {
+  "message": "Look at the board"
+ },
+ "terugKnop": {
+  "message": "Everyone back"
+ },
+ "linkVoorbeeld": {
+  "message": "Link for everyone, e.g. bingel.be"
+ },
+ "openKnop": {
+  "message": "Open"
+ },
+ "losKnop": {
+  "message": "Unlink this Chrome"
+ },
+ "vanOveral": {
+  "message": "Connected remotely"
+ },
+ "geenAdres": {
+  "message": "LANcelot cannot be reached: not connected at school and no internet address (turn on the tunnel in Settings › Connector)."
+ },
+ "nietBereikbaar": {
+  "message": "LANcelot cannot be reached right now. Is the class PC on?"
+ },
+ "losgekoppeld": {
+  "message": "This Chrome was unlinked. Link again with a code."
+ },
+ "geenChromebooks": {
+  "message": "No Chromebooks connected."
+ },
+ "terugEen": {
+  "message": "Back to LANcelot"
  }
 }

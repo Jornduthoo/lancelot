@@ -49,5 +49,53 @@
  },
  "lkKnop": {
   "message": "Ouvrir le panneau"
+ },
+ "afstandVraag": {
+  "message": "Piloter aussi depuis la maison ? À l’école, tape ici le code de LANcelot (Noms › Chromebooks › Installer)."
+ },
+ "codeVoorbeeld": {
+  "message": "ABC 123"
+ },
+ "koppelKnop": {
+  "message": "Associer"
+ },
+ "sTonen": {
+  "message": "Au tableau"
+ },
+ "sVast": {
+  "message": "Verrouiller"
+ },
+ "sBord": {
+  "message": "Regardez le tableau"
+ },
+ "terugKnop": {
+  "message": "Tout le monde revient"
+ },
+ "linkVoorbeeld": {
+  "message": "Lien pour tous, p. ex. bingel.be"
+ },
+ "openKnop": {
+  "message": "Ouvrir"
+ },
+ "losKnop": {
+  "message": "Dissocier ce Chrome"
+ },
+ "vanOveral": {
+  "message": "Connecté à distance"
+ },
+ "geenAdres": {
+  "message": "LANcelot est injoignable : pas connecté à l’école et pas d’adresse internet (active le tunnel dans Paramètres › Connecteur)."
+ },
+ "nietBereikbaar": {
+  "message": "LANcelot est injoignable pour le moment. Le PC de la classe est-il allumé ?"
+ },
+ "losgekoppeld": {
+  "message": "Ce Chrome a été dissocié. Associe-le à nouveau avec un code."
+ },
+ "geenChromebooks": {
+  "message": "Aucun Chromebook connecté."
+ },
+ "terugEen": {
+  "message": "Retour à LANcelot"
  }
 }
