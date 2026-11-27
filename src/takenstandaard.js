@@ -13,7 +13,8 @@ const FILE = () => path.join(DIR(), 'standaard.json');
 // het verbeteren, meteen groen of rood bij een oefenblad, en een geplande taak start om half negen.
 // Een toets als taak opent beveiligd (volledig scherm, wegklikken gemeld): zo werkt ook een afname op het bord.
 // Wens van 24 nov: voorlezen voor iedereen, alles in volgorde en de punten tonen na het inleveren.
-const STANDAARD = { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, feedback: 'direct', startuur: '08:30' };
+// Op slot bij verlaten (wens 27 nov) staat standaard uit: wie wegklikt, wordt dan alleen gemeld.
+const STANDAARD = { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, slot: false, feedback: 'direct', startuur: '08:30' };
 const KEUZES = {
   voorlees: ['uit', 'page', 'iedereen'],
   volgorde: ['schud', 'vragen', 'alles'],
@@ -28,6 +29,7 @@ function schoon(d, volledig) {
   for (const [k, lijst] of Object.entries(KEUZES)) if (lijst.includes(x[k])) uit[k] = x[k];
   if (typeof x.uitslag === 'boolean') uit.uitslag = x.uitslag;
   if (typeof x.beveiligd === 'boolean') uit.beveiligd = x.beveiligd;
+  if (typeof x.slot === 'boolean') uit.slot = x.slot;
   if (UUR.test(String(x.startuur || ''))) uit.startuur = x.startuur;
   return volledig ? { ...STANDAARD, ...uit } : uit;
 }

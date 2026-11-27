@@ -1,0 +1,20 @@
+{
+ "Wie de toets verlaat, kan pas verder als jij de toets weer opent (Taken of 📡 Live).": "Quien sale de la prueba solo puede seguir cuando tú vuelvas a abrirla (Tareas o 📡 En vivo).",
+ "🔒 Op slot als een leerling de toets verlaat": "🔒 Bloquear cuando un alumno sale de la prueba",
+ "🔒 Op slot · tik om te openen": "🔒 Bloqueado · toca para abrir",
+ "Verliet de toets: tik om de toets weer te openen": "Salió de la prueba: toca para volver a abrirla",
+ "{0} verliet de toets. De toets weer openen?": "{0} salió de la prueba. ¿Volver a abrirla?",
+ "🔓 Openen": "🔓 Abrir",
+ "Op slot bij verlaten 🔒 (toets)": "Bloquear al salir 🔒 (prueba)",
+ "volledig scherm, op slot bij verlaten": "pantalla completa, bloqueo al salir",
+ "Op slot: klik om de toets weer te openen": "Bloqueado: haz clic para volver a abrir la prueba",
+ "🔓 Openen ({0})": "🔓 Abrir ({0})",
+ "De toets weer openen voor {0} op slot?": "¿Volver a abrir la prueba para {0} bloqueado(s)?",
+ "de leerling": "el alumno",
+ "de {0} leerlingen": "los {0} alumnos",
+ "· op slot: klik om de toets weer te openen": "· bloqueado: haz clic para volver a abrirla",
+ "· 🔒 op slot": "· 🔒 bloqueado",
+ "De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.": "La prueba se abre en pantalla completa. Si sales de la prueba (otra pestaña, ventana o sin pantalla completa), tu prueba se bloquea hasta que tu docente la vuelva a abrir.",
+ "Je toets staat op slot. Wacht tot je leerkracht hem weer opent.": "Tu prueba está bloqueada. Espera a que tu docente la vuelva a abrir.",
+ "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Pantalla completa: quien sale de la prueba queda bloqueado hasta que tú la abras"
+}

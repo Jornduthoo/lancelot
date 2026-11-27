@@ -55,6 +55,7 @@
     const uit = LiveRaster.teken(t, {
       grens: grens(),
       opKlik: l => kijk(t, l),
+      opOpen: l => window.TkOpen && TkOpen(socket, t.id, l.naam),
     });
     r.replaceChildren(...uit.kaarten);
     k.el.querySelector('.lv-kader-samen').textContent = t.dicht ? `🔒 Afgesloten · ${uit.samen}` : uit.samen;

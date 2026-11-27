@@ -1,0 +1,20 @@
+{
+ "Wie de toets verlaat, kan pas verder als jij de toets weer opent (Taken of 📡 Live).": "Wer den Test verlässt, kann erst weitermachen, wenn du den Test wieder öffnest (Aufgaben oder 📡 Live).",
+ "🔒 Op slot als een leerling de toets verlaat": "🔒 Sperren, wenn ein Kind den Test verlässt",
+ "🔒 Op slot · tik om te openen": "🔒 Gesperrt · tippen zum Öffnen",
+ "Verliet de toets: tik om de toets weer te openen": "Hat den Test verlassen: tippen, um den Test wieder zu öffnen",
+ "{0} verliet de toets. De toets weer openen?": "{0} hat den Test verlassen. Den Test wieder öffnen?",
+ "🔓 Openen": "🔓 Öffnen",
+ "Op slot bij verlaten 🔒 (toets)": "Sperren beim Verlassen 🔒 (Test)",
+ "volledig scherm, op slot bij verlaten": "Vollbild, gesperrt beim Verlassen",
+ "Op slot: klik om de toets weer te openen": "Gesperrt: klicken, um den Test wieder zu öffnen",
+ "🔓 Openen ({0})": "🔓 Öffnen ({0})",
+ "De toets weer openen voor {0} op slot?": "Den Test wieder öffnen für {0} mit Sperre?",
+ "de leerling": "das Kind",
+ "de {0} leerlingen": "die {0} Kinder",
+ "· op slot: klik om de toets weer te openen": "· gesperrt: klicken, um den Test wieder zu öffnen",
+ "· 🔒 op slot": "· 🔒 gesperrt",
+ "De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.": "Der Test öffnet im Vollbild. Verlässt du den Test (anderer Tab, anderes Fenster oder Vollbild aus), wird dein Test gesperrt, bis deine Lehrkraft ihn wieder öffnet.",
+ "Je toets staat op slot. Wacht tot je leerkracht hem weer opent.": "Dein Test ist gesperrt. Warte, bis deine Lehrkraft ihn wieder öffnet.",
+ "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Vollbild: Wer den Test verlässt, ist gesperrt, bis du ihn öffnest"
+}

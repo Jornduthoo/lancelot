@@ -81,7 +81,10 @@ function wanneer() {
 $('tk-wanneer').addEventListener('change', () => { wanneer(); stdInfo(); });
 // Standaardkeuzes (Instellingen › Taken): voorlezen, volgorde, punten tonen, verbeteren en startuur, per vak.
 // Wat je hier zelf verandert, blijft staan tot je een taak gaf (ook als je een andere toets kiest).
-const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', beveiligd: 'tk-beveiligd', feedback: 'tk-feedback' };
+const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', beveiligd: 'tk-beveiligd', slot: 'tk-slotkeuze', feedback: 'tk-feedback' };
+// Op slot kan alleen bij volledig scherm: het ene volgt het andere.
+$('tk-slotkeuze').addEventListener('change', () => { if ($('tk-slotkeuze').checked && !$('tk-beveiligd').checked) { $('tk-beveiligd').checked = true; tk.zelf.add('beveiligd'); } });
+$('tk-beveiligd').addEventListener('change', () => { if (!$('tk-beveiligd').checked && $('tk-slotkeuze').checked) { $('tk-slotkeuze').checked = false; tk.zelf.add('slot'); } });
 tk.std = null;
 tk.zelf = new Set();
 for (const [k, id] of Object.entries(STD_VELDEN)) $(id).addEventListener('change', () => { tk.zelf.add(k); stdInfo(); });
@@ -98,7 +101,7 @@ function pasStandaardToe() {
   if (!s) return;
   for (const [k, id] of Object.entries(STD_VELDEN)) {
     if (tk.zelf.has(k) || s[k] === undefined) continue;
-    if (k === 'uitslag' || k === 'beveiligd') $(id).checked = !!s[k]; else $(id).value = s[k];
+    if (k === 'uitslag' || k === 'beveiligd' || k === 'slot') $(id).checked = !!s[k]; else $(id).value = s[k];
   }
   stdInfo();
 }
@@ -112,10 +115,10 @@ function stdInfo() {
   const box = $('tk-standaard-info');
   if (!s || !$('tk-bron').value) { box.innerHTML = ''; return; }
   const delen = tk.soort === 'proef'
-    ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren', s.beveiligd === false ? 'niet op volledig scherm' : 'volledig scherm']
+    ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren', s.beveiligd === false ? 'niet op volledig scherm' : s.slot ? 'volledig scherm, op slot bij verlaten' : 'volledig scherm']
     : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback], STD_TEKST.voorlees[s.voorlees], s.uitslag ? 'punten tonen na het inleveren' : 'geen punten tonen'] : [];
   if ($('tk-wanneer').value === 'later') delen.push(`start om ${s.startuur}`);
-  const anders = [...tk.zelf].filter(k => (k === 'feedback' ? tk.soort === 'oefenblad' : k === 'volgorde' || k === 'beveiligd' ? tk.soort === 'proef' : tk.soort !== 'quiz')).length;
+  const anders = [...tk.zelf].filter(k => (k === 'feedback' ? tk.soort === 'oefenblad' : k === 'volgorde' || k === 'beveiligd' || k === 'slot' ? tk.soort === 'proef' : tk.soort !== 'quiz')).length;
   box.innerHTML = '';
   if (!delen.length) return;
   box.append(`⚙️ ${s.vak ? `Volgens je standaard voor ${s.vak}` : 'Volgens je standaard'}: ${delen.join(', ')}${anders ? ' (je veranderde hier iets)' : ''}. `);
@@ -201,7 +204,7 @@ function vulBron() {
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
   // Voorlezen en punten tonen bij een toets én een oefenblad; een oefenblad blijft altijd in zijn volgorde.
   for (const id of ['tk-vl-label', 'tk-us-label', 'tk-tijd-label']) $(id).classList.toggle('hidden', tk.soort === 'quiz');
-  for (const id of ['tk-vv-label', 'tk-bv-label', 'tk-rf-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  for (const id of ['tk-vv-label', 'tk-bv-label', 'tk-sl-label', 'tk-rf-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
   $('tk-vv-blad').classList.toggle('hidden', tk.soort !== 'oefenblad');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
@@ -570,7 +573,7 @@ $('tk-geef').addEventListener('click', async () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, slot: $('tk-beveiligd').checked && $('tk-slotkeuze').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       // Eén herkansing: de volgende taak die je hier geeft, is weer een gewone.
       if (!res.error && tk.herkansing) { tk.herkansing = null; const i = document.querySelector('.tk-herk-info'); if (i) i.remove(); }
@@ -580,7 +583,7 @@ $('tk-geef').addEventListener('click', async () => {
       const nog = () => {
         if (!rest.length) return volgende();
         const [niveau, wie] = rest.shift();
-        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen }, r2 => {
+        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, slot: $('tk-beveiligd').checked && $('tk-slotkeuze').checked, reflectie: $('tk-reflectie').checked, tot: einde || undefined, tijd, pogingen }, r2 => {
           if (r2.error) fouten.push(r2.error);
           nog();
         });
@@ -663,14 +666,15 @@ function tekenTaken() {
     const rij = el('div', 'tk-nu-rij');
     for (const { t, l } of nu) {
       // Hoe ver de leerling is, als "7 van 10 gedaan" met een balkje: "7/10" lijkt op een punt.
-      const b = el('button', 'tk-nu-ll', `${l.naam} · ${t.titel} · `);
+      const b = el('button', 'tk-nu-ll', `${l.opSlot ? '🔒 ' : ''}${l.naam} · ${t.titel} · `);
       b.append(el('span', '', `${l.gedaan} van ${l.totaal} gedaan`));
       const balk = el('span', 'tk-ll-balk tk-nu-balk');
       balk.appendChild(el('i')).style.width = `${l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
       b.append(balk);
       b.type = 'button';
       if (l.elders) b.title = `Werkt op ${l.elders}`;
-      b.addEventListener('click', () => toonDetail(t.id, l.naam));
+      if (l.opSlot) b.title = 'Op slot: klik om de toets weer te openen';
+      b.addEventListener('click', () => (l.opSlot ? LiveRaster.open(socket, t.id, l.naam) : toonDetail(t.id, l.naam)));
       rij.appendChild(b);
     }
     p.appendChild(rij);
@@ -759,7 +763,7 @@ function kaart(t) {
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   if (t.na) titel.append(el('small', 'tk-taak-na', `⏭ Verschijnt per leerling als ${t.na.weg ? 'de vorige taak' : `"${t.na.titel}" (${(t.na.niveaus || []).map(n => Niveau.NAMES[n]).join(', ')})`} af is`));
-  if (t.soort === 'proef' && t.beveiligd) titel.append(el('small', 'tk-taak-bv', '🛡 Volledig scherm: je ziet wie de toets verlaat'));
+  if (t.soort === 'proef' && t.beveiligd) titel.append(el('small', 'tk-taak-bv', t.slot ? '🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent' : '🛡 Volledig scherm: je ziet wie de toets verlaat'));
   // Einddatum en tijdslimiet (wens 25 nov).
   if (t.tot && !t.dicht) titel.append(el('small', 'tk-taak-tot', `⏳ Sluit vanzelf: ${totTekst(t.tot)}`));
   if (t.dicht && t.vanzelfDicht) titel.append(el('small', 'tk-taak-tot', '⏳ Vanzelf gesloten op de einddatum'));
@@ -797,6 +801,11 @@ function kaart(t) {
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   // Beveiligd aan of uit, ook voor een toets die al loopt: wie werkt, krijgt het meteen.
   if (t.soort === 'proef' && !t.dicht) knopje(t.beveiligd ? '🛡 Volledig scherm: aan' : '🛡 Volledig scherm: uit', () => socket.emit('tk-beveiligd', { id: t.id, aan: !t.beveiligd }, uit), t.beveiligd ? 'secondary on' : 'secondary');
+  // Op slot bij verlaten: iedereen die op slot staat in één keer weer toelaten.
+  const opSlot = t.leerlingen.filter(l => l.opSlot).length;
+  if (opSlot) knopje(`🔓 Openen (${opSlot})`, async () => {
+    if (await Ui.vraag(`De toets weer openen voor ${opSlot === 1 ? 'de leerling' : `de ${opSlot} leerlingen`} op slot?`, { ja: '🔓 Openen', nee: 'Nee' })) socket.emit('tk-ontgrendel', { id: t.id }, uit);
+  }, 'gold');
   // De keuzes achteraf veranderen, ook als de taak al loopt of afgesloten is (bv. de punten alsnog tonen).
   knopje('⚙️ Instellingen', () => keuzes(t));
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
@@ -829,6 +838,7 @@ function kaart(t) {
       if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
       // Verliet de beveiligde toets: hoe vaak (de details staan bij de leerling en bij de resultaten).
       if (l.weg) naam.append(el('span', 'tk-ll-weg', ` ⚠ ${l.weg}×`));
+      if (l.opSlot) naam.append(el('span', 'tk-ll-weg', ' 🔒'));
       // Tijdslimiet: een eigen tijd (anders dan de taak), en wie inleverde omdat de tijd om was.
       if (l.tijd && l.tijd !== t.tijd) naam.append(el('span', 'tk-ll-tijd', ` ⏱${l.tijd}′`));
       if (l.tijdOp) naam.append(el('span', 'tk-ll-tijd', ' ⏱ om'));
@@ -847,8 +857,9 @@ function kaart(t) {
       if (l.weg) b.title += ` · verliet de toets ${l.weg}×`;
       if (l.rest !== undefined) b.title += ` · nog ${Math.ceil(l.rest / 60000)} min`;
       if (l.tijdOp) b.title += ' · leverde in: de tijd was om';
+      if (l.opSlot) b.title += ' · op slot: klik om de toets weer te openen';
       b.append(naam, s, balk);
-      b.addEventListener('click', () => toonDetail(t.id, l.naam));
+      b.addEventListener('click', () => (l.opSlot ? LiveRaster.open(socket, t.id, l.naam) : toonDetail(t.id, l.naam)));
       rij.appendChild(b);
     }
   };
@@ -869,9 +880,18 @@ socket.on('tk-alarm', a => {
     document.body.appendChild(n);
   }
   n.textContent = `⚠ ${a.naam} verliet de toets "${a.titel}" (${WEG_SOORT[a.soort] || a.soort})`;
+  if (a.slot) n.append(el('span', '', ' · 🔒 op slot'));
+  // Op slot: meteen weer openen kan hier.
+  n.classList.toggle('knop', !!(a.slot && a.id));
+  if (a.slot && a.id) {
+    const b = el('button', 'gold small-btn', '🔓 Openen');
+    b.type = 'button';
+    b.addEventListener('click', () => { n.classList.remove('aan'); socket.emit('tk-ontgrendel', { id: a.id, naam: a.naam }, uit); });
+    n.append(' ', b);
+  }
   n.classList.add('aan');
   clearTimeout(n.timer);
-  n.timer = setTimeout(() => n.classList.remove('aan'), 8000);
+  n.timer = setTimeout(() => n.classList.remove('aan'), a.slot ? 20000 : 8000);
 });
 
 function uit(res) {
@@ -1187,6 +1207,8 @@ function keuzes(t) {
     $('kz-uitslag').checked = !!k.uitslag;
     $('kz-rf-label').classList.toggle('hidden', k.soort !== 'proef');
     $('kz-reflectie').checked = k.reflectie !== false;
+    $('kz-sl-label').classList.toggle('hidden', k.soort !== 'proef');
+    $('kz-slot').checked = !!k.slot;
     $('kz-uitleg').textContent = quiz ? 'Met een einddatum sluit de quiz vanzelf. Met meer pogingen mag de leerling na het inleveren zelf opnieuw.' : k.bezig
       ? `Voorlezen, punten tonen en de tijdslimiet gelden meteen, ook voor wie al bezig is. ${blad ? 'Verbeteren' : 'De volgorde'} verandert alleen voor wie nog niet begon.`
       : 'Je kan dit veranderen zolang de taak bestaat.';
@@ -1205,7 +1227,7 @@ $('kz-ok').addEventListener('click', () => {
   if (k.soort !== 'quiz') {
     Object.assign(d, { voorlees: $('kz-voorlees').value, uitslag: $('kz-uitslag').checked, tijd: Number($('kz-tijd').value) || null });
     if (k.soort === 'oefenblad') d.feedback = $('kz-feedback').value; else d.volgorde = $('kz-volgorde').value;
-    if (k.soort === 'proef') d.reflectie = $('kz-reflectie').checked;
+    if (k.soort === 'proef') Object.assign(d, { reflectie: $('kz-reflectie').checked, slot: $('kz-slot').checked });
   }
   socket.emit('tk-keuzes', d, res => { if (res && res.error) Ui.melding(res.error); });
 });

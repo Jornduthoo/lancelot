@@ -17,8 +17,8 @@ test('takenstandaard: goede standaard, een uitzondering per vak, ongeldige keuze
   `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
   const o = JSON.parse(out);
   assert.strictEqual(o.nieuw.bewaard, false);
-  assert.deepStrictEqual(o.nieuw.algemeen, { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, feedback: 'direct', startuur: '08:30' });
-  assert.deepStrictEqual(o.na.algemeen, { voorlees: 'uit', volgorde: 'alles', uitslag: true, beveiligd: true, feedback: 'direct', startuur: '08:30' });
+  assert.deepStrictEqual(o.nieuw.algemeen, { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, slot: false, feedback: 'direct', startuur: '08:30' });
+  assert.deepStrictEqual(o.na.algemeen, { voorlees: 'uit', volgorde: 'alles', uitslag: true, beveiligd: true, slot: false, feedback: 'direct', startuur: '08:30' });
   assert.deepStrictEqual(Object.keys(o.na.vakken), ['frans']);
   assert.strictEqual(o.frans.voorlees, 'iedereen');
   assert.strictEqual(o.frans.startuur, '10:15');
@@ -37,7 +37,7 @@ test('takenstandaard: een standaard van vroeger krijgt één keer de nieuwe goed
     process.stdout.write('\\n@@' + JSON.stringify({ eerst, daarna: s.read() }));
   `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
   const o = JSON.parse(out);
-  assert.deepStrictEqual(o.eerst.algemeen, { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, feedback: 'inleveren', startuur: '09:00' });
+  assert.deepStrictEqual(o.eerst.algemeen, { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, slot: false, feedback: 'inleveren', startuur: '09:00' });
   assert.strictEqual(o.eerst.vakken.frans.voorlees, 'uit', 'een uitzondering per vak blijft');
   assert.strictEqual(o.daarna.algemeen.voorlees, 'page', 'daarna blijft je eigen keuze staan');
 });

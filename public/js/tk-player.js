@@ -363,7 +363,7 @@ function tkToets(t) {
       ...(t.tijd ? ['Je mag terug naar vorige vragen.'] : []),
       ...(t.tot ? [`De toets sluit ${tkWanneer(t.tot)}.`] : []),
       'Lever in als je klaar bent. Je leerkracht verbetert je toets.',
-      ...(t.beveiligd ? ['De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan ziet je leerkracht dat.'] : []),
+      ...(t.beveiligd ? [t.slot ? 'De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.' : 'De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan ziet je leerkracht dat.'] : []),
     ].map(r => `<li>${tkEsc(r)}</li>`).join('');
     return $('tk-toets-intro').classList.remove('hidden');
   }
@@ -375,6 +375,9 @@ function tkToets(t) {
   if (!tk.toetsGestart && t.bezig) {
     tk.toetsGestart = true;
     tkWeg('herladen');
+  } else if (t.opSlot) {
+    tk.weg = true;
+    tkOpSlot();
   } else if (!tkInScherm()) tkSlot(false);
 }
 $('tk-toets-start').addEventListener('click', async () => {
@@ -383,7 +386,11 @@ $('tk-toets-start').addEventListener('click', async () => {
   if (tk.taak.beveiligd) await tkNaarScherm();
   // Was hij al begonnen (nog zonder antwoorden) en opent hij de toets opnieuw: dat ziet de leerkracht ook.
   if (tk.taak.beveiligd && tk.taak.bezig) {
-    socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort: 'herladen' }, () => socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {}));
+    socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort: 'herladen' }, res => {
+      // Op slot bij verlaten: eerst wachten tot de leerkracht de toets weer opent.
+      if (res && res.slot) { tk.weg = true; tkBewaak(true); return tkOpSlot(); }
+      socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {});
+    });
   }
   // Zo ziet de leerkracht meteen dat hij begonnen is. Met een tijdslimiet loopt de klok vanaf nu.
   const id = tk.taak.id;
@@ -473,6 +480,7 @@ function tkBewaak(aan) {
   $('tk-back').classList.toggle('hidden', aan);
   if (!aan) {
     tk.weg = false;
+    tk.opSlot = false;
     $('tk-slot').classList.add('hidden');
   }
 }
@@ -480,6 +488,25 @@ function tkSlot(weg) {
   $('tk-slot-icoon').textContent = weg ? '⚠️' : '🛡';
   $('tk-slot-titel').textContent = weg ? 'Je verliet de toets' : 'Toets op het volledige scherm';
   $('tk-slot-tekst').textContent = weg ? 'Je leerkracht ziet dat. Je antwoorden zijn bewaard. Blijf nu in de toets.' : 'Je toets gaat verder op het volledige scherm. Blijf in de toets tot je inlevert.';
+  $('tk-verder').classList.remove('hidden');
+  $('tk-slot').classList.remove('hidden');
+}
+// Op slot (wens 27 nov): geen knop om verder te gaan, de leerkracht opent de toets weer.
+function tkOpSlot() {
+  tk.opSlot = true;
+  $('tk-slot-icoon').textContent = '🔒';
+  $('tk-slot-titel').textContent = 'Je toets staat op slot';
+  $('tk-slot-tekst').textContent = 'Je verliet de toets. Je leerkracht ziet dat en zet je toets weer open. Wacht rustig.';
+  $('tk-verder').classList.add('hidden');
+  $('tk-slot').classList.remove('hidden');
+}
+function tkVrij() {
+  if (!tk.opSlot) return;
+  tk.opSlot = false;
+  $('tk-slot-icoon').textContent = '🔓';
+  $('tk-slot-titel').textContent = 'Je leerkracht opende je toets weer';
+  $('tk-slot-tekst').textContent = 'Je kan verder werken. Blijf nu in de toets.';
+  $('tk-verder').classList.remove('hidden');
   $('tk-slot').classList.remove('hidden');
 }
 function tkWeg(soort) {
@@ -487,7 +514,7 @@ function tkWeg(soort) {
   tk.weg = true;
   // Wat de leerling net typte, eerst bewaren.
   if ($('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
-  socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort }, () => {});
+  socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort }, res => { if (res && res.slot && tk.weg) tkOpSlot(); });
   tkSlot(true);
 }
 function tkTerug() {
@@ -496,6 +523,7 @@ function tkTerug() {
   socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {});
 }
 $('tk-verder').addEventListener('click', async () => {
+  if (tk.opSlot) return;
   await tkNaarScherm();
   $('tk-slot').classList.add('hidden');
   tkTerug();
@@ -521,9 +549,17 @@ socket.on('tk-beveiligd', d => {
   const t = tk.taak;
   if (!d || !t || t.soort !== 'proef' || t.id !== d.id || t.klaar) return;
   t.beveiligd = !!d.aan;
+  if (tk.opSlot && t.beveiligd) return;
   if (tk.scherm !== 'toets' || $('tk-toets-werk').classList.contains('hidden')) return;
   if (t.beveiligd) { tkBewaak(true); if (!tkInScherm()) tkSlot(false); }
   else { tkBewaak(false); tkUitScherm(); }
+});
+
+const tkSleutel = n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase();
+// De leerkracht opende de toets weer (of zette "op slot" uit).
+socket.on('tk-ontgrendeld', d => {
+  const t = tk.taak;
+  if (d && t && t.id === d.id && (d.namen || []).some(n => tkSleutel(n) === tkSleutel(tk.naam))) tkVrij();
 });
 
 // ---------- Live ----------
@@ -544,7 +580,11 @@ socket.on('tk-voorlees', d => {
 socket.on('tk-keuzes', d => {
   if (d && tk.taak && tk.taak.id === d.id && tk.taak.klaar && tk.scherm !== 'lijst' && tk.scherm !== 'join') tkOpen(d.id);
   // Een andere tijdslimiet of einddatum: de klok bijwerken (zonder het werk opnieuw te tonen).
-  else if (d && tk.taak && tk.taak.id === d.id && !tk.taak.klaar) tkRest();
+  else if (d && tk.taak && tk.taak.id === d.id && !tk.taak.klaar) {
+    tkRest();
+    // Op slot uitgezet terwijl hij wacht: hij mag meteen verder.
+    if (tk.opSlot) socket.emit('tk-open', { id: d.id, naam: tk.naam }, res => { if (res && !res.error && !res.opSlot) tkVrij(); });
+  }
 });
 socket.on('tk-nieuw', () => {
   if (tk.scherm === 'lijst') tkLijst();

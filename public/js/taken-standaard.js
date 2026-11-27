@@ -7,12 +7,13 @@
     { k: 'volgorde', kop: 'Volgorde (toets)', opties: [['schud', 'Alles door elkaar'], ['vragen', 'Vragen in volgorde'], ['alles', 'Alles in volgorde']] },
     { k: 'uitslag', kop: 'Punten tonen', opties: [['nee', 'Na het verbeteren'], ['ja', 'Meteen na het inleveren']] },
     { k: 'beveiligd', kop: 'Volledig scherm 🛡 (toets)', opties: [['ja', 'Aan'], ['nee', 'Uit']] },
+    { k: 'slot', kop: 'Op slot bij verlaten 🔒 (toets)', opties: [['nee', 'Uit'], ['ja', 'Aan']] },
     { k: 'feedback', kop: 'Verbeteren (oefenblad)', opties: [['direct', 'Meteen'], ['inleveren', 'Na het inleveren']] },
     { k: 'startuur', kop: 'Startuur (gepland)', uur: true },
   ];
   let data = null;
   const LEEG = 'Leeg = standaard';
-  const JANEE = ['uitslag', 'beveiligd'];
+  const JANEE = ['uitslag', 'beveiligd', 'slot'];
   const waarde = (v, k) => (JANEE.includes(k) ? (v === undefined ? undefined : v ? 'ja' : 'nee') : v);
   function teken() {
     const rij = (id, naam, v, vak) => `<tr data-rij="${id}"><th>${naam}</th>${VELDEN.map(f => {
