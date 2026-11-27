@@ -56,7 +56,9 @@
       case 'taak_intrekken': return `Taak ${t} ingetrokken`;
       case 'taak_heropenen': return `Taak ${t} heropend`;
       case 'toets_openen': return `Toets ${t} weer geopend voor ${r.n} ${r.n === 1 ? 'leerling' : 'leerlingen'}`;
-      case 'dagpresentatie_plaatsen': return `Dagpresentatie "${r.naam}" geplaatst`;
+      case 'dagpresentatie_plaatsen': return r.vervangen ? `Dagpresentatie "${r.naam}" vervangen` : `Dagpresentatie "${r.naam}" geplaatst`;
+      case 'dagpresentatie_weghalen': return `Dagpresentatie "${r.naam}" naar de prullenbak`;
+      case 'dagpresentatie_terugzetten': return r.naam ? `Dagpresentatie "${r.naam}" teruggezet` : 'Prullenbak van de dagpresentaties bekeken';
       case 'vraag_toevoegen': return `Toets ${t}: vraag ${r.nr} toegevoegd`;
       case 'vraag_wijzigen': return `Toets ${t}: vraag ${r.nr} gewijzigd`;
       case 'vraag_verplaatsen': return `Toets ${t}: vraag ${r.nr} verplaatst`;

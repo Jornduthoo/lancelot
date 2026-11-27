@@ -109,8 +109,17 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
     connector.presentatieKiezen(pres.data.naam);
     const gekozen = connector.presentatieVan();
     const leesGekozen = await roep('dagpresentatie', {});
+    // Vervangen, weghalen, terugzetten (wens 27 nov, punt 2).
+    const verv = await roep('dagpresentatie_plaatsen', { vervang: pres2.data.naam, html: '<!doctype html><body><section class="dia"><h1>Nieuw</h1></section></body>' });
+    const na = (await roep('dagpresentaties', {})).data.presentaties.map(x => x.naam);
+    const leesVerv = (await roep('dagpresentatie', { naam: pres2.data.naam })).data.html;
+    const weg = await roep('dagpresentatie_weghalen', { naam: pres2.data.naam });
+    const naWeg = (await roep('dagpresentaties', {})).data.presentaties.map(x => x.naam);
+    const bak = (await roep('dagpresentatie_terugzetten', {})).data.in_prullenbak;
+    const terug = await roep('dagpresentatie_terugzetten', { prullenbak_naam: weg.data.in_prullenbak });
+    const naTerug = (await roep('dagpresentaties', {})).data.presentaties.map(x => x.naam);
     const versies = require('fs').readdirSync(require('path').join(proeven.DIR, '_versies')).length;
-    return { pres3: pres3.data, pres4, lees3: lees3.data.html, lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, gekozen, leesGekozen: leesGekozen.data.naam, versies };
+    return { pres3: pres3.data, pres4, lees3: lees3.data.html, lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, gekozen, leesGekozen: leesGekozen.data.naam, versies, verv: verv.data, na, leesVerv, weg: weg.data, naWeg, bak, terug: terug.data, naTerug };
   `);
   assert.equal(res.lezen.fout, true);
   assert.match(res.lezen.data, /alleen lezen/);
@@ -135,6 +144,18 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
   // De leerkracht kiest een andere versie: die staat in Vandaag en de tool "dagpresentatie" leest ze.
   assert.equal(res.gekozen.naam, res.pres.naam);
   assert.equal(res.leesGekozen, res.pres.naam);
+  // Vervangen: zelfde naam, geen extra versie, meteen actief, oude in de prullenbak.
+  assert.equal(res.verv.vervangen, true);
+  assert.equal(res.verv.naam, res.pres2.naam);
+  assert.equal(res.na.length, 2);
+  assert.match(res.leesVerv, /Nieuw/);
+  assert.ok(res.verv.oude_in_prullenbak);
+  // Weghalen: naar de prullenbak, de andere versie wordt actief; terugzetten brengt ze terug.
+  assert.deepEqual(res.naWeg, [res.pres.naam]);
+  assert.equal(res.weg.nu_actief, res.pres.naam);
+  assert.ok(res.bak.some(b => b.prullenbak === res.weg.in_prullenbak && b.naam === res.pres2.naam));
+  assert.equal(res.terug.naam, res.pres2.naam);
+  assert.equal(res.naTerug.length, 2);
   const ro = Object.fromEntries(res.tools);
   assert.equal(ro.toetsen, true);
   assert.equal(ro.taak_geven, false);

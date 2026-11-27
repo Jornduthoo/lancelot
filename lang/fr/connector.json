@@ -96,5 +96,10 @@
  "Mijn lesmap gesynchroniseerd": "Mon dossier de cours synchronisé",
  "Kies welke dagpresentatie vandaag actief is.": "Choisissez la présentation du jour active aujourd'hui.",
  "✓ Deze dagpresentatie staat nu klaar.": "✓ Cette présentation du jour est prête.",
- "Ongeldige datum.": "Date non valide."
+ "Ongeldige datum.": "Date non valide.",
+ "Dagpresentatie \"{0}\" vervangen": "Présentation du jour « {0} » remplacée",
+ "Dagpresentatie \"{0}\" naar de prullenbak": "Présentation du jour « {0} » mise à la corbeille",
+ "Dagpresentatie \"{0}\" teruggezet": "Présentation du jour « {0} » restaurée",
+ "Prullenbak van de dagpresentaties bekeken": "Corbeille des présentations du jour consultée",
+ "Dat bestand staat niet (meer) in de prullenbak.": "Ce fichier n'est plus dans la corbeille."
 }

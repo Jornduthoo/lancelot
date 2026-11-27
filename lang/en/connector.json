@@ -96,5 +96,10 @@
  "Mijn lesmap gesynchroniseerd": "My lesson folder synchronised",
  "Kies welke dagpresentatie vandaag actief is.": "Choose which daily presentation is active today.",
  "✓ Deze dagpresentatie staat nu klaar.": "✓ This daily presentation is now ready.",
- "Ongeldige datum.": "Invalid date."
+ "Ongeldige datum.": "Invalid date.",
+ "Dagpresentatie \"{0}\" vervangen": "Daily presentation \"{0}\" replaced",
+ "Dagpresentatie \"{0}\" naar de prullenbak": "Daily presentation \"{0}\" moved to the bin",
+ "Dagpresentatie \"{0}\" teruggezet": "Daily presentation \"{0}\" restored",
+ "Prullenbak van de dagpresentaties bekeken": "Looked at the bin of the daily presentations",
+ "Dat bestand staat niet (meer) in de prullenbak.": "That file is no longer in the bin."
 }
