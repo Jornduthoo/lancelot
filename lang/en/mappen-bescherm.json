@@ -1,0 +1,13 @@
+{
+ "{0} Terugzetten": "{0} Restore",
+ "Klopt zo": "That's right",
+ "1 {0} staat plots niet meer in een map.": "1 {0} is suddenly no longer in a folder.",
+ "{0} {1} staan plots niet meer in hun map.": "{0} {1} are suddenly no longer in their folder.",
+ "Zet ze terug in hun map zoals op {0}. Er wordt niets verwijderd.": "Puts them back in their folder as on {0}. Nothing is deleted.",
+ "{0} {1} terug in hun map.": "{0} {1} back in their folder.",
+ "Geen mappenlijst.": "Not a folder list.",
+ "De mappen zijn even niet te lezen. Probeer het zo opnieuw.": "The folders can't be read right now. Try again in a moment.",
+ "Die kopie is er niet meer.": "That copy no longer exists.",
+ "Die kopie is niet te lezen.": "That copy can't be read.",
+ "Mijn lesmap ({0}): een bijna lege mappenindeling ({1} van {2} items zonder map) is niet overgenomen.": "My lesson folder ({0}): a nearly empty folder layout ({1} of {2} items without a folder) was not taken over."
+}

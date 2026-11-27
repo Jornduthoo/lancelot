@@ -10,6 +10,7 @@ const path = require('path');
 const gegevens = require('./gegevens');
 const crypto = require('crypto');
 const settings = require('./settings');
+const { dagKopie, KOPIE } = require('./library');
 
 // Wat we bij de vorige keer zagen, om te weten wat aan welke kant veranderd of verwijderd is.
 const STATE = gegevens.pad('lesmap-sync.json');
@@ -26,6 +27,8 @@ let perSoort = {};
 let overzicht = () => ({});
 // Wanneer een ander toestel voor het laatst een _mappen.json zonder tijden schreef (een oude LANcelot): dan zeggen we het.
 let oudToestel = 0;
+// Wanneer Mijn lesmap voor het laatst een bijna lege mappenindeling weigerde (zie beschermIndeling).
+let beschermd = null;
 const OUD_DAGEN = 7;
 
 // opties.voortgang: wordt opgeroepen tijdens het kopiëren van grote bestanden (de bordboeken), om dat te tonen.
@@ -106,7 +109,8 @@ function mergeMeta(lm, rm, seen) {
     const [hier, daar] = lF.has(f) ? [lm, rm] : [rm, lm];
     const bij = tijdVan(hier, 'mapTijd', f), weg = tijdVan(daar, 'weg', f);
     if (bij || weg) return bij > weg;
-    return lNieuw && rNieuw ? true : voorkeur === hier;
+    // Zonder tijd is "ontbreekt aan de andere kant" geen verwijderen: de map blijft (liever een map te veel dan kwijt).
+    return true;
   }).sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
   // Bestanden: de kant met de laatste verplaatsing wint.
   const place = {};
@@ -116,13 +120,67 @@ function mergeMeta(lm, rm, seen) {
     if (l === r) f = l;
     else {
       const tl = tijdVan(lm, 'tijd', file), tr = tijdVan(rm, 'tijd', file);
-      f = tl || tr ? (tr > tl ? r : l) : voorkeur.place[file];
+      // Zonder tijd aan geen van beide kanten: een map aan de ene kant en niets aan de andere is geen "uit de map
+      // gehaald" (dat krijgt altijd een tijd), maar een indeling die daar ontbreekt. Dan blijft het in zijn map.
+      if (tl || tr) f = tr > tl ? r : l;
+      else if (!l || !r) f = l || r;
+      else f = voorkeur.place[file];
     }
     if (typeof f === 'string' && f) place[file] = f;
   }
   const extra = {};
   if (Array.isArray(lm.gezien) || Array.isArray(rm.gezien)) extra.gezien = [...new Set([...(lm.gezien || []), ...(rm.gezien || [])])].filter(f => typeof f === 'string');
+  const bewust = Math.max(Number(lm.bewust) || 0, Number(rm.bewust) || 0);
+  if (bewust) extra.bewust = bewust;
   return { ...rm, ...lm, ...extra, folders, place, tijd: max('tijd'), mapTijd: max('mapTijd'), weg: max('weg') };
+}
+
+// Nooit een (bijna) lege indeling over een grote laten gaan. Fout van 2026-11-27: een lege _mappen.json op één pc
+// werd gesynchroniseerd en 778 quizzen stonden overal los. Verliest het resultaat meer dan de helft van de items in een
+// map (en minstens 20), dan moet de kant met minder items dat zelf gedaan hebben (bewust: een map verwijderd of items
+// uit een map gehaald) na de plaatsen die verdwijnen. Anders houden we de grote indeling, met wat de andere kant
+// daarna nog verplaatste. De geweigerde versie blijft bewaard in _mappen-kopie/.
+const BESCHERM_MIN = 20;
+function telGeplaatst(m, exists) {
+  if (!m) return [];
+  const folders = new Set(m.folders);
+  return Object.entries(m.place).filter(([file, f]) => typeof f === 'string' && folders.has(f) && FILE_RE.test(file) && exists(file));
+}
+function beschermIndeling(meta, lm, rm, exists, local, soort) {
+  if (!lm || !rm) return meta;
+  const groot = telGeplaatst(lm, exists).length >= telGeplaatst(rm, exists).length ? lm : rm;
+  const klein = groot === lm ? rm : lm;
+  const voor = telGeplaatst(groot, exists);
+  if (voor.length < BESCHERM_MIN) return meta;
+  const naSet = new Set(telGeplaatst(meta, exists).map(([f]) => f));
+  const weg = voor.filter(([f]) => !naSet.has(f));
+  if (weg.length < BESCHERM_MIN || naSet.size >= voor.length / 2) return meta;
+  const laatst = Math.max(0, ...weg.map(([f]) => Number(groot.tijd[f]) || 0));
+  if (Number(klein.bewust) >= laatst && Number(klein.bewust) > 0) return meta;
+  // Geweigerd: de grote indeling blijft, plus wat de kleine kant later nog in een map zette.
+  const uit = { ...meta, folders: [...groot.folders], place: { ...groot.place } };
+  const kleinMappen = new Set(klein.folders);
+  for (const [file, f] of Object.entries(klein.place)) {
+    if (typeof f !== 'string' || !kleinMappen.has(f)) continue;
+    if ((Number(klein.tijd[file]) || 0) > (Number(groot.tijd[file]) || 0)) uit.place[file] = f;
+  }
+  for (const f of klein.folders) if (!uit.folders.includes(f) && (Number(klein.mapTijd[f]) || 0) > (Number(groot.weg[f]) || 0)) uit.folders.push(f);
+  // Wat we zo bewaarden, krijgt een nieuwe tijd: dan wint het ook op de andere pc's van de lege versie.
+  const nu = Math.max(Date.now(), ...weg.map(([f]) => (Number(klein.tijd[f]) || 0) + 1));
+  uit.tijd = { ...meta.tijd };
+  for (const [f] of weg) if (uit.place[f]) uit.tijd[f] = nu;
+  uit.mapTijd = { ...meta.mapTijd };
+  uit.weg = { ...meta.weg };
+  for (const f of groot.folders) if (!meta.folders.includes(f)) { uit.mapTijd[f] = nu; delete uit.weg[f]; }
+  uit.folders.sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
+  try {
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    fs.mkdirSync(path.join(local, KOPIE), { recursive: true });
+    fs.writeFileSync(path.join(local, KOPIE, `geweigerd-${klein === lm ? 'hier' : 'lesmap'}-${stamp}.json`), klein.text);
+  } catch {}
+  console.warn(`Mijn lesmap (${soort}): een bijna lege mappenindeling (${weg.length} van ${voor.length} items zonder map) is niet overgenomen.`);
+  beschermd = { soort, at: Date.now(), los: weg.length };
+  return uit;
 }
 
 function schrijfNu(dir, name, text) {
@@ -271,12 +329,19 @@ async function syncKind(kind, root, state, count) {
   // Kwam er een _mappen.json zonder tijden binnen, terwijl wij er de vorige keer een met tijden schreven? Dan schreef
   // een ander toestel met een oude LANcelot hem. Samenvoegen gaat goed, maar zeg het: dat toestel moet bijgewerkt worden.
   if (rm && rm.oud && seenMeta && rm.hash !== seenMeta) oudToestel = Date.now();
-  const meta = lm && rm && lm.hash !== rm.hash ? mergeMeta(lm, rm, seenMeta) : lm || rm;
+  let meta = lm && rm && lm.hash !== rm.hash ? mergeMeta(lm, rm, seenMeta) : lm || rm;
   if (meta) {
-    const place = {};
+    // Elke dag een kopie van de indeling op deze pc, voor we er iets aan veranderen.
+    dagKopie(local);
     // Ook een bestand dat pas tijdens deze ronde binnenkwam (bv. een import) houdt zijn map, en ook een bestand dat
     // hier (nog) niet binnenkon (bv. gemaakt met een nieuwere versie van LANcelot): anders springt het op de andere pc terug.
-    const exists = file => next[file] || fs.existsSync(path.join(local, file)) || fs.existsSync(path.join(remote, file));
+    const existsMemo = new Map();
+    const exists = file => {
+      if (!existsMemo.has(file)) existsMemo.set(file, !!(next[file] || fs.existsSync(path.join(local, file)) || fs.existsSync(path.join(remote, file))));
+      return existsMemo.get(file);
+    };
+    meta = beschermIndeling(meta, lm, rm, exists, local, kind.kind);
+    const place = {};
     for (const [file, f] of Object.entries(meta.place)) if (FILE_RE.test(file) && exists(file) && meta.folders.includes(f)) place[file] = f;
     const { text: _t, hash: _h, oud: _o, ...rest } = meta;
     const text = JSON.stringify({ ...rest, folders: meta.folders, place }, null, 2) + '\n';
@@ -548,7 +613,7 @@ function view() {
   try { extra = overzicht() || {}; } catch {}
   const soorten = kinds.map(k => k.kind).filter(k => perSoort[k] && (perSoort[k].binnen || perSoort[k].fout) || extra[k])
     .map(k => ({ soort: k, ...(perSoort[k] || {}), ...(extra[k] ? { van: extra[k] } : {}) }));
-  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status, ...oud, soorten };
+  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status, ...oud, ...(beschermd ? { beschermd } : {}), soorten };
 }
 
 const boekenAan = () => settings.read().lesmapBoeken !== false;

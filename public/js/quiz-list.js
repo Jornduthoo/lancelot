@@ -631,6 +631,46 @@ const ItemList = (() => {
       return el;
     }
 
+    // Staan er plots veel items niet meer in hun map (bv. na een sync)? Eén zin, met terugzetten uit de kopie van die dag.
+    let verlies = null;
+    const vraagVerlies = () => {
+      if (kiezen || k.bestanden) return;
+      socket.emit('lib-verlies', { kind }, res => {
+        const v = res && res.verlies;
+        if (JSON.stringify(v || null) === JSON.stringify(verlies)) return;
+        verlies = v || null;
+        render();
+      });
+    };
+    function verliesBalk() {
+      const el = document.createElement('div');
+      el.className = 'lib-verlies';
+      el.setAttribute('role', 'alert');
+      const datum = new Date(`${verlies.dag}T12:00:00`).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long' });
+      el.innerHTML = `<span class="lib-verlies-ic" aria-hidden="true">⚠</span><span class="lib-verlies-tekst"></span>
+        <button type="button" class="small-btn lib-verlies-terug">${Ui.ic('upload')} Terugzetten</button>
+        <button type="button" class="secondary small-btn lib-verlies-ok">Klopt zo</button>`;
+      el.querySelector('.lib-verlies-tekst').textContent = verlies.los === 1 ? `1 ${k.one} staat plots niet meer in een map.` : `${verlies.los} ${k.many} staan plots niet meer in hun map.`;
+      el.querySelector('.lib-verlies-terug').title = `Zet ze terug in hun map zoals op ${datum}. Er wordt niets verwijderd.`;
+      el.querySelector('.lib-verlies-terug').addEventListener('click', () => {
+        socket.emit('lib-herstel', { kind, dag: verlies.dag }, res => {
+          if (res && res.error) return error(res);
+          verlies = null;
+          note = `${res.terug} ${res.terug === 1 ? k.one : k.many} terug in hun map.`;
+          render();
+          vraagVerlies();
+        });
+      });
+      el.querySelector('.lib-verlies-ok').addEventListener('click', () => {
+        socket.emit('lib-klopt', { kind }, res => {
+          if (res && res.error) return error(res);
+          verlies = null;
+          render();
+        });
+      });
+      return el;
+    }
+
     function render() {
       if (!items) return;
       // Bestaat de open map niet meer (verwijderd, of alles leeggemaakt), dan sta je weer bovenaan.
@@ -662,6 +702,7 @@ const ItemList = (() => {
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
+      if (verlies) box.appendChild(verliesBalk());
       if (k.filters && items.length) box.appendChild(filterBar());
       if (k.filters && !kiezen && items.length) { const v = voorstel(); if (v) box.appendChild(v); }
       if (typing) search.focus();
@@ -708,6 +749,7 @@ const ItemList = (() => {
     socket.on(k.list, list => {
       items = list;
       render();
+      vraagVerlies();
       if (kind === 'quiz' && !kiezen && !opts.beheer) startUitAdres(items, opts.play, error, box);
     });
   }

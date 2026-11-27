@@ -38,6 +38,68 @@ function stempel(oud, meta, now) {
   meta.weg = vers(weg, () => false);
 }
 
+// Het bestand zelf: geldig maken wat er staat (een kapot veld wordt leeg, de rest blijft).
+function metaUit(meta) {
+  if (!meta || typeof meta !== 'object' || Array.isArray(meta)) throw new Error('Geen mappenlijst.');
+  const out = { ...meta, folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' && !Array.isArray(meta.place) ? meta.place : {} };
+  if (Array.isArray(meta.gezien)) out.gezien = meta.gezien.filter(f => typeof f === 'string');
+  else delete out.gezien;
+  return out;
+}
+
+// Per _mappen.json: de laatste inhoud die we goed lazen of zelf schreven.
+const laatsteGoed = new Map();
+const wacht = new Int32Array(new SharedArrayBuffer(4));
+const slaap = ms => { try { Atomics.wait(wacht, 0, 0, ms); } catch {} };
+
+// Eerst naar een tijdelijk bestand, dan in één keer vervangen: nooit een half geschreven _mappen.json.
+function schrijfVeilig(file, text) {
+  const tmp = `${file}.tmp`;
+  fs.writeFileSync(tmp, text);
+  for (let poging = 0; ; poging++) {
+    try { fs.renameSync(tmp, file); return; } catch (err) {
+      if (poging >= 5 || !['EPERM', 'EBUSY', 'EACCES'].includes(err.code)) throw err;
+      slaap(60);
+    }
+  }
+}
+
+// Elke dag een kopie van _mappen.json (zoals hij stond voor de eerste wijziging van die dag), in _mappen-kopie/.
+// Die map gaat nooit naar Mijn lesmap. We houden de kopieën van de laatste 60 dagen.
+const KOPIE = '_mappen-kopie';
+const KOPIE_RE = /^_mappen-(\d{4}-\d{2}-\d{2})\.json$/;
+const BEWAAR_KOPIE = 60;
+const dagVan = (t = Date.now()) => {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+function kopieen(map) {
+  try {
+    return fs.readdirSync(path.join(map, KOPIE)).map(n => (KOPIE_RE.exec(n) || [])[1]).filter(Boolean).sort().reverse()
+      .map(dag => ({ dag, file: path.join(map, KOPIE, `_mappen-${dag}.json`) }));
+  } catch {
+    return [];
+  }
+}
+function dagKopie(map) {
+  const bron = path.join(map, '_mappen.json');
+  const doel = path.join(map, KOPIE, `_mappen-${dagVan()}.json`);
+  if (fs.existsSync(doel)) return;
+  let text;
+  try { text = fs.readFileSync(bron, 'utf8'); metaUit(JSON.parse(text)); } catch { return; }
+  try {
+    fs.mkdirSync(path.join(map, KOPIE), { recursive: true });
+    fs.writeFileSync(doel, text);
+    for (const oud of kopieen(map).slice(BEWAAR_KOPIE)) fs.unlinkSync(oud.file);
+  } catch {}
+}
+
+// Hoeveel items staan in een map (een map die ook bestaat), voor bestanden die er nog zijn.
+function geplaatst(meta, bestaat) {
+  const folders = new Set(meta.folders || []);
+  return Object.entries(meta.place || {}).filter(([file, f]) => folders.has(f) && bestaat(file));
+}
+
 // kind: 'quiz', 'oefenblad', 'sessie' of 'proef' (een toets). checkFile, load, save, validate en list komen uit de module zelf.
 // dir mag ook een functie zijn (de resultaten: elke klas haar eigen map).
 function library({ kind, dir: map, checkFile, load, save, validate, list }) {
@@ -47,22 +109,43 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
 
   // _mappen.json: de mappen (folders), de map van elk bestand (place), en wanneer dat veranderde (tijd per bestand,
   // mapTijd/weg per map). Met die tijden voegt Mijn lesmap twee pc's per bestand samen: de laatste verplaatsing wint.
-  function readMeta() {
-    try {
-      const meta = JSON.parse(fs.readFileSync(META(), 'utf8'));
-      const out = { ...meta, folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
-      if (Array.isArray(meta.gezien)) out.gezien = meta.gezien.filter(f => typeof f === 'string');
-      else delete out.gezien;
-      return out;
-    } catch {
-      return { folders: [], place: {} };
+  // Nooit doen alsof er geen mappen zijn omdat het bestand even niet te lezen was (OneDrive of een virusscanner houdt het
+  // vast, of het wordt net vervangen). Fout van 2026-11-27: zo'n lege lezing werd bij de volgende wijziging bewaard, en
+  // Mijn lesmap zette die lege indeling op elke pc: 778 quizzen stonden los. Nu: opnieuw proberen, dan de laatste goede
+  // lezing (of de kopie van vandaag), en lukt ook dat niet, dan liever een foutmelding dan een lege indeling bewaren.
+  function readMeta(streng = true) {
+    const file = META();
+    for (let poging = 0; poging < 4; poging++) {
+      let text;
+      try {
+        text = fs.readFileSync(file, 'utf8');
+      } catch (err) {
+        if (err.code === 'ENOENT' && !laatsteGoed.has(file)) return { folders: [], place: {} };
+        slaap(40);
+        continue;
+      }
+      try {
+        const out = metaUit(JSON.parse(text));
+        laatsteGoed.set(file, text);
+        return out;
+      } catch {
+        slaap(40);
+      }
     }
+    if (laatsteGoed.has(file)) return metaUit(JSON.parse(laatsteGoed.get(file)));
+    const kopie = kopieen(dir())[0];
+    if (kopie) try { return metaUit(JSON.parse(fs.readFileSync(kopie.file, 'utf8'))); } catch {}
+    if (!streng) return { folders: [], place: {} };
+    throw new Error('De mappen zijn even niet te lezen. Probeer het zo opnieuw.');
   }
 
   function writeMeta(meta) {
     stempel(readMeta(), meta, Date.now());
     fs.mkdirSync(dir(), { recursive: true });
-    fs.writeFileSync(META(), JSON.stringify(meta, null, 2) + '\n');
+    dagKopie(dir());
+    const text = JSON.stringify(meta, null, 2) + '\n';
+    schrijfVeilig(META(), text);
+    laatsteGoed.set(META(), text);
   }
 
   // Mappen kunnen in mappen zitten. Een map is een pad: "Wiskunde/Breuken".
@@ -108,12 +191,12 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
   }
 
   function folders() {
-    return readMeta().folders;
+    return readMeta(false).folders;
   }
 
   // De map van elk bestand, voor in de lijst.
   function places() {
-    const meta = readMeta();
+    const meta = readMeta(false);
     return file => (meta.folders.includes(meta.place[file]) ? meta.place[file] : '');
   }
 
@@ -158,13 +241,17 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
   function removeFolder(name) {
     const meta = readMeta();
     const parent = parentOf(name);
+    const los = [];
     meta.folders = meta.folders.filter(f => !within(f, name));
     for (const [file, f] of Object.entries(meta.place)) {
       if (!within(f, name)) continue;
       if (parent) meta.place[file] = parent;
-      else delete meta.place[file];
+      else { delete meta.place[file]; los.push(file); }
     }
+    // Zelf gedaan: dan zegt de lijst niet dat ze "plots" geen map meer hebben (ook niet op je andere pc's).
+    meta.bewust = Date.now();
     writeMeta(meta);
+    erken(los);
   }
 
   // Eén bestand of een lijst (meerdere tegelijk verplaatsen): één keer _mappen.json schrijven.
@@ -177,7 +264,88 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
       if (folder) meta.place[f] = folder;
       else delete meta.place[f];
     }
+    if (!folder) meta.bewust = Date.now();
     writeMeta(meta);
+    if (!folder) erken(files);
+  }
+
+  // ---------- Plots veel items zonder map? ----------
+  // We vergelijken met de dagkopieën van de laatste 14 dagen. Staan er minstens 10 items (en minstens een derde)
+  // die toen in een map stonden nu los, dan toont de lijst één zin met "Terugzetten" en "Klopt zo".
+  // Wat de leerkracht zelf uit een map haalde (of met "Klopt zo" goedkeurde), telt niet mee: _mappen-kopie/erkend.json.
+  const ERKEND = () => path.join(dir(), KOPIE, 'erkend.json');
+  function erkendeLijst() {
+    try { const e = JSON.parse(fs.readFileSync(ERKEND(), 'utf8')); return e && typeof e === 'object' && !Array.isArray(e) ? e : {}; } catch { return {}; }
+  }
+  function erken(files) {
+    if (!files.length) return;
+    const e = erkendeLijst();
+    const nu = Date.now();
+    for (const f of files) e[f] = nu;
+    try {
+      fs.mkdirSync(path.join(dir(), KOPIE), { recursive: true });
+      fs.writeFileSync(ERKEND(), JSON.stringify(e));
+    } catch {}
+  }
+  function bestanden() {
+    try { return new Set(fs.readdirSync(dir()).filter(n => /^[^_].*\.json$/.test(n))); } catch { return new Set(); }
+  }
+  let verliesMemo = null;
+  function verliesBerekenen() {
+    const meta = readMeta(false);
+    const er = bestanden();
+    const bestaat = f => er.has(f);
+    const nu = new Set(geplaatst(meta, bestaat).map(([f]) => f));
+    const erkend = erkendeLijst();
+    const vanaf = dagVan(Date.now() - 14 * 864e5);
+    let uit = null;
+    for (const k of kopieen(dir())) {
+      if (k.dag < vanaf) break;
+      let km;
+      try { km = metaUit(JSON.parse(fs.readFileSync(k.file, 'utf8'))); } catch { continue; }
+      const toen = geplaatst(km, bestaat);
+      const weg = toen.filter(([f]) => !nu.has(f) && !erkend[f]).map(([f]) => f);
+      if (weg.length >= 10 && weg.length >= toen.length / 3 && (!uit || weg.length > uit.los)) uit = { los: weg.length, dag: k.dag, files: weg };
+    }
+    return uit;
+  }
+  // Snel: alleen opnieuw rekenen als _mappen.json of de erkende lijst veranderde (of het een nieuwe dag is).
+  function verlies() {
+    dagKopie(dir());
+    const kenmerk = f => { try { const st = fs.statSync(f); return `${st.size}:${st.mtimeMs}`; } catch { return '-'; } };
+    const sleutel = `${dir()}|${kenmerk(META())}|${kenmerk(ERKEND())}|${dagVan()}|${bestanden().size}`;
+    if (!verliesMemo || verliesMemo.sleutel !== sleutel) verliesMemo = { sleutel, uit: verliesBerekenen() };
+    const uit = verliesMemo.uit;
+    return uit ? { los: uit.los, dag: uit.dag } : null;
+  }
+
+  // Terugzetten uit de kopie: alleen wat nu los staat gaat terug in zijn map (wat intussen elders staat, blijft daar).
+  // Mappen uit de kopie die ontbreken, komen terug. Er wordt nooit iets verwijderd.
+  function herstel(dag) {
+    const k = kopieen(dir()).find(x => x.dag === dag);
+    if (!k) throw new Error('Die kopie is er niet meer.');
+    let km;
+    try { km = metaUit(JSON.parse(fs.readFileSync(k.file, 'utf8'))); } catch { throw new Error('Die kopie is niet te lezen.'); }
+    const meta = readMeta();
+    const er = bestanden();
+    for (const f of km.folders) if (!meta.folders.some(x => sameName(x, f))) ensurePath(meta, f);
+    let terug = 0;
+    for (const [file, f] of geplaatst(km, x => er.has(x))) {
+      if (meta.place[file] && meta.folders.includes(meta.place[file])) continue;
+      meta.place[file] = ensurePath(meta, f);
+      terug++;
+    }
+    writeMeta(meta);
+    verliesMemo = null;
+    return { terug };
+  }
+
+  // "Klopt zo": wat nu los staat, mag los blijven.
+  function kloptZo() {
+    const uit = verliesBerekenen();
+    if (uit) erken(uit.files);
+    verliesMemo = null;
+    return {};
   }
 
   // Nieuwe bestanden één keer vanzelf in een map zetten (pick geeft het pad, of niets).
@@ -323,7 +491,7 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
     return { count: clean.length - skipped, skipped, placed, folders: meta.folders.length - before };
   }
 
-  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, trash, autoPlace, exportBundle, importBundle };
+  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, trash, autoPlace, exportBundle, importBundle, verlies, herstel, kloptZo };
 }
 
-module.exports = { library, KINDS };
+module.exports = { library, KINDS, dagKopie, kopieen, metaUit, geplaatst, KOPIE };
