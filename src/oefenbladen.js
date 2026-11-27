@@ -305,21 +305,26 @@ function shufflesFor(sheet, seed) {
 
 // ---------- Opslaan ----------
 
+const lijstCache = require('./lijst-memo').lijstMemo();
+const { nl } = require('./lijst-memo');
 function listSheets() {
   if (!fs.existsSync(DIR)) return [];
   const where = lib.places();
-  return fs.readdirSync(DIR)
-    .filter(f => f.endsWith('.json') && !f.startsWith('_'))
+  const namen = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
+  lijstCache.houd(DIR, namen);
+  return namen
     .map(file => {
       const folder = where(file);
       try {
-        const s = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, folder, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))], niveaus: niveausOf(s) };
+        return { folder, ...lijstCache.item(DIR, file, tekst => {
+          const s = JSON.parse(tekst);
+          return { file, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))], niveaus: niveausOf(s) };
+        }) };
       } catch {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, types: [], niveaus: ['schildknaap'] };
       }
     })
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
+    .sort((a, b) => nl.compare(a.title, b.title));
 }
 
 function checkFile(file) {

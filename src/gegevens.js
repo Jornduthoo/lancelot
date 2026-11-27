@@ -99,7 +99,7 @@ function stempel(d = new Date()) {
 }
 
 // Een zip met alle gegevens van de klas. De AI-sleutels gaan nooit mee in een back-up.
-function maakBackup() {
+function backupInhoud() {
   const entries = [{ name: 'lancelot-backup.json', data: Buffer.from(JSON.stringify({ gemaakt: new Date().toISOString(), map: DATA }, null, 2)) }];
   for (const item of ITEMS) {
     if (NIET_IN_BACKUP.has(item)) continue;
@@ -123,7 +123,10 @@ function maakBackup() {
       entries.push({ name, data, mtime: fs.statSync(file).mtime });
     }
   }
-  return zip.write(entries);
+  return entries;
+}
+function maakBackup() {
+  return zip.write(backupInhoud());
 }
 
 function backupDir() {
@@ -151,11 +154,27 @@ function bewaar(soort = 'auto') {
   return file;
 }
 
-// Elke dag bij het opstarten één automatische back-up.
-function dagelijks() {
+function ruimOp(soort) {
+  const oud = lijst().filter(b => b.file.startsWith(`${soort}_`)).slice(KEEP);
+  for (const b of oud) {
+    try { fs.unlinkSync(path.join(backupDir(), b.file)); } catch {}
+  }
+}
+
+// Elke dag bij het opstarten één automatische back-up. De bestanden worden in één keer gelezen (zoals ze nu zijn),
+// het inpakken gebeurt in de achtergrond: zo kunnen de leerlingen meteen binnen, ook met veel gegevens.
+async function dagelijks() {
   const vandaag = stempel().slice(0, 10);
   if (lijst().some(b => b.file.startsWith(`auto_${vandaag}`))) return;
-  try { bewaar('auto'); } catch (err) { console.error('Back-up maken lukte niet:', err.message); }
+  try {
+    fs.mkdirSync(backupDir(), { recursive: true });
+    const file = `auto_${stempel()}.zip`;
+    const buf = await zip.writeAsync(backupInhoud());
+    const tmp = path.join(backupDir(), `${file}.tmp`);
+    await fs.promises.writeFile(tmp, buf);
+    fs.renameSync(tmp, path.join(backupDir(), file));
+    ruimOp('auto');
+  } catch (err) { console.error('Back-up maken lukte niet:', err.message); }
 }
 
 function controleer(buf) {

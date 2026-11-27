@@ -1265,7 +1265,7 @@ socket.on('lesmap', v => {
 });
 socket.on('klas-namen', namen => {
   tk.klas = Array.isArray(namen) ? namen : [];
-  socket.emit('tk-bronnen', null, res => { if (res && !res.error) { tk.gast = new Set(res.gast || []); tekenNamen(); } });
+  socket.emit('tk-bronnen', { alleenKlas: true }, res => { if (res && !res.error) { tk.gast = new Set(res.gast || []); tekenNamen(); } });
   tekenNamen();
 });
 

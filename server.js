@@ -1,3 +1,5 @@
+// Sneller opstarten: Node bewaart de omgezette code van alle onderdelen (vanaf Node 22.1; oudere versies slaan dit over).
+try { require('module').enableCompileCache?.(); } catch {}
 const fs = require('fs');
 // Draait LANcelot al (een tweede dubbelklik op de snelkoppeling)? Dan gewoon het leerkrachtenscherm openen.
 // Dit gebeurt nog voor het bijwerken, zodat een tweede start nooit de bestanden onder een lopend spel vervangt.
@@ -153,30 +155,66 @@ const server = http.createServer(app);
 // Elke start van de server krijgt een eigen nummer (zie ook 'server-start' hieronder).
 const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 // Na een update moet elk scherm meteen de nieuwe scripts gebruiken, ook als de browser een oude versie bewaarde:
-// elke pagina krijgt haar scripts, stijlen en beelden met het nummer van deze start in de link (/js/x.js?v=...), en de
-// pagina zelf wordt nooit bewaard. Een link met het juiste nummer mag de browser bewaren tot de volgende start: zo
-// vraagt een pagina die opnieuw opent niet honderden bestanden opnieuw na (snel op een trage klas-pc).
-// Het nummer krijgt ook de datum en grootte van het bestand mee: zo ziet de browser een bijgewerkt bestand ook als
-// LANcelot na een update nog niet opnieuw startte (anders: nieuwe pagina met oude stijl en scripts).
-const bewaarTotHerstart = req => !!(req.query && typeof req.query.v === 'string' && req.query.v.split('.')[0] === SERVER_START);
+// elke pagina krijgt haar scripts, stijlen en beelden met een stempel in de link (/js/x.js?v=...): de datum en grootte
+// van het bestand. De pagina zelf wordt nooit bewaard. Een link waarvan de stempel klopt met het bestand op schijf,
+// mag de browser bewaren: een bijgewerkt bestand krijgt vanzelf een andere link. Zo vraagt een pagina die opnieuw
+// opent (ook na een herstart of een update, als alle Chromebooks tegelijk herladen) niet honderden bestanden opnieuw.
+// Beelden die een script zelf laadt (de spellen: new Image()), krijgen de stempel van hun map (?m=..., zie beeldVersies).
 const PUBLIC_MAP = path.join(__dirname, 'public');
+const stempelVan = st => `${Math.round(st.mtimeMs).toString(36)}${st.size.toString(36)}`;
 const bestandStempel = rel => {
-  try { const st = fs.statSync(path.join(PUBLIC_MAP, rel)); return `${Math.round(st.mtimeMs).toString(36)}${st.size.toString(36)}`; } catch { return ''; }
+  try { return stempelVan(fs.statSync(path.join(PUBLIC_MAP, rel))); } catch { return ''; }
 };
 const BEWAAR = ['private', 'max-age=31536000', 'immutable'].join(', ');
-const cacheVoor = req => (bewaarTotHerstart(req) ? BEWAAR : 'no-cache');
+// De stempel van elke beeldmap (public/img/...): de namen, groottes en datums van de bestanden erin.
+// Hooguit eens per 30 seconden opnieuw bekeken (een update start LANcelot toch opnieuw).
+let beeldMemo = null;
+function beeldVersies() {
+  if (beeldMemo && Date.now() - beeldMemo.t < 30 * 1000) return beeldMemo;
+  const mappen = {};
+  const loop = (abs, rel) => {
+    let items = [];
+    try { items = fs.readdirSync(abs, { withFileTypes: true }); } catch { return; }
+    const h = require('crypto').createHash('sha1');
+    let n = 0;
+    for (const d of items.sort((a, b) => (a.name < b.name ? -1 : 1))) {
+      if (d.isDirectory()) { loop(path.join(abs, d.name), `${rel}/${d.name}`); continue; }
+      try { const st = fs.statSync(path.join(abs, d.name)); h.update(`${d.name}|${stempelVan(st)}\n`); n++; } catch {}
+    }
+    if (n) mappen[rel] = h.digest('base64').replace(/[^\w]/g, '').slice(0, 8);
+  };
+  loop(path.join(PUBLIC_MAP, 'img'), 'img');
+  const json = JSON.stringify(mappen);
+  // Vóór elk ander script: zet een script img.src = '/img/map/x.webp', dan komt de stempel van de map erbij.
+  const script = `<script>(function(){var V=${json};try{var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(!d||!d.set)return;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:d.enumerable,get:d.get,set:function(u){if(typeof u==='string'&&u.charAt(0)==='/'&&u.indexOf('?')<0){var i=u.lastIndexOf('/'),m=V[u.slice(1,i)];if(m&&u.slice(1,4)==='img')u+='?m='+m;}d.set.call(this,u);}});}catch(e){}})();</script>`;
+  beeldMemo = { t: Date.now(), mappen, sleutel: json, script };
+  return beeldMemo;
+}
+const cacheVoor = (req, st) => {
+  const q = req.query || {};
+  if (!st) return 'no-cache';
+  if (typeof q.v === 'string' && q.v && q.v.split('.').pop() === stempelVan(st)) return BEWAAR;
+  if (typeof q.m === 'string' && q.m && req.path.startsWith('/img/')) {
+    const map = req.path.slice(1, req.path.lastIndexOf('/'));
+    if (beeldVersies().mappen[decodeURIComponent(map)] === q.m) return BEWAAR;
+  }
+  return 'no-cache';
+};
 const paginaCache = new Map();
+// Beelden van de knoppen (public/img/icons) die verborgen staan (een ander rijk, een venster), pas laden als ze te zien zijn.
+const LUI = /<img (?![^>]*\bloading=)([^>]*\bsrc="\/img\/icons\/)/g;
 function paginaMetVersie(file) {
   const st = fs.statSync(file);
   const hit = paginaCache.get(file);
-  if (hit && hit.mtime === st.mtimeMs && hit.size === st.size && hit.delen.every(([rel, stempel]) => bestandStempel(rel) === stempel)) return hit;
+  const beelden = beeldVersies();
+  if (hit && hit.mtime === st.mtimeMs && hit.size === st.size && hit.beelden === beelden.sleutel && hit.delen.every(([rel, stempel]) => bestandStempel(rel) === stempel)) return hit;
   const delen = [];
   const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css|webp|png|jpg|svg))"/g, (_, a, rel) => {
     const stempel = bestandStempel(rel);
     delen.push([rel, stempel]);
-    return `${a}${rel}?v=${SERVER_START}.${stempel}"`;
-  });
-  const out = { mtime: st.mtimeMs, size: st.size, delen, html, gz: zlib.gzipSync(html) };
+    return stempel ? `${a}${rel}?v=${stempel}"` : `${a}${rel}"`;
+  }).replace(LUI, (_, rest) => ['<img', 'loading="lazy"', rest].join(' ')).replace(/<head>/, `<head>${beelden.script}`);
+  const out = { mtime: st.mtimeMs, size: st.size, delen, beelden: beelden.sleutel, html, gz: zlib.gzipSync(html) };
   paginaCache.set(file, out);
   return out;
 }
@@ -1487,7 +1525,7 @@ app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
       try { hit = { tag, body: zlib.gzipSync(fs.readFileSync(file)) }; } catch { return next(); }
       gzipped.set(file, hit);
     }
-    res.set({ 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding', ETag: tag, 'Cache-Control': cacheVoor(req) }).type(path.extname(file));
+    res.set({ 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding', ETag: tag, 'Cache-Control': cacheVoor(req, st) }).type(path.extname(file));
     if (req.headers['if-none-match'] === tag) return res.status(304).end();
     res.send(hit.body);
   });
@@ -1497,7 +1535,7 @@ app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
 app.get('/js/ai-json.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'src', 'ai-json.js')); });
 // De lettertypes mogen ook in een html-presentatie (een afgeschermd venster met een eigen herkomst): daar is CORS voor nodig.
 app.use('/fonts', (req, res, next) => { res.set({ 'Access-Control-Allow-Origin': '*' }); next(); });
-app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', cacheVoor(res.req)) }));
+app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: (res, file, st) => res.setHeader('Cache-Control', cacheVoor(res.req, st)) }));
 
 // Virtuele netwerkkaarten (WSL, VirtualBox, VPN, hotspot, gsm via usb) komen achteraan, want leerlingen kunnen die meestal niet bereiken.
 const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-|bluetooth|loopback|lokale verbinding\*|local area connection\*|rndis|remote ndis|tether|hotspot/i;
@@ -2334,7 +2372,8 @@ io.on('connection', socket => {
       syncSoon();
       return out || {};
     });
-    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
+    // { alleenKlas: true }: enkel de klas (na een wijziging van de klaslijst), niet alle quizzen, bladen en toetsen opnieuw.
+    socket.on('tk-bronnen', handle(arg => ({ ...(arg && arg.alleenKlas ? {} : { quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list() }), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
     socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
     // Startscherm › 📡 Live: welke taken dit scherm in een kader toont (hooguit drie). Leeg = geen kaders meer open.
     socket.on('tk-live', handle(ids => {
@@ -3730,8 +3769,10 @@ async function herstartVoorUpdate() {
 const EERSTE_POORT = PORT;
 server.once('listening', () => {
   server.removeListener('error', poortBezet);
-  gegevens.dagelijks();
-  if (avatars.herstelUitBackups(gegevens, settings, runen.kransVan).length) io.emit('avatars', avatars.all());
+  // De back-up van vandaag in de achtergrond; daarna pas de ridders nakijken (die tellen de back-ups).
+  gegevens.dagelijks().then(() => {
+    if (avatars.herstelUitBackups(gegevens, settings, runen.kransVan).length) io.emit('avatars', avatars.all());
+  }).catch(err => console.error(err.message));
   runSync();
   setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');

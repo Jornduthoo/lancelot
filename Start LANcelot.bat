@@ -17,7 +17,8 @@ if errorlevel 1 (
 )
 
 rem Installeren bij de eerste keer, of als een update nieuwe onderdelen nodig heeft.
-call npm ls --omit=dev >nul 2>nul
+rem Snel nakijken met Node zelf: npm dat elke keer de onderdelen naloopt, duurt op een trage pc seconden.
+node src\onderdelen.js >nul 2>nul
 if errorlevel 1 (
   echo  Benodigde onderdelen installeren...
   call npm install --omit=dev
