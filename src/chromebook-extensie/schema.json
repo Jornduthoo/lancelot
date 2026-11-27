@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "server": {
+      "title": "Adres van LANcelot",
+      "description": "Het adres van de LANcelot-pc in de klas, bijvoorbeeld http://192.168.1.109:3000",
+      "type": "string"
+    }
+  }
+}

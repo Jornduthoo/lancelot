@@ -1,0 +1,50 @@
+/* Namen › Chromebooks (public/chromebooks.html) */
+.cb-host main { max-width: 1100px; margin: 0 auto; }
+.cb-paneel h2 { margin: 0 0 4px; }
+.cb-schakels { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 14px 0; }
+.cb-schakel { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; padding: 12px 14px; border-radius: 14px; background: rgb(var(--k-panel) / .8); border: 2px solid rgb(var(--k-rand) / .6); color: rgb(var(--k-tekst)); clip-path: none; cursor: pointer; }
+.cb-schakel .cb-ic { grid-row: span 2; font-size: 2rem; line-height: 1; }
+.cb-schakel b { font-size: 1.05rem; }
+.cb-schakel small { opacity: .75; font-weight: 400; }
+.cb-schakel b::after { content: ' · uit'; opacity: .6; font-weight: 400; }
+.cb-schakel[aria-pressed="true"] { border-color: rgb(var(--k-goud)); background: rgb(var(--k-goud) / .16); box-shadow: 0 0 0 3px rgb(var(--k-goud) / .2); }
+.cb-schakel[aria-pressed="true"] b::after { content: ' · aan'; color: rgb(var(--k-goud)); opacity: 1; font-weight: 800; }
+.cb-acties { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cb-link { display: flex; gap: 8px; flex: 1; min-width: 240px; }
+.cb-link input { flex: 1; min-width: 0; }
+.cb-tabs { display: flex; gap: 6px; margin: 14px 0 0; }
+.cb-tabs button { padding: 8px 16px; border-radius: 10px 10px 0 0; background: rgb(var(--k-panel) / .6); color: rgb(var(--k-tekst)); border: 1px solid rgb(var(--k-rand) / .5); clip-path: none; }
+.cb-tabs button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); font-weight: 800; }
+.cb-tab { margin-top: 0; }
+.cb-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.cb-kaart { padding: 10px 12px; border-radius: 12px; border: 2px solid rgb(var(--k-groen) / .5); background: rgb(var(--k-groen) / .07); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cb-kaart.elders { border-color: rgb(var(--k-rood) / .8); background: rgb(var(--k-rood) / .1); }
+.cb-kaart-kop { display: flex; align-items: center; gap: 8px; }
+.cb-kaart-kop strong { font-size: 1.15rem; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.cb-kaart-kop select { max-width: 150px; }
+.cb-waar { font-size: .95rem; }
+.cb-kaart ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.cb-kaart li { display: flex; gap: 6px; align-items: center; font-size: .9rem; }
+.cb-kaart li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cb-kaart li.actief span { font-weight: 800; }
+.cb-kaart li button { padding: 1px 8px; font-size: .8rem; }
+.cb-kaart .cb-kaart-knoppen { display: flex; gap: 6px; flex-wrap: wrap; }
+.cb-kaart .cb-kaart-knoppen button { padding: 4px 10px; font-size: .9rem; }
+.cb-mail { font-size: .8rem; opacity: .7; overflow-wrap: anywhere; }
+.cb-filter, .cb-inst { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 10px; }
+.cb-inst { margin-top: 14px; }
+.cb-check { display: inline-flex; gap: 6px; align-items: center; }
+.cb-tabel { width: 100%; border-collapse: collapse; }
+.cb-tabel th, .cb-tabel td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgb(var(--k-rand) / .35); vertical-align: top; }
+.cb-tabel td:first-child { white-space: nowrap; }
+.cb-tabel td:last-child { overflow-wrap: anywhere; opacity: .85; }
+.cb-tabel tr.lancelot td { opacity: .55; }
+.cb-stappen li { margin: 6px 0; }
+.cb-beleid { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cb-beleid code { padding: 8px 10px; border-radius: 8px; background: rgb(var(--k-zwart) / .35); overflow-wrap: anywhere; }
+/* Het kleine bedieningspaneel (de extensie van de leerkracht opent ?klein=1). */
+body.cb-klein .topbar, body.cb-klein .snelmenu, body.cb-klein .kop-vast-rij { display: none; }
+body.cb-klein main { padding: 8px; }
+body.cb-klein .cb-schakels { grid-template-columns: 1fr; }
+body.cb-klein .cb-raster { grid-template-columns: 1fr; }
+@media (max-width: 600px) { .cb-tabel th:last-child, .cb-tabel td:last-child { display: none; } }

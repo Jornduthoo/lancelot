@@ -2730,3 +2730,16 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 #set-tabs > button { flex: 1 1 auto; justify-content: center; padding: 10px 10px; }
 @media (max-width: 1180px) { #set-tabs { display: grid; grid-template-columns: repeat(6, 1fr); } }
 @media (max-width: 560px) { #set-tabs { grid-template-columns: repeat(3, 1fr); } #set-tabs > button { padding: 8px 4px; font-size: .9rem; } }
+/* Chromebooks: wie op een andere site zit, linksonder op elk leerkrachtenscherm (namen-host.js, chromebooks.js). */
+.cb-bord { position: fixed; left: 16px; bottom: 72px; z-index: 59; width: min(400px, calc(100vw - 32px)); max-height: calc(100vh - 160px); overflow: auto; padding: 12px; border-radius: 18px; background: rgb(var(--k-panel) / .96); border: 2px solid rgb(var(--k-rood) / .85); box-shadow: 0 0 0 5px rgb(var(--k-rood) / .15), 0 10px 30px rgb(var(--k-zwart) / .5); color: rgb(var(--k-tekst)); animation: hulp-in .35s ease-out; }
+.cb-bord-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-weight: 800; color: rgb(var(--k-rood-l)); }
+.cb-bord-knoppen { display: flex; gap: 6px; }
+.cb-bord-knoppen > * { padding: 4px 10px; font-size: .85rem; }
+.cb-bord-lijst { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cb-bord-lijst li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: rgb(var(--k-rood) / .1); border: 1px solid rgb(var(--k-rood) / .35); }
+.cb-bord-wie { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cb-bord-wie strong { font-size: clamp(1.3rem, 2.4vw, 1.9rem); line-height: 1.1; overflow-wrap: anywhere; }
+.cb-bord-wie small { opacity: .85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cb-bord-lijst button { flex: none; padding: 6px 14px; font-size: 1.2rem; }
+.namen-cb { margin: 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .cb-bord { animation: none; } }

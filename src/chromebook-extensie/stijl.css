@@ -1,0 +1,61 @@
+@font-face { font-family: Cinzel; font-weight: 900; src: url(fonts/cinzel-latin-900-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Exo 2'; font-weight: 600; src: url(fonts/exo-2-latin-600-normal.woff2) format('woff2'); }
+:root { --cyan: 63 208 255; --goud: 240 196 90; --rood: 255 86 96; --bg: 7 11 26; --tekst: 232 238 250; --accent: var(--cyan); }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; color: rgb(var(--tekst)); font: 600 17px 'Exo 2', system-ui, sans-serif; background: rgb(var(--bg)); }
+body.slot { --accent: var(--rood); }
+body.bord { --accent: var(--cyan); }
+
+/* Het hele scherm: diepe nacht met een gloed, een raster dat langzaam wegschuift en vonken. */
+.scherm { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; text-align: center; padding: 24px;
+  background: radial-gradient(ellipse at 50% 38%, rgb(var(--accent) / .28), transparent 58%), radial-gradient(ellipse at 50% 120%, rgb(var(--goud) / .18), transparent 55%), rgb(var(--bg)); }
+.scherm::before { content: ''; position: absolute; inset: -50%; pointer-events: none; opacity: .35;
+  background-image: linear-gradient(rgb(var(--accent) / .22) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--accent) / .22) 1px, transparent 1px);
+  background-size: 64px 64px; transform: perspective(700px) rotateX(62deg) translateY(30%); animation: raster 14s linear infinite;
+  -webkit-mask: linear-gradient(transparent 20%, #000 75%); mask: linear-gradient(transparent 20%, #000 75%); }
+@keyframes raster { to { background-position: 0 64px, 0 0; } }
+.vonken { position: absolute; inset: 0; pointer-events: none; background-image:
+  radial-gradient(2px 2px at 12% 22%, rgb(var(--goud) / .9), transparent), radial-gradient(1.5px 1.5px at 78% 14%, rgb(var(--accent)), transparent),
+  radial-gradient(2px 2px at 64% 72%, rgb(var(--goud) / .7), transparent), radial-gradient(1.5px 1.5px at 30% 80%, rgb(var(--accent) / .9), transparent),
+  radial-gradient(2px 2px at 88% 58%, rgb(var(--accent) / .8), transparent), radial-gradient(1.5px 1.5px at 44% 10%, rgb(var(--goud)), transparent);
+  animation: vonken 5s ease-in-out infinite alternate; }
+@keyframes vonken { to { opacity: .35; transform: translateY(-14px); } }
+
+.inhoud { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 900px; }
+/* Het logo met een draaiende runenring erachter. */
+.embleem { position: relative; width: min(440px, 72vw, 50vh); aspect-ratio: 1; display: grid; place-items: center; margin-bottom: -2vh; }
+.embleem::before, .embleem::after { content: ''; position: absolute; inset: 4%; border-radius: 50%; pointer-events: none; }
+.embleem::before { background: conic-gradient(from 0deg, transparent 0 4%, rgb(var(--accent)) 16%, transparent 28% 50%, rgb(var(--goud)) 66%, transparent 78%), repeating-conic-gradient(rgb(var(--accent) / .55) 0 3deg, transparent 3deg 12deg);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  animation: draai 10s linear infinite; filter: drop-shadow(0 0 10px rgb(var(--accent))); }
+.embleem::after { inset: 12%; border: 2px dashed rgb(var(--goud) / .45); animation: draai 24s linear infinite reverse; }
+@keyframes draai { to { transform: rotate(1turn); } }
+.embleem img { position: relative; width: 80%; height: auto; filter: drop-shadow(0 0 28px rgb(var(--accent) / .7)); animation: zweef 4s ease-in-out infinite; }
+@keyframes zweef { 50% { transform: translateY(-8px); } }
+.teken { position: absolute; right: 6%; bottom: 8%; width: 22%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; font-size: clamp(28px, 6vw, 54px);
+  background: rgb(var(--bg) / .9); border: 3px solid rgb(var(--accent)); box-shadow: 0 0 24px rgb(var(--accent) / .8), inset 0 0 18px rgb(var(--accent) / .4); animation: puls 2.2s ease-in-out infinite; }
+@keyframes puls { 50% { box-shadow: 0 0 44px rgb(var(--accent)), inset 0 0 24px rgb(var(--accent) / .6); } }
+h1 { font: 900 clamp(30px, min(6.4vw, 8vh), 78px)/1.05 Cinzel, Georgia, serif; margin: 0; letter-spacing: .02em; text-transform: uppercase;
+  background: linear-gradient(180deg, #fff6d8 0%, rgb(var(--goud)) 48%, #a06a12 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 rgb(0 0 0 / .6)) drop-shadow(0 0 18px rgb(var(--goud) / .35)); }
+.zin { font-size: clamp(17px, 2.2vw, 24px); margin: 6px 0 0; opacity: .9; max-width: 34em; }
+button.groot { margin-top: 22px; font: 900 clamp(16px, 2vw, 22px) Cinzel, serif; letter-spacing: .04em; padding: 14px 34px; border: 0; cursor: pointer; color: #1b1405;
+  background: linear-gradient(180deg, #ffe39a, rgb(var(--goud)) 55%, #b7821d); clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+  box-shadow: 0 0 22px rgb(var(--goud) / .5); transition: transform .15s; }
+button.groot:hover { transform: scale(1.05); }
+.vrij .teken { --accent: 80 220 130; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+
+/* Het venstertje bij het icoon. */
+body.venster { width: 340px; min-height: 0; padding: 0; background: radial-gradient(ellipse at 50% 0%, rgb(var(--cyan) / .3), transparent 70%), rgb(var(--bg)); }
+.venster .kop { display: flex; flex-direction: column; align-items: center; padding: 16px 16px 8px; }
+.venster .kop img { width: 190px; height: auto; filter: drop-shadow(0 0 16px rgb(var(--cyan) / .55)); }
+.venster .kader { margin: 0 14px 14px; padding: 14px; border-radius: 16px; background: rgb(255 255 255 / .04); border: 1px solid rgb(var(--cyan) / .35); }
+.venster p { font-size: 14px; margin: 8px 0 0; opacity: .9; }
+.pil { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 8px 12px; border-radius: 999px; font-size: 14px; background: rgb(var(--rood) / .15); border: 1px solid rgb(var(--rood) / .6); }
+.pil.aan { background: rgb(80 220 130 / .14); border-color: rgb(80 220 130 / .6); }
+.stip { width: 10px; height: 10px; border-radius: 50%; background: rgb(var(--rood)); box-shadow: 0 0 8px rgb(var(--rood)); }
+.pil.aan .stip { background: rgb(80 220 130); box-shadow: 0 0 8px rgb(80 220 130); animation: puls 2s infinite; }
+.venster input { width: 100%; margin-top: 6px; padding: 9px 10px; border-radius: 10px; border: 1px solid rgb(var(--cyan) / .5); background: rgb(0 0 0 / .35); color: inherit; font: inherit; font-size: 14px; }
+.venster button.groot { width: 100%; margin-top: 12px; font-size: 15px; padding: 11px 20px; }
+.hidden { display: none !important; }

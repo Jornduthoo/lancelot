@@ -340,4 +340,44 @@
   socket.on('connect', hulpLaad);
   hulpLaad();
   setInterval(() => { if (hulpLijst.length) hulpTeken(); }, 30000);
+  // Chromebooks met de LANcelot-extensie (Jorn 27 nov): staat "Op het bord" aan, dan komt hier linksonder de naam van
+  // wie op een andere site dan LANcelot zit, met de sites die openstaan. ↩ stuurt die Chromebook terug naar LANcelot.
+  const cbBord = document.createElement('section');
+  cbBord.className = 'cb-bord hidden';
+  cbBord.setAttribute('aria-live', 'polite');
+  cbBord.innerHTML = '<div class="cb-bord-kop"><span>🌐 Niet in LANcelot</span><span class="cb-bord-knoppen"><button type="button" class="secondary cb-bord-alle" title="Iedereen terug naar LANcelot">↩ Iedereen</button><a class="button secondary" href="/chromebooks" title="Alle Chromebooks">Meer</a></span></div><ol class="cb-bord-lijst"></ol>';
+  if (pad !== '/chromebooks') document.body.append(cbBord);
+  cbBord.querySelector('.cb-bord-alle').addEventListener('click', () => socket.emit('cb-terug', {}, () => {}));
+  const cbTeken = lijst => {
+    lijst = Array.isArray(lijst) ? lijst : [];
+    cbBord.classList.toggle('hidden', !lijst.length);
+    cbBord.querySelector('.cb-bord-lijst').replaceChildren(...lijst.slice(0, 8).map(c => {
+      const li = document.createElement('li');
+      const wie = document.createElement('span');
+      wie.className = 'cb-bord-wie';
+      const b = document.createElement('strong');
+      b.textContent = c.naam;
+      const kl = document.createElement('small');
+      kl.textContent = [c.actief, ...c.sites.filter(h => h !== c.actief)].join(' · ');
+      kl.title = c.titel || '';
+      wie.append(b, kl);
+      const terug = document.createElement('button');
+      terug.type = 'button';
+      terug.className = 'gold';
+      terug.textContent = '↩';
+      terug.title = 'Terug naar LANcelot';
+      terug.addEventListener('click', () => socket.emit('cb-terug', { sid: c.sid }, () => {}));
+      li.append(wie, terug);
+      return li;
+    }));
+  };
+  socket.on('cb-bord', cbTeken);
+  const cbLaad = () => socket.emit('cb-bord', {}, cbTeken);
+  socket.on('connect', cbLaad);
+  cbLaad();
+  // In het venster Namen: de knop naar de Chromebooks.
+  const cbRij = document.createElement('p');
+  cbRij.className = 'namen-cb';
+  cbRij.innerHTML = '<a class="button secondary" href="/chromebooks">🌐 Chromebooks: welke sites staan open?</a>';
+  modal.querySelector('.namen-extra').after(cbRij);
 })();
