@@ -96,14 +96,10 @@
  "Mijn lesmap gesynchroniseerd": "Mi carpeta de clase sincronizada",
  "Kies welke dagpresentatie vandaag actief is.": "Elige qué presentación del día está activa hoy.",
  "✓ Deze dagpresentatie staat nu klaar.": "✓ Esta presentación del día ya está lista.",
-<<<<<<< HEAD
  "Ongeldige datum.": "Fecha no válida.",
  "Dagpresentatie \"{0}\" vervangen": "Presentación del día «{0}» reemplazada",
  "Dagpresentatie \"{0}\" naar de prullenbak": "Presentación del día «{0}» movida a la papelera",
  "Dagpresentatie \"{0}\" teruggezet": "Presentación del día «{0}» restaurada",
  "Prullenbak van de dagpresentaties bekeken": "Papelera de las presentaciones del día consultada",
  "Dat bestand staat niet (meer) in de prullenbak.": "Ese archivo ya no está en la papelera."
-=======
- "Ongeldige datum.": "Fecha no válida."
->>>>>>> 1c4fb78108b17353f2c430179e9d195d54c21f3d
 }

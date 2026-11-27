@@ -96,14 +96,10 @@
  "Mijn lesmap gesynchroniseerd": "Mein Unterrichtsordner synchronisiert",
  "Kies welke dagpresentatie vandaag actief is.": "Wähle, welche Tagespräsentation heute aktiv ist.",
  "✓ Deze dagpresentatie staat nu klaar.": "✓ Diese Tagespräsentation ist jetzt bereit.",
-<<<<<<< HEAD
  "Ongeldige datum.": "Ungültiges Datum.",
  "Dagpresentatie \"{0}\" vervangen": "Tagespräsentation „{0}“ ersetzt",
  "Dagpresentatie \"{0}\" naar de prullenbak": "Tagespräsentation „{0}“ in den Papierkorb verschoben",
  "Dagpresentatie \"{0}\" teruggezet": "Tagespräsentation „{0}“ wiederhergestellt",
  "Prullenbak van de dagpresentaties bekeken": "Papierkorb der Tagespräsentationen angesehen",
  "Dat bestand staat niet (meer) in de prullenbak.": "Diese Datei ist nicht (mehr) im Papierkorb."
-=======
- "Ongeldige datum.": "Ungültiges Datum."
->>>>>>> 1c4fb78108b17353f2c430179e9d195d54c21f3d
 }
