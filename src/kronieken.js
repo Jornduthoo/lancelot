@@ -224,12 +224,32 @@ function presentatie(html, host) {
 function verwijder(map, naam) {
   const bron = volledig(map, naam);
   if (!fs.existsSync(bron)) throw new Error('Dat bestand bestaat niet meer.');
-  naarPrullenbak(bron);
+  const bak = naarPrullenbak(bron);
   const m = leesMeta();
   const k = sleutel(map, path.basename(bron));
   delete m.pagina[k];
   zonderKoppeling(m, k);
   schrijfMeta(m);
+  return { prullenbak: bak };
+}
+
+const BAK_STEMPEL = /^\d{4}-\d{2}-\d{2}_\d{4}(-\d+)?_/;
+// Wat in de prullenbak van Mijn methodes staat (de naam daar en de oorspronkelijke naam), nieuwste eerst.
+function prullenbak() {
+  let namen = [];
+  try { namen = fs.readdirSync(PRULLENBAK); } catch {}
+  return namen.filter(n => BAK_STEMPEL.test(n) && SOORTEN[path.extname(n).toLowerCase()])
+    .map(n => ({ prullenbak: n, naam: n.replace(BAK_STEMPEL, '') }))
+    .sort((a, b) => b.prullenbak.localeCompare(a.prullenbak));
+}
+// Terug uit de prullenbak, in deze map. Staat er al een bestand met die naam, dan krijgt het een nummer erbij.
+function terugUitPrullenbak(bak, map, naam) {
+  const n = path.basename(String(bak || ''));
+  const bron = path.join(PRULLENBAK, n);
+  if (!n || !fs.existsSync(bron)) throw new Error('Dat bestand staat niet (meer) in de prullenbak.');
+  const r = bewaar(map, naam || n.replace(BAK_STEMPEL, ''), fs.readFileSync(bron));
+  fs.unlinkSync(bron);
+  return r;
 }
 
 // ---------- Mijn lesmap: de bestanden zelf ----------
@@ -265,11 +285,12 @@ function inPrullenbak(rel) {
 // Nooit een ouder boek in de prullenbak overschrijven (de stempel is per minuut).
 function naarPrullenbak(bron) {
   fs.mkdirSync(PRULLENBAK, { recursive: true });
-  const ext = path.extname(bron);
-  const stam = `${gegevens.stempel()}_${path.basename(bron, ext)}`;
-  let doel = `${stam}${ext}`;
-  for (let n = 2; fs.existsSync(path.join(PRULLENBAK, doel)); n++) doel = `${stam} (${n})${ext}`;
+  const st = gegevens.stempel(), naam = path.basename(bron);
+  // Dubbel in dezelfde minuut: het nummer bij de stempel, zodat de oorspronkelijke naam achteraan gelijk blijft.
+  let doel = `${st}_${naam}`;
+  for (let n = 2; fs.existsSync(path.join(PRULLENBAK, doel)); n++) doel = `${st}-${n}_${naam}`;
   fs.renameSync(bron, path.join(PRULLENBAK, doel));
+  return doel;
 }
 
 // ---------- Online bordboeken ----------
@@ -447,4 +468,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { actieveVan, zetActief, DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { actieveVan, zetActief, prullenbak, terugUitPrullenbak, DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

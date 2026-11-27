@@ -335,7 +335,11 @@ function presentatiesVan(datum = vandaag()) {
     .map(({ naam }) => ({ naam, titel: naam.replace(/\.html?$/i, '').slice(datum.length).trim() || naam, link: `/kronieken?map=${encodeURIComponent(PRESENTATIES)}&naam=${encodeURIComponent(naam)}` }));
   if (!lijst.length) return [];
   const gekozen = kronieken.actieveVan(datum);
-  (lijst.find(p => p.naam === gekozen) || lijst[0]).actief = true;
+  // Niets gekozen (bv. geplaatst voor er een keuze bestond): de hoogste versie ("v4" boven "v3" boven zonder nummer),
+  // bij gelijke versie de laatst gewijzigde. Een aanvulling op een oude versie maakt die zo niet de nieuwste.
+  const versie = t => { const m = t.match(/\bv(?:ersie)?\s*(\d+)\b/i) || t.match(/\((\d+)\)\s*$/); return m ? Number(m[1]) : 1; };
+  const hoogste = lijst.reduce((a, b) => (versie(b.titel) > versie(a.titel) ? b : a), lijst[0]);
+  (lijst.find(p => p.naam === gekozen) || hoogste).actief = true;
   return lijst;
 }
 function presentatieVan(datum = vandaag()) {
@@ -613,9 +617,10 @@ function dagpresentatieAanvullen(naam, html) {
   return { naam: p.naam, map: PRESENTATIES, aangevuld: true, dias, grootte: Buffer.byteLength(nieuw), open_op_bord: p.open_op_bord, melding: `Aangevuld: de presentatie heeft nu ${dias} dia's.` };
 }
 
-function dagpresentatiePlaatsen({ html, datum, titel, vervolg } = {}) {
+function dagpresentatiePlaatsen({ html, datum, titel, vervolg, vervang } = {}) {
   if (typeof html !== 'string' || !html.trim()) fout('Geef "html": de volledige presentatie als tekst.');
   if (vervolg) return dagpresentatieAanvullen(vervolg, html);
+  if (vervang) return dagpresentatieVervangen(vervang, html);
   const d = datum || vandaag();
   if (!DATUM.test(d)) fout('"datum" is JJJJ-MM-DD.');
   const naam = `${d} ${String(titel || 'Dagpresentatie').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').trim().slice(0, 60) || 'Dagpresentatie'}.html`;
@@ -625,6 +630,41 @@ function dagpresentatiePlaatsen({ html, datum, titel, vervolg } = {}) {
   kronieken.zetActief(d, r.naam);
   hooks.naKronieken();
   return { naam: r.naam, map: r.map, datum: d, open_op_bord: `/kronieken?map=${encodeURIComponent(r.map)}&naam=${encodeURIComponent(r.naam)}`, melding: d === vandaag() ? 'Staat klaar: op het startscherm, in het blok Vandaag, opent hij met één tik.' : `Staat klaar in Mijn methodes › ${PRESENTATIES}. Op ${d} staat hij in het blok Vandaag.` };
+}
+
+// Een bestaande vervangen (wens 27 nov, punt 2): de oude gaat naar de prullenbak, de nieuwe krijgt dezelfde naam
+// en is meteen de actieve van die dag. Zo ontstaan er geen extra versies.
+function dagpresentatieVervangen(naam, html) {
+  const p = presentaties().find(x => x.naam === String(naam));
+  if (!p) fout(`"${naam}" staat niet in Mijn methodes › ${PRESENTATIES} (tool "dagpresentaties").`);
+  if (!/<(!doctype|html|body|section)\b/i.test(html)) fout('Geef in "html" de volledige nieuwe presentatie.');
+  if (Buffer.byteLength(html) > 60 * 1024 * 1024) fout('De presentatie is groter dan 60 MB.');
+  const { prullenbak } = kronieken.verwijder(PRESENTATIES, p.naam);
+  const r = kronieken.bewaar(PRESENTATIES, p.naam, Buffer.from(html, 'utf8'));
+  if (p.datum) kronieken.zetActief(p.datum, r.naam);
+  hooks.naKronieken();
+  return { naam: r.naam, map: r.map, datum: p.datum, vervangen: true, oude_in_prullenbak: prullenbak, open_op_bord: `/kronieken?map=${encodeURIComponent(r.map)}&naam=${encodeURIComponent(r.naam)}`, melding: 'Vervangen. De oude versie staat in de prullenbak van Mijn methodes (terug met "dagpresentatie_terugzetten").' };
+}
+
+// Een dagpresentatie weghalen: naar de prullenbak van Mijn methodes, nooit echt weg. Ook op je andere pc's.
+function dagpresentatieWeghalen({ naam } = {}) {
+  const p = presentaties().find(x => x.naam === String(naam || ''));
+  if (!p) fout(`"${naam}" staat niet in Mijn methodes › ${PRESENTATIES} (tool "dagpresentaties").`);
+  const { prullenbak } = kronieken.verwijder(PRESENTATIES, p.naam);
+  hooks.naKronieken();
+  const nu = p.datum ? presentatieVan(p.datum) : null;
+  return { naam: p.naam, in_prullenbak: prullenbak, ...(nu ? { nu_actief: nu.naam } : {}), melding: 'Staat in de prullenbak van Mijn methodes. Terugzetten kan met "dagpresentatie_terugzetten".' };
+}
+
+// Terug uit de prullenbak. Zonder naam: welke dagpresentaties er in de prullenbak staan.
+function dagpresentatieTerugzetten({ prullenbak_naam } = {}) {
+  const bak = kronieken.prullenbak().filter(b => /^\d{4}-\d{2}-\d{2} .*\.html?$/i.test(b.naam));
+  if (!prullenbak_naam) return { in_prullenbak: bak.slice(0, 30) };
+  const b = bak.find(x => x.prullenbak === String(prullenbak_naam));
+  if (!b) fout(`"${prullenbak_naam}" staat niet in de prullenbak (roep deze tool zonder naam op voor de lijst).`);
+  const r = kronieken.terugUitPrullenbak(b.prullenbak, PRESENTATIES, b.naam);
+  hooks.naKronieken();
+  return { naam: r.naam, teruggezet: true, open_op_bord: `/kronieken?map=${encodeURIComponent(r.map)}&naam=${encodeURIComponent(r.naam)}`, melding: r.naam === b.naam ? 'Teruggezet in Mijn methodes › Dagpresentaties.' : `Teruggezet als "${r.naam}" (die naam bestond al).` };
 }
 
 // Remediëring (wens 25 nov, punt 4): na een toets per leerling een oefenblad op wat fout liep, in zijn eigen versie.
@@ -743,7 +783,9 @@ const TOOLS = [
   { name: 'taak_intrekken', schrijft: true, title: 'Taak intrekken', description: 'Een taak afsluiten (intrekken). Wie bezig is, levert in wat er staat; niets van de leerlingen gaat verloren. Heropenen kan.', inputSchema: obj({ taak_id: S('Id van de taak.') }, ['taak_id']), fn: taakSluiten, log: (a, r) => ({ titel: r.titel }) },
   { name: 'toets_openen', schrijft: true, title: 'Toets weer openen (op slot)', description: 'Bij een toets met "op slot bij verlaten": de toets weer openen voor een leerling die hem verliet, of zonder naam voor iedereen die op slot staat. Wie op slot staat, zie je in "taken" (op_slot). De antwoorden blijven altijd bewaard.', inputSchema: obj({ taak_id: S('Id van de taak (toets).'), naam: S('Naam van de leerling. Leeg = iedereen die op slot staat.') }, ['taak_id']), fn: toetsOpenen, log: (a, r) => ({ titel: r.titel, n: r.geopend.length }) },
   { name: 'taak_heropenen', schrijft: true, title: 'Taak heropenen', description: 'Een afgesloten taak weer openzetten, eventueel meteen met een nieuwe einddatum, tijdslimiet of aantal pogingen.', inputSchema: obj({ taak_id: S('Id van de taak.'), ...TIJD_SCHEMA }, ['taak_id']), fn: taakHeropenen, log: (a, r) => ({ titel: r.titel }) },
-  { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: `Een html-presentatie (dia's als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag, meteen als actieve versie (staat er die dag al een, bv. "Vrijdag", dan wordt de nieuwe, bv. "Vrijdag v2", de actieve; de leerkracht kan op het startscherm terugkiezen). Een bestaande wordt nooit overschreven. Lettertypes: gebruik gewoon font-family ${kronieken.LETTERTYPES.map(f => `'${f}'`).join(', ')}: die zitten in LANcelot zelf (geen Google Fonts-link en geen ingebakken lettertypes nodig, zo blijft het bestand klein). Grote presentatie: plaats eerst een deel en vul aan met "vervolg" (de naam die je terugkreeg) en in "html" de volgende <section class="dia">-blokken; die komen achteraan erbij. Tot 60 MB.`, inputSchema: obj({ html: S('De volledige html (of bij "vervolg": enkel de dia\'s die erbij komen).'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".'), vervolg: S('Optioneel: de naam van een dagpresentatie die al staat (tool "dagpresentaties"); de dia\'s in "html" komen er achteraan bij.') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam, ...(r.aangevuld ? { aangevuld: true } : {}) }) },
+  { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: `Een html-presentatie (dia's als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag, meteen als actieve versie (staat er die dag al een, bv. "Vrijdag", dan wordt de nieuwe, bv. "Vrijdag v2", de actieve; de leerkracht kan op het startscherm terugkiezen). Een bestaande wordt nooit overschreven. Lettertypes: gebruik gewoon font-family ${kronieken.LETTERTYPES.map(f => `'${f}'`).join(', ')}: die zitten in LANcelot zelf (geen Google Fonts-link en geen ingebakken lettertypes nodig, zo blijft het bestand klein). Grote presentatie: plaats eerst een deel en vul aan met "vervolg" (de naam die je terugkreeg) en in "html" de volgende <section class="dia">-blokken; die komen achteraan erbij. Tot 60 MB.`, inputSchema: obj({ html: S('De volledige html (of bij "vervolg": enkel de dia\'s die erbij komen).'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".'), vervolg: S('Optioneel: de naam van een dagpresentatie die al staat (tool "dagpresentaties"); de dia\'s in "html" komen er achteraan bij.'), vervang: S('Optioneel: de naam van een dagpresentatie die al staat. Die wordt vervangen door "html" (zelfde naam, meteen actief, de oude gaat naar de prullenbak). Gebruik dit in plaats van een nieuwe versie als de leerkracht geen extra versie wil.') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam, ...(r.aangevuld ? { aangevuld: true } : {}), ...(r.vervangen ? { vervangen: true } : {}) }) },
+  { name: 'dagpresentatie_weghalen', schrijft: true, title: 'Dagpresentatie weghalen', description: 'Een dagpresentatie naar de prullenbak van Mijn methodes verplaatsen (ook op de andere pc\'s via Mijn lesmap). Niets gaat echt verloren: terugzetten kan met "dagpresentatie_terugzetten". Was ze de actieve van die dag, dan komt de hoogste andere versie in het blok Vandaag.', inputSchema: obj({ naam: S('De bestandsnaam (tool "dagpresentaties").') }, ['naam']), fn: dagpresentatieWeghalen, log: (a, r) => ({ naam: r.naam }) },
+  { name: 'dagpresentatie_terugzetten', schrijft: true, title: 'Dagpresentatie terugzetten', description: 'Zonder naam: de dagpresentaties in de prullenbak van Mijn methodes. Met "prullenbak_naam": die terugzetten in Mijn methodes › Dagpresentaties.', inputSchema: obj({ prullenbak_naam: S('De naam in de prullenbak (uit de lijst van deze tool of uit "dagpresentatie_weghalen").') }), fn: dagpresentatieTerugzetten, log: (a, r) => (r.teruggezet ? { naam: r.naam } : {}) },
 ];
 
 // Deel 2: toetsen stap voor stap, quizzen, oefenbladen, mappen, de week, sync (src/connector-bouw.js).
