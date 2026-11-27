@@ -55,6 +55,7 @@
       case 'taak_keuzes': return `Keuzes van taak ${t} aangepast`;
       case 'taak_intrekken': return `Taak ${t} ingetrokken`;
       case 'taak_heropenen': return `Taak ${t} heropend`;
+      case 'toets_openen': return `Toets ${t} weer geopend voor ${r.n} ${r.n === 1 ? 'leerling' : 'leerlingen'}`;
       case 'dagpresentatie_plaatsen': return `Dagpresentatie "${r.naam}" geplaatst`;
       case 'vraag_toevoegen': return `Toets ${t}: vraag ${r.nr} toegevoegd`;
       case 'vraag_wijzigen': return `Toets ${t}: vraag ${r.nr} gewijzigd`;

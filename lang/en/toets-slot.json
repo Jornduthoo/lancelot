@@ -16,5 +16,6 @@
  "· 🔒 op slot": "· 🔒 locked",
  "De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.": "The test opens full screen. If you leave the test (another tab, window or full screen off), your test is locked until your teacher opens it again.",
  "Je toets staat op slot. Wacht tot je leerkracht hem weer opent.": "Your test is locked. Wait until your teacher opens it again.",
- "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Full screen: whoever leaves the test is locked until you open it"
+ "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Full screen: whoever leaves the test is locked until you open it",
+ "Toets {0} weer geopend voor {1} {2}": "Test {0} opened again for {1} {2}"
 }

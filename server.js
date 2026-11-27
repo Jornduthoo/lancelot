@@ -1319,8 +1319,11 @@ connector.init({
   express,
   versie: () => { try { return (bijwerken.view().huidig || {}).sha || ''; } catch { return ''; } },
   hooks: {
-    naTaken: ({ toets, keuzes } = {}) => {
+    naTaken: ({ toets, keuzes, ontgrendeld, beveiligd } = {}) => {
       takenNaarBord();
+      // Op slot bij verlaten: via de connector weer geopend, of volledig scherm mee aangezet.
+      if (ontgrendeld && ontgrendeld.namen.length) io.emit('tk-ontgrendeld', ontgrendeld);
+      if (beveiligd) io.emit('tk-beveiligd', { id: beveiligd, aan: true });
       stemSoon();
       io.emit('tk-nieuw');
       if (keuzes) io.emit('tk-keuzes', { id: keuzes });
