@@ -1,0 +1,53 @@
+{
+ "naam": {
+  "message": "LANcelot im Unterricht"
+ },
+ "beschrijving": {
+  "message": "Verbindet das Chromebook mit LANcelot der Lehrkraft: offene Seiten, zurück zu LANcelot, auf LANcelot sperren."
+ },
+ "vastKop": {
+  "message": "LANcelot ist gesperrt"
+ },
+ "vastZin": {
+  "message": "Deine Lehrkraft hat dieses Chromebook auf LANcelot gesperrt. Andere Seiten öffnen sich jetzt nicht."
+ },
+ "vastKnop": {
+  "message": "Zu LANcelot"
+ },
+ "vrijKop": {
+  "message": "LANcelot ist nicht mehr gesperrt"
+ },
+ "vrijZin": {
+  "message": "Du kannst diesen Tab schließen."
+ },
+ "bordKop": {
+  "message": "Schau an die Tafel"
+ },
+ "bordZin": {
+  "message": "Deine Lehrkraft bittet um deine Aufmerksamkeit."
+ },
+ "uitleg": {
+  "message": "Deine Lehrkraft sieht in LANcelot, welche Seiten auf diesem Chromebook offen sind, nur in der Schule."
+ },
+ "verbonden": {
+  "message": "Mit LANcelot verbunden"
+ },
+ "nietVerbonden": {
+  "message": "Nicht mit LANcelot verbunden"
+ },
+ "adresVraag": {
+  "message": "Adresse von LANcelot:"
+ },
+ "adresVoorbeeld": {
+  "message": "192.168.1.109:3000"
+ },
+ "bewaar": {
+  "message": "Speichern"
+ },
+ "lkUitleg": {
+  "message": "Du bist die Lehrkraft: Hier steuerst du die Chromebooks deiner Klasse."
+ },
+ "lkKnop": {
+  "message": "Steuerung öffnen"
+ }
+}

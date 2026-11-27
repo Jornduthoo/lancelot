@@ -589,7 +589,7 @@
   const PAD_RIJK = {
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
-    wapenkamer: ['wapenkamer'],
+    wapenkamer: ['wapenkamer', 'chromebooks'],
     kronieken: ['kronieken', 'zonnewijzer', 'inbeeld', 'zegelrol', 'postduif', ...(window.LANCELOT_STORE ? ['klas', 'zorg', 'taken', 'opvolgen', 'lezen'] : [])],
     geen: ['host', 'netwerk', 'welkom', 'privacy', 'koppel', ...(window.LANCELOT_STORE ? [] : ['klas', 'zorg', 'taken', 'opvolgen', 'lezen'])],
   };

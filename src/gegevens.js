@@ -11,10 +11,11 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'klassen', 'logboek', 'runen', 'lezen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'inbeeld', 'avatars.json', 'settings.json', 'lesmap-sync.json', 'doelen-eigen.json', 'taken-standaard', 'punten', 'vakken', 'toetsarchief', 'toetsarchief-index.json', 'weekrapport'];
+const ITEMS = ['klas', 'klassen', 'logboek', 'runen', 'lezen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'inbeeld', 'avatars.json', 'settings.json', 'lesmap-sync.json', 'doelen-eigen.json', 'taken-standaard', 'punten', 'vakken', 'toetsarchief', 'toetsarchief-index.json', 'weekrapport', 'chromebooks'];
 // Bordboeken en handleidingen zijn te groot voor de dagelijkse back-up-zip. Ze verhuizen wel mee en een update laat ze staan.
 // Het toetsarchief (met een pdf per leerling) groeit elk jaar: ook niet in de dagelijkse zip (daarvoor is Exporteer schooljaar).
-const NIET_IN_BACKUP = new Set(['kronieken', 'toetsarchief']);
+// De surfgeschiedenis van de Chromebooks (chromebooks/) blijft alleen op deze pc: ook niet in de back-up-zip.
+const NIET_IN_BACKUP = new Set(['kronieken', 'toetsarchief', 'chromebooks']);
 const POINTER = path.join(APP, 'gegevensmap.json');
 const MARKER = '.lancelot-gegevens.json';
 const RESTORE = 'terugzetten.zip';

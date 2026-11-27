@@ -126,6 +126,8 @@ const beheer = require('./src/beheer');
 const bijwerken = require('./src/bijwerken');
 const store = require('./src/store');
 const schermen = require('./src/schermen');
+const chromebooks = require('./src/chromebooks');
+const zipper = require('./src/zip');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
@@ -1028,7 +1030,7 @@ function juniorSoon() {
 }
 
 // De leerkrachtenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/kegelridder', 'kegelridder.html'], ['/kolkridder', 'kolkridder.html'], ['/neoncamelot', 'neoncamelot.html'], ['/titanenstrijd', 'titanenstrijd.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/proef-proberen', 'proef-proberen.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/opvolgen', 'opvolgen.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/lezen', 'lezen.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/kegelridder', 'kegelridder.html'], ['/kolkridder', 'kolkridder.html'], ['/neoncamelot', 'neoncamelot.html'], ['/titanenstrijd', 'titanenstrijd.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/proef-proberen', 'proef-proberen.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/opvolgen', 'opvolgen.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/lezen', 'lezen.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/chromebooks', 'chromebooks.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het leerkrachtenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -1064,6 +1066,16 @@ app.get('/licentie', (req, res) => {
 app.get('/licentie/stand', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).end();
   (req.query.opnieuw ? store.controleer() : Promise.resolve(store.view())).then(v => res.json(v));
+});
+// De LANcelot-extensie voor Chromebooks als zip, klaar om in de Chrome Web Store te zetten (Namen › Chromebooks).
+app.get('/chromebooks/extensie.zip', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  const map = path.join(__dirname, 'src', 'chromebook-extensie');
+  const bestanden = zipper.listFiles(map).map(f => ({ name: f, data: fs.readFileSync(path.join(map, f)) }));
+  bestanden.push({ name: 'socket.io.min.js', data: fs.readFileSync(path.join(path.dirname(require.resolve('socket.io')), '..', 'client-dist', 'socket.io.min.js')) });
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename="lancelot-chromebook-extensie.zip"');
+  res.send(zipper.write(bestanden));
 });
 // Het Runenraadsel voor leerlingen: elke dag te spelen op hun eigen toestel, ook als er geen spel loopt.
 app.get('/runen', (req, res) => {
@@ -1641,6 +1653,30 @@ process.on('unhandledRejection', err => console.error('Onverwachte fout:', (err 
 
 pauze.opWijziging(stand => io.emit('pauze', stand));
 
+// Chromebooks met de LANcelot-extensie (src/chromebooks.js): eigen kanaal /cb, los van de leerlingen en spellen.
+// Wie zit er vanaf dit adres met een naam in LANcelot? Zo koppelt een Chromebook zich vanzelf aan een leerling.
+function naamOpIp(ip) {
+  const perSocket = new Map();
+  for (const spel of Object.values(SPELLEN)) {
+    if (!spel || !(spel.players instanceof Map)) continue;
+    for (const p of spel.players.values()) if (p.name && p.socketId) perSocket.set(p.socketId, p.name);
+  }
+  for (const s of io.sockets.sockets.values()) {
+    if (s.data.host || String(s.handshake.address || '').replace(/^::ffff:/, '') !== ip) continue;
+    const n = s.data.naam || perSocket.get(s.id);
+    if (n) return n;
+  }
+  return '';
+}
+const cbServer = chromebooks.start({
+  io, pauze, naamOpIp,
+  adres: () => {
+    const voorkeur = settings.read().preferredAddress;
+    const ip = voorkeur && lanAddresses().includes(voorkeur) ? voorkeur : ((echteKaart() || {}).address || lanAddresses()[0] || '127.0.0.1');
+    return `http://${ip}:${PORT}`;
+  },
+});
+
 const SPELLEN_MET_WEG = [sterren, slang, raket, zwaard, wankel, plasma, tuimel, hooi, zwerm, banier, haak, kegel, kolk, titan, camelot, storm, pixel];
 
 // Elke start van de server krijgt een eigen nummer. Een scherm dat al openstond en na een update (herstart) opnieuw
@@ -1916,6 +1952,7 @@ io.on('connection', socket => {
 
   if (host) {
     socket.join('host');
+    cbServer.leerkracht(socket);
     socket.on('stem-standen', () => socket.emit('stem-standen', stem.standenView()));
     // Tweede leerkrachtscherm: welk scherm dit is, de lijst van gekoppelde schermen en de koppelcode.
     // Een nieuwe code maken kan alleen op de pc waar LANcelot draait, zodat één gestolen cookie er geen nieuwe kan bijmaken.

@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>LANcelot</title><link rel="stylesheet" href="stijl.css"></head>
+<body class="venster">
+<div class="kop"><img src="icons/logo.webp" alt="LANcelot"></div>
+<div class="kader">
+  <div class="pil" id="pil"><span class="stip"></span><span id="stand"></span></div>
+  <div id="lk" class="hidden">
+    <p data-t="lkUitleg">Jij bent de leerkracht: hier bedien je de Chromebooks van je klas.</p>
+    <button class="groot" id="paneel" data-t="lkKnop">Bedieningspaneel openen</button>
+  </div>
+  <p id="uitleg" data-t="uitleg">Je leerkracht ziet in LANcelot welke sites openstaan op deze Chromebook, alleen op school.</p>
+  <div id="eigen" class="hidden">
+    <p data-t="adresVraag">Adres van LANcelot:</p>
+    <input id="adres" data-t-ph="adresVoorbeeld" placeholder="192.168.1.109:3000">
+    <button class="groot" id="bewaar" data-t="bewaar">Bewaren</button>
+  </div>
+</div>
+<script src="tekst.js"></script>
+<script src="venster.js"></script>
+</body>
+</html>

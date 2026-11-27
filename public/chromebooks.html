@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Chromebooks</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/chromebooks.css">
+</head>
+<body class="klas-host cb-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Chromebooks</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section class="panel form cb-paneel">
+    <h2><i class="ic ic-namen" aria-hidden="true"></i> Chromebooks</h2>
+    <p class="muted small">Zie welke sites openstaan op de Chromebooks van je klas, en stuur ze terug naar LANcelot. Werkt met de LANcelot-extensie.</p>
+
+    <div class="cb-schakels">
+      <button type="button" class="cb-schakel" id="cb-tonen" aria-pressed="false">
+        <span class="cb-ic">🌐</span><b>Op het bord</b><small>Naam op het bord als iemand op een andere site zit</small>
+      </button>
+      <button type="button" class="cb-schakel" id="cb-vast" aria-pressed="false">
+        <span class="cb-ic">🔒</span><b>LANcelot vastzetten</b><small>Alleen LANcelot gaat nog open</small>
+      </button>
+      <button type="button" class="cb-schakel" id="cb-bord" aria-pressed="false">
+        <span class="cb-ic">👀</span><b>Kijk naar het bord</b><small>Alle schermen tonen het logo, tot je weer vrijgeeft</small>
+      </button>
+    </div>
+
+    <div class="cb-acties">
+      <button type="button" class="gold" id="cb-terug">↩ Iedereen terug naar LANcelot</button>
+      <form id="cb-link" class="cb-link">
+        <input id="cb-url" placeholder="Link naar alle Chromebooks, bv. bingel.be" autocomplete="off">
+        <button class="secondary">🔗 Openen</button>
+      </form>
+    </div>
+  </section>
+
+  <nav class="cb-tabs" role="tablist">
+    <button type="button" data-tab="nu" class="on">Nu</button>
+    <button type="button" data-tab="geschiedenis">Geschiedenis</button>
+    <button type="button" data-tab="installeren">Installeren</button>
+  </nav>
+
+  <section class="panel cb-tab" data-tab="nu">
+    <p class="muted" id="cb-leeg">Nog geen Chromebook verbonden. Zet de LANcelot-extensie op de Chromebooks (zie Installeren).</p>
+    <div class="cb-raster" id="cb-raster"></div>
+  </section>
+
+  <section class="panel cb-tab hidden" data-tab="geschiedenis">
+    <div class="cb-filter">
+      <label>Dag <select id="cb-dag"></select></label>
+      <label>Leerling <select id="cb-wie"><option value="">Iedereen</option></select></label>
+      <label class="cb-check"><input type="checkbox" id="cb-zonder-lancelot" checked> Zonder LANcelot</label>
+    </div>
+    <table class="cb-tabel">
+      <thead><tr><th>Tijd</th><th>Leerling</th><th>Site</th><th>Titel</th></tr></thead>
+      <tbody id="cb-gesch"></tbody>
+    </table>
+    <p class="muted" id="cb-gesch-leeg"></p>
+    <div class="cb-inst">
+      <label class="cb-check"><input type="checkbox" id="cb-gesch-aan"> Surfgeschiedenis bijhouden</label>
+      <label>Bewaren <select id="cb-dagen">
+        <option value="7">1 week</option>
+        <option value="30">30 dagen</option>
+        <option value="90">3 maanden</option>
+        <option value="365">1 jaar</option>
+      </select></label>
+      <button type="button" class="secondary" id="cb-wis">Alles wissen</button>
+    </div>
+    <p class="muted small">De geschiedenis staat alleen op deze pc. Ze wordt alleen bijgehouden als de Chromebook verbonden is met LANcelot.</p>
+  </section>
+
+  <section class="panel cb-tab hidden" data-tab="installeren">
+    <h3>De extensie op de Chromebooks van je klas</h3>
+    <ol class="cb-stappen">
+      <li>Download de extensie: <a class="button secondary" href="/chromebooks/extensie.zip" download>⬇ Extensie (zip)</a></li>
+      <li>Zet ze privé in de Chrome Web Store met je schoolaccount (alleen jullie school ziet ze).</li>
+      <li>In Google Admin: maak een eigen organisatie-eenheid voor je klas en installeer de extensie daar geforceerd.</li>
+      <li>Plak bij die extensie dit beleid, zodat ze LANcelot vindt:</li>
+    </ol>
+    <div class="cb-beleid"><code id="cb-beleid"></code><button type="button" class="secondary" id="cb-kopieer">Kopiëren</button></div>
+    <h3>Jouw eigen Chrome als bedieningspaneel</h3>
+    <p class="muted small">Zet hier je eigen schoolaccount. Met de extensie in jouw Chrome wordt het icoon dan een bedieningspaneel, en jouw Chromebook wordt nooit gevolgd of vastgezet.</p>
+    <form class="cb-link" id="cb-lk-form">
+      <input id="cb-lk" placeholder="jouw.naam@school.be" autocomplete="off">
+      <button class="secondary">Bewaren</button>
+    </form>
+    <p class="muted small">Vertel leerlingen en ouders dat de Chromebooks op school meekijken. Thuis meldt de extensie niets.</p>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/chromebooks.js"></script>
+</body>
+</html>
