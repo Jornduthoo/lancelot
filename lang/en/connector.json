@@ -93,5 +93,8 @@
  "Map {0} gemaakt": "Folder {0} created",
  "Map {0} heet nu {1}": "Folder {0} is now called {1}",
  "{0} naar de map {1}": "{0} to the folder {1}",
- "Mijn lesmap gesynchroniseerd": "My lesson folder synchronised"
+ "Mijn lesmap gesynchroniseerd": "My lesson folder synchronised",
+ "Kies welke dagpresentatie vandaag actief is.": "Choose which daily presentation is active today.",
+ "✓ Deze dagpresentatie staat nu klaar.": "✓ This daily presentation is now ready.",
+ "Ongeldige datum.": "Invalid date."
 }

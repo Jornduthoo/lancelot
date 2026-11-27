@@ -106,8 +106,11 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
     const lees = await roep('dagpresentatie', {});
     const lijst = await connector.rpc({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, { sleutel: { naam: 'x' }, schrijven: false });
     const vandaag = connector.presentatieVan();
+    connector.presentatieKiezen(pres.data.naam);
+    const gekozen = connector.presentatieVan();
+    const leesGekozen = await roep('dagpresentatie', {});
     const versies = require('fs').readdirSync(require('path').join(proeven.DIR, '_versies')).length;
-    return { pres3: pres3.data, pres4, lees3: lees3.data.html, lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, versies };
+    return { pres3: pres3.data, pres4, lees3: lees3.data.html, lezen, eerst: eerst.data, bijwerken: bijwerken.data, verplaatst: verplaatst.data, nieuweVersie: nieuweVersie.data, pres: pres.data, pres2: pres2.data, lees: { gevonden: lees.data.gevonden, html: lees.data.html }, tools: lijst.result.tools.map(x => [x.name, x.annotations.readOnlyHint]), vandaag, gekozen, leesGekozen: leesGekozen.data.naam, versies };
   `);
   assert.equal(res.lezen.fout, true);
   assert.match(res.lezen.data, /alleen lezen/);
@@ -126,6 +129,12 @@ test('alleen lezen, nieuwe versie van een gegeven toets, dagpresentatie, taak ve
   assert.equal(res.pres4.fout, true);
   assert.equal(res.lees.gevonden, true);
   assert.ok(res.vandaag && res.vandaag.link.startsWith('/kronieken?map=Dagpresentaties'));
+  // Meerdere versies op één dag: de laatst geplaatste is actief, ook al werd de eerste daarna nog aangevuld (wens 27 nov).
+  assert.equal(res.vandaag.naam, res.pres2.naam);
+  assert.deepEqual(res.vandaag.versies.map(v => v.naam).sort(), [res.pres.naam, res.pres2.naam].sort());
+  // De leerkracht kiest een andere versie: die staat in Vandaag en de tool "dagpresentatie" leest ze.
+  assert.equal(res.gekozen.naam, res.pres.naam);
+  assert.equal(res.leesGekozen, res.pres.naam);
   const ro = Object.fromEntries(res.tools);
   assert.equal(ro.toetsen, true);
   assert.equal(ro.taak_geven, false);

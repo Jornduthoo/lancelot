@@ -34,6 +34,8 @@ function leesMeta() {
     pagina: lokaal.pagina && typeof lokaal.pagina === 'object' ? lokaal.pagina : {},
     lessen: m.lessen && typeof m.lessen === 'object' ? m.lessen : {},
     online: Array.isArray(m.online) ? m.online.filter(x => x && typeof x.id === 'string' && typeof x.url === 'string') : [],
+    // Welke dagpresentatie per dag de actieve is (bv. "v3" van vandaag): gaat mee naar je andere pc's.
+    actief: m.actief && typeof m.actief === 'object' && !Array.isArray(m.actief) ? m.actief : {},
   };
 }
 
@@ -45,7 +47,22 @@ const schrijfJson = (dir, f, data) => {
 };
 function schrijfMeta(m) {
   schrijfJson(DIR, META, { pagina: m.pagina });
-  schrijfJson(LINKS_DIR, LINKS, { mappen: m.mappen, lessen: m.lessen, online: m.online });
+  schrijfJson(LINKS_DIR, LINKS, { mappen: m.mappen, lessen: m.lessen, online: m.online, ...(Object.keys(m.actief || {}).length ? { actief: m.actief } : {}) });
+}
+
+// De actieve dagpresentatie van een dag (JJJJ-MM-DD → bestandsnaam). Enkel de laatste 60 dagen blijven bewaard.
+function actieveVan(datum) {
+  const n = leesMeta().actief[datum];
+  return typeof n === 'string' ? n : null;
+}
+function zetActief(datum, naam) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(datum))) throw new Error('Ongeldige datum.');
+  const m = leesMeta();
+  const grens = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10);
+  const actief = Object.fromEntries(Object.entries(m.actief).filter(([d, v]) => d >= grens && typeof v === 'string'));
+  actief[datum] = bestandNaam(naam);
+  schrijfMeta({ ...m, actief });
+  return { datum, naam: actief[datum] };
 }
 
 function geldigeLinks(d) {
@@ -430,4 +447,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { actieveVan, zetActief, DIR, SANDBOX, presentatie, LETTERTYPES, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

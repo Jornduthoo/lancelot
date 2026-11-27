@@ -93,5 +93,8 @@
  "Map {0} gemaakt": "Ordner {0} erstellt",
  "Map {0} heet nu {1}": "Ordner {0} heißt jetzt {1}",
  "{0} naar de map {1}": "{0} in den Ordner {1}",
- "Mijn lesmap gesynchroniseerd": "Mein Unterrichtsordner synchronisiert"
+ "Mijn lesmap gesynchroniseerd": "Mein Unterrichtsordner synchronisiert",
+ "Kies welke dagpresentatie vandaag actief is.": "Wähle, welche Tagespräsentation heute aktiv ist.",
+ "✓ Deze dagpresentatie staat nu klaar.": "✓ Diese Tagespräsentation ist jetzt bereit.",
+ "Ongeldige datum.": "Ungültiges Datum."
 }
