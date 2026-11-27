@@ -66,8 +66,23 @@ Wat de extensie zelf doet:
 
 Jouw eigen Chrome wordt nooit gevolgd, vastgezet of op zwart gezet.
 
+### Van overal bedienen (ook thuis)
+
+1. Op school: Namen › Chromebooks › Installeren › **🔑 Code om je Chrome te koppelen**. Er verschijnt een code van 6 tekens (10 minuten geldig).
+2. Klik in jouw Chrome op het LANcelot-icoon, typ de code en klik **Koppelen**. Jouw Chrome krijgt een eigen sleutel.
+3. Het icoon toont nu altijd het kleine paneel: *Op het bord*, *Vastzetten*, *Kijk naar het bord*, *Iedereen terug*, een link sturen en wie op welke site zit.
+
+Op school gaat dat rechtstreeks. Elders gaat het via het internetadres van de connector: zet in Instellingen › Connector de **tunnel** aan
+(met een vaste tunnel zoals `klas.lancelot.network` blijft het adres altijd hetzelfde). De klas-pc moet aanstaan.
+
+- Via de tunnel kan alleen wie een sleutel heeft, en alleen: de stand bekijken, tonen/vastzetten, kijk naar het bord, terugsturen en een link openen. Geen geschiedenis, geen e-mailadressen.
+- Koppelen met een code kan alleen op het schoolnetwerk; na 5 foute codes vervalt de code.
+- Chrome kwijt of gestolen? Klik op **Alle Chromes loskoppelen**: elke sleutel werkt dan meteen niet meer.
+- De Chromebooks van de leerlingen melden nog altijd alleen op school. Thuis zie je dus niemand (tenzij de leerlingen op school zijn).
+
 ## Privacy
 
 - Alleen de site en de titel van elk tabblad, nooit het volledige adres, de inhoud of wat er getypt wordt.
+- Van overal bedienen: via de tunnel gaan alleen de naam en de site van het tabblad waar elke leerling nu naar kijkt naar jouw Chrome, niets anders.
 - De surfgeschiedenis staat alleen op de LANcelot-pc (`chromebooks/`), standaard 30 dagen, niet in de lesmap en niet in de back-up-zip. Wissen kan in Namen › Chromebooks › Geschiedenis.
 - Vertel leerlingen en ouders dat de Chromebooks op school meekijken (bv. in de klasbrief). Het venstertje van de extensie zegt het de leerling ook.

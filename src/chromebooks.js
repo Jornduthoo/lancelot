@@ -9,8 +9,12 @@
 //  - "Kijk naar het bord" is de pauzeknop: elke Chromebook toont dan het logo en het bericht;
 //  - de surfgeschiedenis per dag bekijken: wie wanneer op welke site zat (standaard 30 dagen bewaard).
 // Alles staat alleen op deze pc (chromebooks/), nooit in de lesmap en niet in de back-up-zip.
+// Van overal bedienen (Jorn 27 nov): de Chrome van de leerkracht koppelt zich één keer met een code van het bord en
+// krijgt een eigen sleutel. Daarmee bedient de extensie de Chromebooks ook van thuis, via de tunnel van de connector.
+// De Chromebooks zelf melden nog altijd alleen op school (over het schoolnetwerk).
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const gegevens = require('./gegevens');
 const settings = require('./settings');
 const klas = require('./klas');
@@ -256,12 +260,60 @@ function staToe(host) {
   if (instellingen().vast && host) toegestaan.add(host.replace(/^www\./, ''));
 }
 
-function reset() { live.clear(); open.clear(); dagCache.clear(); vuil.clear(); toegestaan.clear(); koppelCache = null; clearTimeout(schrijfTimer); schrijfTimer = null; }
+// ---------- Van overal bedienen ----------
+// Een code van 6 tekens op het scherm van de leerkracht (10 minuten, 5 pogingen) geeft één Chrome een lange sleutel.
+// LANcelot bewaart alleen een hash van die sleutel (chromebooks/afstand.json). Alles loskoppelen kan altijd.
+const AFSTAND = () => path.join(DIR(), 'afstand.json');
+const CODE_TEKENS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const hash = s => crypto.createHash('sha256').update(String(s)).digest('hex');
+let afstandCode = null;
+function afstandSleutels() {
+  const d = leesJson(AFSTAND(), {}) || {};
+  return Array.isArray(d.sleutels) ? d.sleutels.filter(x => x && typeof x.hash === 'string') : [];
+}
+function nieuweAfstandCode() {
+  afstandCode = { code: Array.from(crypto.randomBytes(6), b => CODE_TEKENS[b % CODE_TEKENS.length]).join(''), tot: Date.now() + 10 * 60000, fouten: 0 };
+  return { code: afstandCode.code, tot: afstandCode.tot };
+}
+function afstandKoppel(code, wie = '') {
+  const c = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!afstandCode || Date.now() > afstandCode.tot || c !== afstandCode.code) {
+    if (afstandCode && ++afstandCode.fouten >= 5) afstandCode = null;
+    throw new Error('Die code klopt niet. Maak een nieuwe code in LANcelot: Namen › Chromebooks › Installeren.');
+  }
+  afstandCode = null;
+  const sleutel = crypto.randomBytes(32).toString('base64url');
+  const l = afstandSleutels();
+  l.push({ hash: hash(sleutel), wie: kort(wie, 120), gemaakt: Date.now() });
+  schrijfJson(AFSTAND(), { sleutels: l.slice(-10) });
+  return sleutel;
+}
+function afstandGeldig(sleutel) {
+  if (!sleutel || String(sleutel).length < 30) return false;
+  const h = hash(sleutel);
+  const l = afstandSleutels();
+  const s = l.find(x => x.hash === h);
+  if (!s) return false;
+  if (!s.laatst || Date.now() - s.laatst > 3600000) { s.laatst = Date.now(); try { schrijfJson(AFSTAND(), { sleutels: l }); } catch {} }
+  return true;
+}
+function afstandIntrekken() {
+  afstandCode = null;
+  schrijfJson(AFSTAND(), { sleutels: [] });
+}
+function afstandView() {
+  const code = afstandCode && Date.now() < afstandCode.tot ? { code: afstandCode.code, tot: afstandCode.tot } : null;
+  return { gekoppeld: afstandSleutels().length, code };
+}
+
+function reset() { live.clear(); open.clear(); dagCache.clear(); vuil.clear(); toegestaan.clear(); koppelCache = null; afstandCode = null; clearTimeout(schrijfTimer); schrijfTimer = null; }
 
 // ---------- Aan de server hangen ----------
 // io: de socket.io-server. naamOpIp(ip): de naam waarmee iemand vanaf dat adres in LANcelot zit.
 // pauze: src/pauze.js (de pauzeknop is ook "Kijk naar het bord"). adres(): het adres van deze pc voor de Chromebooks.
-function start({ io, naamOpIp, pauze, adres }) {
+// afstandAdres(): het internetadres van de tunnel (leeg als die uit staat). app/tunnel: waar de routes voor
+// "van overal bedienen" komen (de gewone server en de kleine server achter de tunnel).
+function start({ io, naamOpIp, pauze, adres, afstandAdres = () => '', app = null, tunnel = null, express = null }) {
   const ns = io.of('/cb');
   let bordTimer = null;
   const naarBord = () => {
@@ -295,6 +347,37 @@ function start({ io, naamOpIp, pauze, adres }) {
   // Bij het afsluiten wat nog in het geheugen staat bewaren.
   process.once('exit', schrijfNu);
 
+  // Wat de leerkracht kan doen: vanaf een leerkrachtenscherm (socket) en van overal (de extensie met een sleutel).
+  const afstand = () => ({ ...afstandView(), adres: afstandAdres() || '' });
+  const doe = {
+    lijst: () => ({ instellingen: instellingen(), toestellen: toestellen(), namen: klas.names(), adres: adres(), pauze: pauze.stand(), afstand: afstand() }),
+    zet: w => {
+      const r = zet(w);
+      naarChromebooks();
+      naarBord();
+      io.to('host').emit('cb-instellingen', r);
+      return r;
+    },
+    pauze: ({ aan, tekst }) => pauze.zet(!!aan, tekst || ''),
+    terug: ({ sid }) => {
+      if (sid) ns.to(sid).emit('terug'); else leerlingen().emit('terug');
+      return { ok: true };
+    },
+    open: ({ url, sid }) => {
+      const u = link(url);
+      if (!u) throw new Error('Dat is geen geldig adres.');
+      staToe(u.hostname);
+      naarChromebooks();
+      if (sid) ns.to(sid).emit('open', { url: u.href }); else leerlingen().emit('open', { url: u.href });
+      return { ok: true };
+    },
+    sluit: ({ sid, tab }) => {
+      if (!sid || !Number.isInteger(tab)) throw new Error('Welk tabblad?');
+      ns.to(sid).emit('sluit', { tab });
+      return { ok: true };
+    },
+  };
+
   // De handlers voor een leerkrachtenscherm.
   function leerkracht(socket) {
     const cb = f => (arg, antwoord) => {
@@ -302,37 +385,63 @@ function start({ io, naamOpIp, pauze, adres }) {
       try { antwoord(f(arg || {})); } catch (err) { antwoord({ error: err.message }); }
     };
     socket.on('cb-bord', cb(() => bord()));
-    socket.on('cb-lijst', cb(() => ({ instellingen: instellingen(), toestellen: toestellen(), namen: klas.names(), adres: adres(), pauze: pauze.stand() })));
-    socket.on('cb-zet', cb(w => {
-      const r = zet(w);
-      naarChromebooks();
-      naarBord();
-      io.to('host').emit('cb-instellingen', r);
-      return r;
-    }));
-    socket.on('cb-terug', cb(({ sid }) => {
-      if (sid) ns.to(sid).emit('terug'); else leerlingen().emit('terug');
-      return { ok: true };
-    }));
-    socket.on('cb-open', cb(({ url, sid }) => {
-      const u = link(url);
-      if (!u) throw new Error('Dat is geen geldig adres.');
-      staToe(u.hostname);
-      naarChromebooks();
-      if (sid) ns.to(sid).emit('open', { url: u.href }); else leerlingen().emit('open', { url: u.href });
-      return { ok: true };
-    }));
-    socket.on('cb-sluit', cb(({ sid, tab }) => {
-      if (!sid || !Number.isInteger(tab)) throw new Error('Welk tabblad?');
-      ns.to(sid).emit('sluit', { tab });
-      return { ok: true };
-    }));
+    socket.on('cb-lijst', cb(doe.lijst));
+    socket.on('cb-zet', cb(doe.zet));
+    socket.on('cb-terug', cb(doe.terug));
+    socket.on('cb-open', cb(doe.open));
+    socket.on('cb-sluit', cb(doe.sluit));
     socket.on('cb-koppel', cb(({ email, naam }) => { const r = koppel(email, naam); naarBord(); return { ok: true, koppeling: r }; }));
     socket.on('cb-dagen', cb(() => dagen()));
     socket.on('cb-geschiedenis', cb(({ datum, wie }) => geschiedenis(datum, wie)));
     socket.on('cb-wis', cb(() => { wisGeschiedenis(); return { ok: true }; }));
+    socket.on('cb-afstand-code', cb(() => { nieuweAfstandCode(); return afstand(); }));
+    socket.on('cb-afstand-los', cb(() => { afstandIntrekken(); return afstand(); }));
+  }
+
+  // Van overal bedienen: de extensie in de Chrome van de leerkracht, met haar eigen sleutel.
+  // Op de gewone server (op school) en achter de tunnel (thuis). Koppelen met de code kan alleen op school.
+  if (express) {
+    const json = express.json({ limit: '4kb' });
+    const metSleutel = f => (req, res) => {
+      res.setHeader('Cache-Control', 'no-store');
+      const sleutel = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+      if (!afstandGeldig(sleutel)) return res.status(401).json({ error: 'Deze Chrome is niet (meer) gekoppeld. Koppel opnieuw met een code van LANcelot.' });
+      try { res.json(f(req.body || {})); } catch (err) { res.status(400).json({ error: err.message }); }
+    };
+    // Alleen wat het venstertje nodig heeft: geen e-mailadressen, geen geschiedenis.
+    const overzicht = () => ({
+      instellingen: (({ tonen, vast }) => ({ tonen, vast }))(instellingen()),
+      pauze: { aan: !!pauze.stand().aan },
+      toestellen: toestellen().map(t => ({ sid: t.sid, naam: t.naam || t.email.split('@')[0] || 'Chromebook', elders: t.elders, host: t.actief ? (t.actief.soort === 'lancelot' ? 'LANcelot' : t.actief.host) : '', titel: t.actief ? t.actief.titel : '' })),
+    });
+    const ACTIES = {
+      zet: w => doe.zet(Object.fromEntries(Object.entries(w).filter(([k]) => ['tonen', 'vast'].includes(k)))),
+      pauze: w => doe.pauze({ aan: w.aan }),
+      terug: w => doe.terug({ sid: typeof w.sid === 'string' ? w.sid : '' }),
+      open: w => doe.open({ url: w.url, sid: typeof w.sid === 'string' ? w.sid : '' }),
+    };
+    const bediening = r => {
+      r.get('/cb-afstand/stand', metSleutel(overzicht));
+      r.post('/cb-afstand/doe', json, metSleutel(b => {
+        const f = ACTIES[b.actie];
+        if (!f) throw new Error('Onbekende actie.');
+        f(b);
+        return overzicht();
+      }));
+    };
+    if (app) {
+      bediening(app);
+      app.post('/cb-afstand/koppel', json, (req, res) => {
+        res.setHeader('Cache-Control', 'no-store');
+        try { res.json({ sleutel: afstandKoppel((req.body || {}).code, (req.body || {}).email), adres: afstandAdres() || '' }); } catch (err) { res.status(400).json({ error: err.message }); }
+        io.to('host').emit('cb-afstand', afstand());
+      });
+      // Het internetadres opvragen (verandert als de snelle tunnel herstart): alleen met een sleutel.
+      app.get('/cb-afstand/adres', metSleutel(() => ({ adres: afstandAdres() || '' })));
+    }
+    if (tunnel) bediening(tunnel);
   }
   return { leerkracht, naarBord };
 }
 
-module.exports = { start, instellingen, zet, isLeerkracht, koppel, naamVan, raad, meld, weg, toestellen, bord, geschiedenis, dagen, opruimen, wisGeschiedenis, schrijfNu, stand, link, staToe, reset, dag, DAGEN };
+module.exports = { start, instellingen, zet, isLeerkracht, koppel, naamVan, raad, meld, weg, toestellen, bord, geschiedenis, dagen, opruimen, wisGeschiedenis, schrijfNu, stand, link, staToe, reset, dag, DAGEN, nieuweAfstandCode, afstandKoppel, afstandGeldig, afstandIntrekken, afstandView };

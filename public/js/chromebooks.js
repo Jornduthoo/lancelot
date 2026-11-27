@@ -118,6 +118,7 @@ function laad() {
     tekenSchakels();
     tekenNu();
     $('cb-beleid').textContent = JSON.stringify({ server: { Value: r.adres } });
+    tekenAfstand(r.afstand);
     const wie = $('cb-wie');
     const gekozen = wie.value;
     wie.innerHTML = '<option value="">Iedereen</option>';
@@ -177,6 +178,24 @@ $('cb-wis').addEventListener('click', async () => {
 
 // ---------- Installeren ----------
 $('cb-kopieer').addEventListener('click', () => Ui.kopieer ? Ui.kopieer($('cb-beleid').textContent) : navigator.clipboard.writeText($('cb-beleid').textContent));
+
+// Van overal bedienen: een code voor de Chrome van de leerkracht, en alles weer loskoppelen.
+function tekenAfstand(a) {
+  if (!a) return;
+  const n = a.gekoppeld || 0;
+  $('cb-afstand-stand').textContent = (n === 1 ? '1 Chrome gekoppeld.' : `${n} Chromes gekoppeld.`) + ' '
+    + (a.adres ? `Van buitenaf via ${a.adres}` : 'De tunnel staat uit: van buitenaf werkt het nu niet.');
+  $('cb-afstand-los').classList.toggle('hidden', !n);
+  const code = a.code && a.code.tot > Date.now() ? a.code.code : '';
+  $('cb-afstand-toon').textContent = code ? `${code.slice(0, 3)} ${code.slice(3)}` : '';
+  $('cb-afstand-toon').classList.toggle('hidden', !code);
+}
+$('cb-afstand-code').addEventListener('click', () => socket.emit('cb-afstand-code', {}, r => { if (!fout(r)) tekenAfstand(r); }));
+$('cb-afstand-los').addEventListener('click', async () => {
+  if (!await Ui.vraag('Alle Chromes loskoppelen? Ze kunnen de Chromebooks dan niet meer van overal bedienen tot je opnieuw koppelt.')) return;
+  socket.emit('cb-afstand-los', {}, r => { if (!fout(r)) tekenAfstand(r); });
+});
+socket.on('cb-afstand', tekenAfstand);
 
 // ---------- Tabbladen ----------
 let tab = 'nu';

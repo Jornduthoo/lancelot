@@ -49,5 +49,53 @@
  },
  "lkKnop": {
   "message": "Bedieningspaneel openen"
+ },
+ "afstandVraag": {
+  "message": "Ook van thuis bedienen? Typ hier op school de code uit LANcelot (Namen › Chromebooks › Installeren)."
+ },
+ "codeVoorbeeld": {
+  "message": "ABC 123"
+ },
+ "koppelKnop": {
+  "message": "Koppelen"
+ },
+ "sTonen": {
+  "message": "Op het bord"
+ },
+ "sVast": {
+  "message": "Vastzetten"
+ },
+ "sBord": {
+  "message": "Kijk naar het bord"
+ },
+ "terugKnop": {
+  "message": "Iedereen terug"
+ },
+ "linkVoorbeeld": {
+  "message": "Link naar iedereen, bv. bingel.be"
+ },
+ "openKnop": {
+  "message": "Openen"
+ },
+ "losKnop": {
+  "message": "Deze Chrome loskoppelen"
+ },
+ "vanOveral": {
+  "message": "Verbonden van op afstand"
+ },
+ "geenAdres": {
+  "message": "LANcelot is niet bereikbaar: op school niet verbonden en geen internetadres (zet de tunnel aan in Instellingen › Connector)."
+ },
+ "nietBereikbaar": {
+  "message": "LANcelot is nu niet bereikbaar. Staat de klas-pc aan?"
+ },
+ "losgekoppeld": {
+  "message": "Deze Chrome is losgekoppeld. Koppel opnieuw met een code."
+ },
+ "geenChromebooks": {
+  "message": "Geen Chromebooks verbonden."
+ },
+ "terugEen": {
+  "message": "Terug naar LANcelot"
  }
 }

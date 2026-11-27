@@ -321,6 +321,7 @@ function tunnelView() {
 }
 
 let appVoorTunnel = null;
+const extraTunnel = require('express').Router();
 function startServer() {
   if (tunnel.server) return Promise.resolve();
   return new Promise((ok, nok) => {
@@ -400,6 +401,8 @@ function init({ express, hooks, versie: v, bijLog, bijTunnel }) {
   appVoorTunnel = express();
   appVoorTunnel.disable('x-powered-by');
   routes(appVoorTunnel, express);
+  // Andere delen van LANcelot die van buitenaf mogen (Chromebooks bedienen met een eigen sleutel): src/chromebooks.js.
+  appVoorTunnel.use(extraTunnel);
   appVoorTunnel.use((req, res) => res.status(404).json({ error: T.niet }));
   if (lees().tunnel && lees().aan) startTunnel().catch(() => {});
 }
@@ -419,4 +422,4 @@ function zetEnStart(arg) {
   return d;
 }
 
-module.exports = { DIR, POORT, lees, zet: zetEnStart, maakSleutel, trekIn, logboek, log, wie, rpc, routes, init, view, toolLijst, startTunnel, stopTunnel, tunnelView, presentatieVan: tools.presentatieVan, presentatieKiezen: tools.presentatieKiezen };
+module.exports = { extraTunnel, DIR, POORT, lees, zet: zetEnStart, maakSleutel, trekIn, logboek, log, wie, rpc, routes, init, view, toolLijst, startTunnel, stopTunnel, tunnelView, presentatieVan: tools.presentatieVan, presentatieKiezen: tools.presentatieKiezen };
