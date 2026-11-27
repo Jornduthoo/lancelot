@@ -1,0 +1,20 @@
+{
+ "Wie de toets verlaat, kan pas verder als jij de toets weer opent (Taken of 📡 Live).": "Whoever leaves the test can only continue once you open the test again (Tasks or 📡 Live).",
+ "🔒 Op slot als een leerling de toets verlaat": "🔒 Lock when a pupil leaves the test",
+ "🔒 Op slot · tik om te openen": "🔒 Locked · tap to open",
+ "Verliet de toets: tik om de toets weer te openen": "Left the test: tap to open the test again",
+ "{0} verliet de toets. De toets weer openen?": "{0} left the test. Open the test again?",
+ "🔓 Openen": "🔓 Open",
+ "Op slot bij verlaten 🔒 (toets)": "Lock on leaving 🔒 (test)",
+ "volledig scherm, op slot bij verlaten": "full screen, locked on leaving",
+ "Op slot: klik om de toets weer te openen": "Locked: click to open the test again",
+ "🔓 Openen ({0})": "🔓 Open ({0})",
+ "De toets weer openen voor {0} op slot?": "Open the test again for {0} who are locked?",
+ "de leerling": "the pupil",
+ "de {0} leerlingen": "the {0} pupils",
+ "· op slot: klik om de toets weer te openen": "· locked: click to open the test again",
+ "· 🔒 op slot": "· 🔒 locked",
+ "De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.": "The test opens full screen. If you leave the test (another tab, window or full screen off), your test is locked until your teacher opens it again.",
+ "Je toets staat op slot. Wacht tot je leerkracht hem weer opent.": "Your test is locked. Wait until your teacher opens it again.",
+ "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Full screen: whoever leaves the test is locked until you open it"
+}

@@ -1,0 +1,20 @@
+{
+ "Wie de toets verlaat, kan pas verder als jij de toets weer opent (Taken of 📡 Live).": "Qui quitte le test ne peut continuer que lorsque tu rouvres le test (Tâches ou 📡 Live).",
+ "🔒 Op slot als een leerling de toets verlaat": "🔒 Verrouiller quand un élève quitte le test",
+ "🔒 Op slot · tik om te openen": "🔒 Verrouillé · touche pour ouvrir",
+ "Verliet de toets: tik om de toets weer te openen": "A quitté le test : touche pour rouvrir le test",
+ "{0} verliet de toets. De toets weer openen?": "{0} a quitté le test. Rouvrir le test ?",
+ "🔓 Openen": "🔓 Ouvrir",
+ "Op slot bij verlaten 🔒 (toets)": "Verrouiller en quittant 🔒 (test)",
+ "volledig scherm, op slot bij verlaten": "plein écran, verrouillé en quittant",
+ "Op slot: klik om de toets weer te openen": "Verrouillé : clique pour rouvrir le test",
+ "🔓 Openen ({0})": "🔓 Ouvrir ({0})",
+ "De toets weer openen voor {0} op slot?": "Rouvrir le test pour {0} verrouillé(s) ?",
+ "de leerling": "l'élève",
+ "de {0} leerlingen": "les {0} élèves",
+ "· op slot: klik om de toets weer te openen": "· verrouillé : clique pour rouvrir le test",
+ "· 🔒 op slot": "· 🔒 verrouillé",
+ "De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan gaat je toets op slot tot je leerkracht hem weer opent.": "Le test s'ouvre en plein écran. Si tu quittes le test (autre onglet, fenêtre ou plein écran désactivé), ton test est verrouillé jusqu'à ce que ton enseignant le rouvre.",
+ "Je toets staat op slot. Wacht tot je leerkracht hem weer opent.": "Ton test est verrouillé. Attends que ton enseignant le rouvre.",
+ "🛡🔒 Volledig scherm: wie de toets verlaat, staat op slot tot jij hem opent": "🛡🔒 Plein écran : qui quitte le test est verrouillé jusqu'à ce que tu le rouvres"
+}

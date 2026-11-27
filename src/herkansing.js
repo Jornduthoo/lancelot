@@ -91,7 +91,7 @@ function geef({ kolom, grens = 0.5, namen, metKopie = true, vanaf, tot, pogingen
   if (oud) {
     try {
       const kz = taken.keuzesVoor(oud.id);
-      keuzes = { feedback: kz.feedback, voorlees: kz.voorlees, vragenVast: kz.volgorde !== 'schud', keuzesVast: kz.volgorde === 'alles', uitslag: kz.uitslag, beveiligd: !!oud.beveiligd, tijd: kz.tijd || undefined, tijdPer: kz.tijdPer || undefined, reflectie: kz.reflectie };
+      keuzes = { feedback: kz.feedback, voorlees: kz.voorlees, vragenVast: kz.volgorde !== 'schud', keuzesVast: kz.volgorde === 'alles', uitslag: kz.uitslag, beveiligd: !!oud.beveiligd, slot: !!oud.slot, tijd: kz.tijd || undefined, tijdPer: kz.tijdPer || undefined, reflectie: kz.reflectie };
     } catch {}
   }
   const t = taken.maak({ soort: 'proef', file: k.file, namen: wie, ...keuzes, vanaf, tot, pogingen });

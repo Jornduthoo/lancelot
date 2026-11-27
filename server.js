@@ -1811,7 +1811,7 @@ io.on('connection', socket => {
         const r = fn(arg);
         cb({ ok: true, ...r });
         // Een leerling verliet een beveiligde toets: meteen een melding bij de leerkracht.
-        if (event === 'tk-verlaat' && r && r.naam) io.to('host').emit('tk-alarm', { naam: r.naam, titel: r.titel, soort: r.soort, n: r.n });
+        if (event === 'tk-verlaat' && r && r.naam) io.to('host').emit('tk-alarm', { id: arg && arg.id, naam: r.naam, titel: r.titel, soort: r.soort, n: r.n, slot: !!r.slot });
         if (bord) takenSoon();
       } catch (err) {
         cb({ error: err.message });
@@ -2404,8 +2404,11 @@ io.on('connection', socket => {
     // Een toets als taak beveiligen (volledig scherm, wegklikken gemeld), ook terwijl leerlingen werken.
     // Keuzes van een gegeven taak achteraf veranderen (voorlezen, punten tonen, volgorde, verbeteren).
     socket.on('tk-keuzes', taak(arg => {
+      const voor = taken.keuzesVoor((arg || {}).id);
       const r = taken.zetKeuzes(arg);
       io.emit('tk-keuzes', { id: r.id });
+      // Op slot aangezet bij een toets zonder volledig scherm: dat gaat nu ook aan, meteen bij wie werkt.
+      if (r.beveiligd && voor.beveiligd === false) io.emit('tk-beveiligd', { id: r.id, aan: true });
       return r;
     }));
     socket.on('tk-keuzes-get', handle(arg => taken.keuzesVoor((arg || {}).id)));
@@ -2418,6 +2421,13 @@ io.on('connection', socket => {
     socket.on('tk-beveiligd', handle(arg => {
       const r = taken.zetBeveiligd(arg || {});
       io.emit('tk-beveiligd', r);
+      takenNaarBord();
+      return r;
+    }));
+    // Op slot bij verlaten (wens 27 nov): de leerkracht opent de toets weer voor een leerling (of voor iedereen op slot).
+    socket.on('tk-ontgrendel', handle(arg => {
+      const r = taken.ontgrendel(arg || {});
+      if (r.namen.length) io.emit('tk-ontgrendeld', r);
       takenNaarBord();
       return r;
     }));
