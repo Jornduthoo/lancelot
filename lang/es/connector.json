@@ -93,5 +93,8 @@
  "Map {0} gemaakt": "Carpeta {0} creada",
  "Map {0} heet nu {1}": "La carpeta {0} ahora se llama {1}",
  "{0} naar de map {1}": "{0} a la carpeta {1}",
- "Mijn lesmap gesynchroniseerd": "Mi carpeta de clase sincronizada"
+ "Mijn lesmap gesynchroniseerd": "Mi carpeta de clase sincronizada",
+ "Kies welke dagpresentatie vandaag actief is.": "Elige qué presentación del día está activa hoy.",
+ "✓ Deze dagpresentatie staat nu klaar.": "✓ Esta presentación del día ya está lista.",
+ "Ongeldige datum.": "Fecha no válida."
 }

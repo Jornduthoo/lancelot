@@ -318,22 +318,45 @@ function antwoord({ taak_id, afname, naam, vraag } = {}) {
 
 // De dagpresentaties: html-bestanden in Mijn methodes, map Dagpresentaties, met de datum vooraan in de naam.
 function presentaties() {
+  const memo = {};
+  const actief = d => (d in memo ? memo[d] : (memo[d] = kronieken.actieveVan(d)));
   return kronieken.lijst().bestanden.filter(b => b.map === PRESENTATIES && b.soort === 'html')
-    .map(b => ({ naam: b.naam, datum: (b.naam.match(/^\d{4}-\d{2}-\d{2}/) || [''])[0] || null, grootte: b.grootte, open_op_bord: `/kronieken?map=${encodeURIComponent(PRESENTATIES)}&naam=${encodeURIComponent(b.naam)}` }))
+    .map(b => ({ naam: b.naam, datum: (b.naam.match(/^\d{4}-\d{2}-\d{2}/) || [''])[0] || null, grootte: b.grootte, ...(b.naam.slice(0, 10) && actief(b.naam.slice(0, 10)) === b.naam ? { actief_op_startscherm: true } : {}), open_op_bord: `/kronieken?map=${encodeURIComponent(PRESENTATIES)}&naam=${encodeURIComponent(b.naam)}` }))
     .sort((a, b) => String(b.datum).localeCompare(String(a.datum)) || b.naam.localeCompare(a.naam, 'nl', { numeric: true }));
 }
-// De dagpresentatie van vandaag (de laatst geplaatste), voor het blok Vandaag op het startscherm. Leest enkel die ene map.
-function presentatieVan(datum = vandaag()) {
+// De dagpresentaties van één dag, voor het blok Vandaag op het startscherm. Leest enkel die ene map.
+// Actief is de versie die de leerkracht koos (of die de connector het laatst plaatste); anders de nieuwste.
+function presentatiesVan(datum = vandaag()) {
   const dir = path.join(kronieken.DIR, PRESENTATIES);
   let namen = [];
-  try { namen = fs.readdirSync(dir).filter(n => n.startsWith(datum) && /\.html?$/i.test(n)); } catch { return null; }
-  if (!namen.length) return null;
-  const naam = namen.map(n => ({ n, t: (() => { try { return fs.statSync(path.join(dir, n)).mtimeMs; } catch { return 0; } })() })).sort((a, b) => b.t - a.t)[0].n;
-  return { naam, titel: naam.replace(/\.html?$/i, '').slice(datum.length).trim() || naam, link: `/kronieken?map=${encodeURIComponent(PRESENTATIES)}&naam=${encodeURIComponent(naam)}` };
+  try { namen = fs.readdirSync(dir).filter(n => n.startsWith(datum) && /\.html?$/i.test(n)); } catch { return []; }
+  const lijst = namen.map(n => ({ naam: n, t: (() => { try { return fs.statSync(path.join(dir, n)).mtimeMs; } catch { return 0; } })() }))
+    .sort((a, b) => b.t - a.t || b.naam.localeCompare(a.naam, 'nl', { numeric: true }))
+    .map(({ naam }) => ({ naam, titel: naam.replace(/\.html?$/i, '').slice(datum.length).trim() || naam, link: `/kronieken?map=${encodeURIComponent(PRESENTATIES)}&naam=${encodeURIComponent(naam)}` }));
+  if (!lijst.length) return [];
+  const gekozen = kronieken.actieveVan(datum);
+  (lijst.find(p => p.naam === gekozen) || lijst[0]).actief = true;
+  return lijst;
+}
+function presentatieVan(datum = vandaag()) {
+  const lijst = presentatiesVan(datum);
+  if (!lijst.length) return null;
+  const { actief, ...p } = lijst.find(x => x.actief);
+  // Alle versies in een vaste volgorde (op naam, "v3" boven "v2"), zodat de keuzelijst niet verspringt.
+  const versies = lijst.map(({ naam, titel }) => ({ naam, titel })).sort((a, b) => b.titel.localeCompare(a.titel, 'nl', { numeric: true }));
+  return lijst.length > 1 ? { ...p, versies } : p;
+}
+// De leerkracht kiest op het startscherm welke versie van vandaag actief is.
+function presentatieKiezen(naam, datum = vandaag()) {
+  if (!presentatiesVan(datum).some(p => p.naam === naam)) throw new Error('Die dagpresentatie staat er niet (meer).');
+  return kronieken.zetActief(datum, naam);
 }
 function dagpresentatieLezen({ datum, naam } = {}) {
   const lijst = presentaties();
-  const p = naam ? lijst.find(x => x.naam === naam) : lijst.find(x => x.datum === (datum || vandaag()));
+  const d = datum || vandaag();
+  // Zonder naam: dezelfde als in het blok Vandaag (de actieve versie van die dag).
+  const zelfde = !naam && DATUM.test(d) && presentatieVan(d);
+  const p = naam ? lijst.find(x => x.naam === naam) : (zelfde && lijst.find(x => x.naam === zelfde.naam));
   if (!p) return { gevonden: false, presentaties: lijst.slice(0, 20) };
   const html = fs.readFileSync(path.join(kronieken.DIR, PRESENTATIES, p.naam), 'utf8');
   return { gevonden: true, ...p, html: html.length > 2e6 ? null : html, ...(html.length > 2e6 ? { te_groot_om_te_tonen: true } : {}) };
@@ -581,6 +604,8 @@ function dagpresentatiePlaatsen({ html, datum, titel, vervolg } = {}) {
   const naam = `${d} ${String(titel || 'Dagpresentatie').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').trim().slice(0, 60) || 'Dagpresentatie'}.html`;
   kronieken.nieuweMap(PRESENTATIES);
   const r = kronieken.bewaar(PRESENTATIES, naam, Buffer.from(html, 'utf8'));
+  // Een nieuwe versie (bv. "Vrijdag v2") is meteen de actieve van die dag; de leerkracht kan op het startscherm terugkiezen.
+  kronieken.zetActief(d, r.naam);
   hooks.naKronieken();
   return { naam: r.naam, map: r.map, datum: d, open_op_bord: `/kronieken?map=${encodeURIComponent(r.map)}&naam=${encodeURIComponent(r.naam)}`, melding: d === vandaag() ? 'Staat klaar: op het startscherm, in het blok Vandaag, opent hij met één tik.' : `Staat klaar in Mijn methodes › ${PRESENTATIES}. Op ${d} staat hij in het blok Vandaag.` };
 }
@@ -682,7 +707,7 @@ const TOOLS = [
   { name: 'resultaten_toets', title: 'Resultaten van een toets', description: 'Per leerling de punten, het percentage, de punten per vraag en de tijd; per vraag het gemiddelde en hoe vaak fout; de vragen die het vaakst fout waren; wie nog niet inleverde.', inputSchema: obj({ taak_id: S('Id van de taak (tool "taken").'), afname: S('Of: de afname (tool "afnames").') }), fn: resultatenToets },
   { name: 'resultaten_leerling', title: 'Resultaten van een leerling', description: 'Alle toetsen (punten) en taken (status) van één leerling in een periode. Voor het rapport, remediëring of een puntenlijst.', inputSchema: obj({ naam: S('Naam zoals op de klaslijst.'), van: DAGP, tot: DAGP }, ['naam']), fn: resultatenLeerling },
   { name: 'antwoord', title: 'Antwoord van een leerling', description: 'Wat één leerling antwoordde op één vraag (of alle vragen), met de sleutel en de punten erbij.', inputSchema: obj({ taak_id: S('Id van de taak.'), afname: S('Of: de afname.'), naam: S('Naam van de leerling.'), vraag: S('Nummer zoals in de toets: 3 of 3a. Leeg = alle vragen.') }, ['naam']), fn: antwoord },
-  { name: 'dagpresentaties', title: 'Dagpresentaties', description: 'De dagpresentaties in Mijn methodes (map Dagpresentaties), de nieuwste eerst.', inputSchema: obj({}), fn: () => ({ presentaties: presentaties() }) },
+  { name: 'dagpresentaties', title: 'Dagpresentaties', description: 'De dagpresentaties in Mijn methodes (map Dagpresentaties), de nieuwste eerst. "actief_op_startscherm": die versie staat die dag in het blok Vandaag.', inputSchema: obj({}), fn: () => ({ presentaties: presentaties() }) },
   { name: 'dagpresentatie', title: 'Dagpresentatie lezen', description: 'De html van de dagpresentatie van een dag (standaard vandaag) of met deze naam.', inputSchema: obj({ datum: DAGP, naam: S('Bestandsnaam (tool "dagpresentaties").') }), fn: dagpresentatieLezen },
   { name: 'logboek', title: 'Logboek van de connector', description: 'Wat er via de connector gebeurde (de nieuwste eerst), zoals de leerkracht het ziet in Instellingen › Connector.', inputSchema: obj({ aantal: { type: 'integer', minimum: 1, maximum: 200, description: 'Hoeveel regels (standaard 30).' } }), fn: null },
 
@@ -700,7 +725,7 @@ const TOOLS = [
   { name: 'taak_keuzes', schrijft: true, title: 'Keuzes van een taak', description: 'Voorlezen, punten tonen, einddatum en tijdslimiet veranderen (geldt meteen voor iedereen, ook wie bezig is), en de volgorde of het verbeteren (voor wie nog niet begon). Ook een eigen tijd per leerling. Bij een quiz alleen de einddatum.', inputSchema: obj({ taak_id: S('Id van de taak.'), voorlezen: VOORLEES, punten_tonen: B('Punten tonen na het inleveren.'), volgorde: VOLG, verbeteren: S('Oefenblad: direct of inleveren.', { enum: ['direct', 'inleveren'] }), einddatum: S('Sluit vanzelf op "JJJJ-MM-DDTHH:MM"; leeg ("") = geen einddatum meer. Ook bij een quiz.'), tijdslimiet: { type: 'integer', minimum: 0, maximum: taken.MAX_MINUTEN, description: 'Minuten per leerling (0 = geen). Geldt meteen, ook voor wie bezig is.' }, tijd_per_leerling: TIJD_PER, max_pogingen: POGINGEN }, ['taak_id']), fn: taakKeuzes, log: (a, r) => ({ titel: r.titel }) },
   { name: 'taak_intrekken', schrijft: true, title: 'Taak intrekken', description: 'Een taak afsluiten (intrekken). Wie bezig is, levert in wat er staat; niets van de leerlingen gaat verloren. Heropenen kan.', inputSchema: obj({ taak_id: S('Id van de taak.') }, ['taak_id']), fn: taakSluiten, log: (a, r) => ({ titel: r.titel }) },
   { name: 'taak_heropenen', schrijft: true, title: 'Taak heropenen', description: 'Een afgesloten taak weer openzetten, eventueel meteen met een nieuwe einddatum, tijdslimiet of aantal pogingen.', inputSchema: obj({ taak_id: S('Id van de taak.'), ...TIJD_SCHEMA }, ['taak_id']), fn: taakHeropenen, log: (a, r) => ({ titel: r.titel }) },
-  { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: `Een html-presentatie (dia's als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag. Een bestaande wordt nooit overschreven. Lettertypes: gebruik gewoon font-family ${kronieken.LETTERTYPES.map(f => `'${f}'`).join(', ')}: die zitten in LANcelot zelf (geen Google Fonts-link en geen ingebakken lettertypes nodig, zo blijft het bestand klein). Grote presentatie: plaats eerst een deel en vul aan met "vervolg" (de naam die je terugkreeg) en in "html" de volgende <section class="dia">-blokken; die komen achteraan erbij. Tot 60 MB.`, inputSchema: obj({ html: S('De volledige html (of bij "vervolg": enkel de dia\'s die erbij komen).'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".'), vervolg: S('Optioneel: de naam van een dagpresentatie die al staat (tool "dagpresentaties"); de dia\'s in "html" komen er achteraan bij.') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam, ...(r.aangevuld ? { aangevuld: true } : {}) }) },
+  { name: 'dagpresentatie_plaatsen', schrijft: true, title: 'Dagpresentatie plaatsen', description: `Een html-presentatie (dia's als <section class="dia">, stappen met class="stap"; eigen scripts draaien niet) in Mijn methodes › Dagpresentaties zetten als "dag van <datum>". Op die dag staat ze op het startscherm in het blok Vandaag, meteen als actieve versie (staat er die dag al een, bv. "Vrijdag", dan wordt de nieuwe, bv. "Vrijdag v2", de actieve; de leerkracht kan op het startscherm terugkiezen). Een bestaande wordt nooit overschreven. Lettertypes: gebruik gewoon font-family ${kronieken.LETTERTYPES.map(f => `'${f}'`).join(', ')}: die zitten in LANcelot zelf (geen Google Fonts-link en geen ingebakken lettertypes nodig, zo blijft het bestand klein). Grote presentatie: plaats eerst een deel en vul aan met "vervolg" (de naam die je terugkreeg) en in "html" de volgende <section class="dia">-blokken; die komen achteraan erbij. Tot 60 MB.`, inputSchema: obj({ html: S('De volledige html (of bij "vervolg": enkel de dia\'s die erbij komen).'), datum: DAGP, titel: S('Korte titel, bv. "Donderdag".'), vervolg: S('Optioneel: de naam van een dagpresentatie die al staat (tool "dagpresentaties"); de dia\'s in "html" komen er achteraan bij.') }, ['html']), fn: dagpresentatiePlaatsen, log: (a, r) => ({ naam: r.naam, ...(r.aangevuld ? { aangevuld: true } : {}) }) },
 ];
 
 // Deel 2: toetsen stap voor stap, quizzen, oefenbladen, mappen, de week, sync (src/connector-bouw.js).
@@ -731,4 +756,4 @@ const UITLEG = 'LANcelot is de klas-app van de leerkracht (toetsen in De Proef, 
   + 'Niets wordt ooit verwijderd: een taak intrekken sluit ze af en het werk van de leerlingen blijft. '
   + 'Namen van leerlingen zijn persoonsgegevens: gebruik ze enkel voor wat de leerkracht vraagt.';
 
-module.exports = { init, TOOLS, TEKST, UITLEG, presentatieVan, PRESENTATIES, mapMaken };
+module.exports = { init, TOOLS, TEKST, UITLEG, presentatieVan, presentatieKiezen, PRESENTATIES, mapMaken };

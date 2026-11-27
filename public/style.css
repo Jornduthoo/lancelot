@@ -1878,6 +1878,7 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .vandaag li { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; padding: 4px 0; border-top: 1px solid rgb(var(--k-goud) / .15); }
 .vandaag li:first-child { border-top: 0; }
 .vandaag li > span { flex: 1 1 200px; min-width: 0; }
+.vandaag li > select.vandaag-versie { flex: 1 1 200px; min-width: 0; max-width: 28rem; width: auto; padding: 4px 8px; font-size: .92rem; min-height: 0; }
 .vandaag li button, .vandaag li a.button { padding: 4px 10px; font-size: .88rem; min-height: 0; }
 .vandaag .namen a { color: inherit; white-space: nowrap; }
 .vandaag .namen em { font-style: normal; opacity: .75; }

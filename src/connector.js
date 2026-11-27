@@ -419,4 +419,4 @@ function zetEnStart(arg) {
   return d;
 }
 
-module.exports = { DIR, POORT, lees, zet: zetEnStart, maakSleutel, trekIn, logboek, log, wie, rpc, routes, init, view, toolLijst, startTunnel, stopTunnel, tunnelView, presentatieVan: tools.presentatieVan };
+module.exports = { DIR, POORT, lees, zet: zetEnStart, maakSleutel, trekIn, logboek, log, wie, rpc, routes, init, view, toolLijst, startTunnel, stopTunnel, tunnelView, presentatieVan: tools.presentatieVan, presentatieKiezen: tools.presentatieKiezen };

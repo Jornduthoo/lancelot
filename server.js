@@ -783,7 +783,7 @@ function runSync() {
       else if (kind === 'takenstandaard') io.to('host').emit('tk-standaard', takenstandaard.read());
       else if (kind === 'stem') { if (stem.uitLesmap()) { io.to('host').emit('stem-standen', stem.standenView()); io.to('host').emit('stem-gewijzigd'); stemSoon(); } }
       else if (kind === 'toetsmail') { if (toetsmail.uitLesmap()) io.to('host').emit('toetsmail-gewijzigd'); }
-      else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
+      else if (kind === 'kronieken' || kind === 'bordboeken') { io.to('host').emit('kr-lijst', kronieken.lijst()); vandaagSoon(); }
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
@@ -2348,6 +2348,13 @@ io.on('connection', socket => {
     socket.on('tk-standaard', handle(() => takenstandaard.read()));
     socket.on('tk-standaard-zet', handle(d => { const r = takenstandaard.write(d || {}); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('vandaag', handle(() => { socket.join(VANDAAG_KIJKERS); return vandaagData(); }));
+    // Meerdere dagpresentaties vandaag (bv. "Vrijdag", "v2", "v3"): de leerkracht kiest welke in het blok Vandaag staat.
+    socket.on('vandaag-presentatie', handle(({ naam } = {}) => {
+      const r = connector.presentatieKiezen(String(naam || ''));
+      io.to(VANDAAG_KIJKERS).emit('vandaag', vandaagData());
+      syncSoon();
+      return r;
+    }));
     socket.on('tk-oud-zet', handle(aan => { const r = takenstandaard.zetOudeSluiten(aan); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('vandaag-zet', handle(aan => { const r = takenstandaard.zetVandaag(aan); io.to('host').emit('tk-standaard', r); io.to(VANDAAG_KIJKERS).emit('vandaag', vandaagData()); syncSoon(); return r; }));
     socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view(), taken.openIds().length)));

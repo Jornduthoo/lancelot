@@ -632,7 +632,27 @@ if (window.LiveKaders && $('toets-banier')) {
     // De dagpresentatie van vandaag (Mijn methodes › Dagpresentaties): één tik en ze staat op het bord.
     blok('vandaag-presentatie', d.presentatie ? [d.presentatie] : [], p => {
       const li = maak('li');
-      li.append(maak('span', '', `📽 ${p.titel}`));
+      // Meerdere versies vandaag (bv. "Vrijdag", "v2", "v3"): de nieuwste staat klaar, kies hier een andere.
+      if (p.versies && p.versies.length > 1) {
+        const s = maak('select', 'vandaag-versie');
+        s.title = 'Kies welke dagpresentatie vandaag actief is.';
+        s.setAttribute('aria-label', 'Kies welke dagpresentatie vandaag actief is.');
+        for (const v of p.versies) {
+          const o = maak('option', '', `📽 ${v.titel}`);
+          o.value = v.naam;
+          o.selected = v.naam === p.naam;
+          s.append(o);
+        }
+        s.addEventListener('change', () => {
+          s.disabled = true;
+          socket.emit('vandaag-presentatie', { naam: s.value }, r => {
+            s.disabled = false;
+            $('vandaag-info').textContent = r && r.error ? r.error : '✓ Deze dagpresentatie staat nu klaar.';
+            laad();
+          });
+        });
+        li.append(s);
+      } else li.append(maak('span', '', `📽 ${p.titel}`));
       const k = maak('a', 'button', 'Openen ▶');
       k.href = p.link;
       li.append(k);
