@@ -9,7 +9,9 @@ const CRC = new Uint32Array(256).map((_, n) => {
   for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
   return c >>> 0;
 });
+// Node heeft zelf een (veel snellere) crc32 sinds versie 22.2: dezelfde uitkomst.
 function crc32(buf) {
+  if (zlib.crc32) return zlib.crc32(buf) >>> 0;
   let c = 0xffffffff;
   for (let i = 0; i < buf.length; i++) c = CRC[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
@@ -24,13 +26,27 @@ function dosTime(d) {
 
 // entries: [{ name: 'map/bestand.json', data: Buffer, mtime?: Date }]. Geeft één Buffer terug.
 function write(entries) {
+  return bouw(entries, entries.map(e => zlib.deflateRawSync(e.data)));
+}
+
+// Zelfde zip, maar het inpakken gebeurt naast LANcelot (in de achtergrond): de server blijft intussen vlot antwoorden.
+async function writeAsync(entries) {
+  const deflate = require('util').promisify(zlib.deflateRaw);
+  const packed = new Array(entries.length);
+  let i = 0;
+  const werk = async () => { while (i < entries.length) { const n = i++; packed[n] = await deflate(entries[n].data); } };
+  await Promise.all(Array.from({ length: 3 }, werk));
+  return bouw(entries, packed);
+}
+
+function bouw(entries, ingepakt) {
   const locals = [];
   const central = [];
   let offset = 0;
-  for (const e of entries) {
+  entries.forEach((e, i) => {
     const name = Buffer.from(e.name.replace(/\\/g, '/'), 'utf8');
     const raw = e.data;
-    const packed = zlib.deflateRawSync(raw);
+    const packed = ingepakt[i];
     const { time, date } = dosTime(e.mtime || new Date());
     const crc = crc32(raw);
     const head = Buffer.alloc(30);
@@ -60,7 +76,7 @@ function write(entries) {
     dir.writeUInt32LE(offset, 42);
     central.push(dir, name);
     offset += head.length + name.length + packed.length;
-  }
+  });
   const size = central.reduce((n, b) => n + b.length, 0);
   const end = Buffer.alloc(22);
   end.writeUInt32LE(0x06054b50, 0);
@@ -182,4 +198,4 @@ function listFiles(dir, base = dir, skip = () => false) {
   return out;
 }
 
-module.exports = { write, writeFile, read, listFiles, crc32 };
+module.exports = { write, writeAsync, writeFile, read, listFiles, crc32 };

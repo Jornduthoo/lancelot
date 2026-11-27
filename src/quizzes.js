@@ -66,22 +66,28 @@ function validate(quiz) {
   return quiz.herhaal === true ? { title, herhaal: true, questions } : { title, questions };
 }
 
+const lijstCache = require('./lijst-memo').lijstMemo();
 function list() {
   if (!fs.existsSync(DIR)) return [];
   const where = lib.places();
-  return fs.readdirSync(DIR)
-    .filter(f => f.endsWith('.json') && !f.startsWith('_'))
+  const namen = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
+  lijstCache.houd(DIR, namen);
+  return namen
     .map(file => {
       const folder = where(file);
       try {
-        const quiz = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, folder, title: quiz.title || file, count: (quiz.questions || []).length, niveaus: niveausOf(quiz) };
+        // De lijst zelf wordt nooit aangepast (wie er iets aan wil veranderen, maakt een kopie): veilig om te bewaren.
+        return { folder, ...lijstCache.item(DIR, file, tekst => {
+          const quiz = JSON.parse(tekst);
+          return { file, title: quiz.title || file, count: (quiz.questions || []).length, niveaus: niveausOf(quiz) };
+        }) };
       } catch {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0 };
       }
     })
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
+    .sort((a, b) => nl.compare(a.title, b.title));
 }
+const { nl } = require('./lijst-memo');
 
 // Welke niveaus komen in deze quiz voor? Een quiz zonder niveaus heeft alleen Schildknaap.
 function niveausOf(quiz) {

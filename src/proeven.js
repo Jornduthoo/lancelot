@@ -24,7 +24,7 @@ function list() {
   for (const k of lijstMemo.keys()) if (!er.has(k)) lijstMemo.delete(k);
   const lijst = namen
     .map(file => ({ ...lijstItem(file), folder: where(file) }))
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
+    .sort((a, b) => require('./lijst-memo').nl.compare(a.title, b.title));
   // Gegeven op … (afnames op het bord en toetsen als taak) en dubbels (dezelfde inhoud onder een andere naam).
   const gegeven = new Map();
   const zet = (file, datum) => { if (file && datum) (gegeven.get(file) || gegeven.set(file, new Set()).get(file)).add(String(datum).slice(0, 10)); };

@@ -110,9 +110,20 @@ const DoelKies = (() => {
     }).sort((a, b) => top(a) - top(b));
   }
 
+  // De doelen (meer dan 1 MB) pas ophalen als een leeg veld echt te zien is (de maker op het startscherm staat
+  // verborgen tot je hem opent), of bij het aanklikken. Een veld met een doel erin laadt meteen (de tekst van het doel).
+  function alsZichtbaar(el) {
+    if (typeof IntersectionObserver !== 'function') return load();
+    const io = new IntersectionObserver(items => {
+      if (!items.some(i => i.isIntersecting)) return;
+      io.disconnect();
+      load();
+    });
+    io.observe(el);
+  }
+
   // Een veld om een doel te kiezen. onChange(code) wordt opgeroepen als het doel verandert.
   function field(value = '', { label = 'Leerplandoel (mag leeg)', onChange, onChoose } = {}) {
-    load();
     const el = document.createElement('div');
     el.className = 'doel-veld';
     el.innerHTML = `<span class="doel-titel"></span><div class="doel-invoer"><input class="doel" maxlength="200" autocomplete="off" placeholder="Typ een code of een woord, bv. breuk, spelling of verkeer"><div class="doel-keuzes hidden"></div></div><span class="doel-tekst"></span>`;
@@ -207,7 +218,9 @@ const DoelKies = (() => {
         box.classList.add('hidden');
       }
     });
+    input.addEventListener('focus', load);
     fields.add(el);
+    if (value) load(); else alsZichtbaar(el);
     el.refresh();
     if (status !== 'laden') setTimeout(el.toonOfNiet);
     return el;
@@ -228,7 +241,6 @@ const DoelKies = (() => {
 
   // De keuzelijst "Doelen van": het leerjaar van de klas, of een ander (bijvoorbeeld om doelen van vorig jaar te herhalen).
   function leerjaarKeuze() {
-    load();
     const label = document.createElement('label');
     label.className = 'doel-leerjaar';
     label.textContent = 'Doelen van ';
@@ -238,6 +250,8 @@ const DoelKies = (() => {
       kies(l ? l.id : 'alle');
     });
     label.appendChild(sel);
+    sel.addEventListener('focus', load);
+    alsZichtbaar(label);
     keuzes.add(sel);
     if (status === 'klaar') fillKeuze(sel);
     return label;
